@@ -1,21 +1,296 @@
 // use prisma-8
+// Contract inferred from the live database schema. Edit as needed, then run `prisma contract emit`.
 
-model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  username  String?
-  name      String?
-  posts     Post[]
-  createdAt TimestamptzString @default(now())
-  updatedAt temporal.updatedAtString()
+model Esportes {
+  id              Int               @id(map: "esportes_pkey") @default(autoincrement())
+  nome            VarChar(50)       @unique(map: "esportes_nome_key")
+  icone           VarChar(100)
+  cor             VarChar(7)        @default("#000000")
+  anuncios        Anuncios[]
+  atividades      Atividades[]
+  publicacoes     Publicacoes[]
+  usuarioEsportes UsuarioEsportes[]
+
+  @@check(expression: "((cor)::text ~ '^#[0-9A-Fa-f]{6}$'::text)", map: "ck_esportes_cor")
+  @@map("esportes")
 }
 
-model Post {
-  id        Int      @id @default(autoincrement())
-  title     String
-  content   String?
-  author    User     @relation(fields: [authorId], references: [id])
-  authorId  Int
-  createdAt TimestamptzString @default(now())
-  updatedAt temporal.updatedAtString()
+model Usuarios {
+  id                    BigInt                  @id(map: "usuarios_pkey") @default(autoincrement())
+  nome                  VarChar(100)
+  sobrenome             VarChar(100)
+  username              VarChar(30)             @unique(map: "usuarios_username_key")
+  email                 VarChar(255)            @unique(map: "usuarios_email_key")
+  senhaHash             VarChar(255)            @map("senha_hash")
+  fotoPerfilUrl         VarChar(500)?           @map("foto_perfil_url")
+  cidade                VarChar(100)?
+  latitude              Numeric(9, 6)?
+  longitude             Numeric(9, 6)?
+  bio                   String?
+  createdAt             Timestamptz             @default(now()) @map("created_at")
+  updatedAt             Timestamptz             @default(now()) @map("updated_at")
+  anuncioFavoritos      AnuncioFavoritos[]
+  anuncios              Anuncios[]
+  atividades            Atividades[]
+  comentarios           Comentarios[]
+  compartilhamentos     Compartilhamentos[]
+  conversaParticipantes ConversaParticipantes[]
+  curtidas              Curtidas[]
+  mensagens             Mensagens[]
+  publicacoes           Publicacoes[]
+  usuarioEsportes       UsuarioEsportes[]
+  avaliacoes            Avaliacoes[]            @relation(name: "fk_avaliacoes_avaliado")
+  avaliacoesAvaliacoes  Avaliacoes[]            @relation(name: "fk_avaliacoes_avaliador")
+  seguidores            Seguidores[]            @relation(name: "fk_seguidores_seguido")
+  seguidoresSeguidores  Seguidores[]            @relation(name: "fk_seguidores_seguidor")
+
+  @@index([latitude, longitude], map: "ix_usuarios_coord")
+  @@check(expression: "((latitude IS NULL) = (longitude IS NULL))", map: "ck_usuarios_coord")
+  @@check(expression: "((latitude >= ('-90'::integer)::numeric) AND (latitude <= (90)::numeric))", map: "ck_usuarios_lat")
+  @@check(expression: "((longitude >= ('-180'::integer)::numeric) AND (longitude <= (180)::numeric))", map: "ck_usuarios_lng")
+  @@map("usuarios")
+}
+
+model Anuncios {
+  id               BigInt             @id(map: "anuncios_pkey") @default(autoincrement())
+  usuarioId        BigInt             @map("usuario_id")
+  titulo           VarChar(150)
+  descricao        String?
+  preco            Numeric(10, 2)
+  esporteId        Int?               @map("esporte_id")
+  condicao         VarChar(15)
+  status           VarChar(15)        @default("ativo")
+  latitude         Numeric(9, 6)?
+  longitude        Numeric(9, 6)?
+  cidade           VarChar(100)?
+  createdAt        Timestamptz        @default(now()) @map("created_at")
+  anuncioFavoritos AnuncioFavoritos[]
+  anuncioMidias    AnuncioMidias[]
+  avaliacoes       Avaliacoes[]
+  esporte          Esportes?          @relation(fields: [esporteId], references: [id], onDelete: SetNull, map: "fk_anuncios_esporte", index: false)
+  usuario          Usuarios           @relation(fields: [usuarioId], references: [id], onDelete: Cascade, map: "fk_anuncios_usuario")
+
+  @@index([status, esporteId, cidade], map: "ix_anuncios_busca")
+  @@index([latitude, longitude], map: "ix_anuncios_coord")
+  @@index([usuarioId], map: "ix_anuncios_usuario")
+  @@check(expression: "((condicao)::text = ANY ((ARRAY['novo'::character varying, 'seminovo'::character varying, 'usado'::character varying])::text[]))", map: "ck_anuncios_condicao")
+  @@check(expression: "((latitude IS NULL) = (longitude IS NULL))", map: "ck_anuncios_coord")
+  @@check(expression: "((latitude >= ('-90'::integer)::numeric) AND (latitude <= (90)::numeric))", map: "ck_anuncios_lat")
+  @@check(expression: "((longitude >= ('-180'::integer)::numeric) AND (longitude <= (180)::numeric))", map: "ck_anuncios_lng")
+  @@check(expression: "(preco >= (0)::numeric)", map: "ck_anuncios_preco")
+  @@check(expression: "((status)::text = ANY ((ARRAY['ativo'::character varying, 'pausado'::character varying, 'vendido'::character varying, 'removido'::character varying])::text[]))", map: "ck_anuncios_status")
+  @@map("anuncios")
+}
+
+model AnuncioFavoritos {
+  id        BigInt      @id(map: "anuncio_favoritos_pkey") @default(autoincrement())
+  usuarioId BigInt      @map("usuario_id")
+  anuncioId BigInt      @map("anuncio_id")
+  createdAt Timestamptz @default(now()) @map("created_at")
+  anuncio   Anuncios    @relation(fields: [anuncioId], references: [id], onDelete: Cascade, map: "fk_anuncio_favoritos_anuncio")
+  usuario   Usuarios    @relation(fields: [usuarioId], references: [id], onDelete: Cascade, map: "fk_anuncio_favoritos_usuario", index: false)
+
+  @@unique([usuarioId, anuncioId], map: "uq_anuncio_favoritos")
+  @@index([anuncioId], map: "ix_anuncio_favoritos_anuncio")
+  @@map("anuncio_favoritos")
+}
+
+model AnuncioMidias {
+  id        BigInt       @id(map: "anuncio_midias_pkey") @default(autoincrement())
+  anuncioId BigInt       @map("anuncio_id")
+  url       VarChar(500)
+  ordem     SmallInt     @default(0)
+  anuncio   Anuncios     @relation(fields: [anuncioId], references: [id], onDelete: Cascade, map: "fk_anuncio_midias_anuncio", index: false)
+
+  @@unique([anuncioId, ordem], map: "uq_anuncio_midias_ord")
+  @@check(expression: "(ordem >= 0)", map: "ck_anuncio_midias_ordem")
+  @@map("anuncio_midias")
+}
+
+model Atividades {
+  id        BigInt        @id(map: "atividades_pkey") @default(autoincrement())
+  usuarioId BigInt        @map("usuario_id")
+  esporteId Int           @map("esporte_id")
+  descricao VarChar(500)?
+  latitude  Numeric(9, 6)
+  longitude Numeric(9, 6)
+  status    VarChar(20)   @default("aberta")
+  createdAt Timestamptz   @default(now()) @map("created_at")
+  expiraEm  Timestamptz   @map("expira_em")
+  esporte   Esportes      @relation(fields: [esporteId], references: [id], onDelete: Restrict, map: "fk_atividades_esporte")
+  usuario   Usuarios      @relation(fields: [usuarioId], references: [id], onDelete: Cascade, map: "fk_atividades_usuario")
+
+  @@index([esporteId], map: "ix_atividades_esporte")
+  @@index([status, expiraEm, latitude, longitude], map: "ix_atividades_mapa")
+  @@index([usuarioId], map: "ix_atividades_usuario")
+  @@check(expression: "(expira_em > created_at)", map: "ck_atividades_expira")
+  @@check(expression: "((latitude >= ('-90'::integer)::numeric) AND (latitude <= (90)::numeric))", map: "ck_atividades_lat")
+  @@check(expression: "((longitude >= ('-180'::integer)::numeric) AND (longitude <= (180)::numeric))", map: "ck_atividades_lng")
+  @@check(expression: "((status)::text = ANY ((ARRAY['aberta'::character varying, 'em_andamento'::character varying, 'concluida'::character varying, 'cancelada'::character varying, 'expirada'::character varying])::text[]))", map: "ck_atividades_status")
+  @@map("atividades")
+}
+
+model Avaliacoes {
+  id          BigInt      @id(map: "avaliacoes_pkey") @default(autoincrement())
+  avaliadoId  BigInt      @map("avaliado_id")
+  avaliadorId BigInt      @map("avaliador_id")
+  anuncioId   BigInt      @map("anuncio_id")
+  nota        SmallInt
+  comentario  String?
+  createdAt   Timestamptz @default(now()) @map("created_at")
+  anuncio     Anuncios    @relation(fields: [anuncioId], references: [id], onDelete: Cascade, map: "fk_avaliacoes_anuncio")
+  avaliado    Usuarios    @relation(name: "fk_avaliacoes_avaliado", fields: [avaliadoId], references: [id], onDelete: Cascade, map: "fk_avaliacoes_avaliado")
+  avaliador   Usuarios    @relation(name: "fk_avaliacoes_avaliador", fields: [avaliadorId], references: [id], onDelete: Cascade, map: "fk_avaliacoes_avaliador", index: false)
+
+  @@unique([avaliadorId, anuncioId], map: "uq_avaliacoes")
+  @@index([anuncioId], map: "ix_avaliacoes_anuncio")
+  @@index([avaliadoId], map: "ix_avaliacoes_avaliado")
+  @@check(expression: "(avaliado_id <> avaliador_id)", map: "ck_avaliacoes_diferentes")
+  @@check(expression: "((nota >= 1) AND (nota <= 5))", map: "ck_avaliacoes_nota")
+  @@map("avaliacoes")
+}
+
+model Publicacoes {
+  id                BigInt              @id(map: "publicacoes_pkey") @default(autoincrement())
+  usuarioId         BigInt              @map("usuario_id")
+  esporteId         Int?                @map("esporte_id")
+  conteudo          String?
+  latitude          Numeric(9, 6)?
+  longitude         Numeric(9, 6)?
+  createdAt         Timestamptz         @default(now()) @map("created_at")
+  comentarios       Comentarios[]
+  compartilhamentos Compartilhamentos[]
+  curtidas          Curtidas[]
+  publicacaoMidias  PublicacaoMidias[]
+  esporte           Esportes?           @relation(fields: [esporteId], references: [id], onDelete: SetNull, map: "fk_publicacoes_esporte")
+  usuario           Usuarios            @relation(fields: [usuarioId], references: [id], onDelete: Cascade, map: "fk_publicacoes_usuario", index: false)
+
+  @@index([esporteId], map: "ix_publicacoes_esporte")
+  @@index([usuarioId, createdAt], map: "ix_publicacoes_feed")
+  @@check(expression: "((latitude IS NULL) = (longitude IS NULL))", map: "ck_publicacoes_coord")
+  @@check(expression: "((latitude >= ('-90'::integer)::numeric) AND (latitude <= (90)::numeric))", map: "ck_publicacoes_lat")
+  @@check(expression: "((longitude >= ('-180'::integer)::numeric) AND (longitude <= (180)::numeric))", map: "ck_publicacoes_lng")
+  @@map("publicacoes")
+}
+
+model Comentarios {
+  id           BigInt      @id(map: "comentarios_pkey") @default(autoincrement())
+  publicacaoId BigInt      @map("publicacao_id")
+  usuarioId    BigInt      @map("usuario_id")
+  conteudo     String
+  createdAt    Timestamptz @default(now()) @map("created_at")
+  publicacao   Publicacoes @relation(fields: [publicacaoId], references: [id], onDelete: Cascade, map: "fk_comentarios_publicacao", index: false)
+  usuario      Usuarios    @relation(fields: [usuarioId], references: [id], onDelete: Cascade, map: "fk_comentarios_usuario")
+
+  @@index([publicacaoId, createdAt], map: "ix_comentarios_publicacao")
+  @@index([usuarioId], map: "ix_comentarios_usuario")
+  @@check(expression: "(length(btrim(conteudo)) > 0)", map: "ck_comentarios_conteudo")
+  @@map("comentarios")
+}
+
+model Compartilhamentos {
+  id           BigInt      @id(map: "compartilhamentos_pkey") @default(autoincrement())
+  publicacaoId BigInt      @map("publicacao_id")
+  usuarioId    BigInt      @map("usuario_id")
+  createdAt    Timestamptz @default(now()) @map("created_at")
+  publicacao   Publicacoes @relation(fields: [publicacaoId], references: [id], onDelete: Cascade, map: "fk_compartilhamentos_publicacao")
+  usuario      Usuarios    @relation(fields: [usuarioId], references: [id], onDelete: Cascade, map: "fk_compartilhamentos_usuario")
+
+  @@index([publicacaoId], map: "ix_compartilhamentos_publicacao")
+  @@index([usuarioId], map: "ix_compartilhamentos_usuario")
+  @@map("compartilhamentos")
+}
+
+model Conversas {
+  id                    BigInt                  @id(map: "conversas_pkey") @default(autoincrement())
+  tipo                  VarChar(10)             @default("direta")
+  createdAt             Timestamptz             @default(now()) @map("created_at")
+  conversaParticipantes ConversaParticipantes[]
+  mensagens             Mensagens[]
+
+  @@check(expression: "((tipo)::text = ANY ((ARRAY['direta'::character varying, 'grupo'::character varying])::text[]))", map: "ck_conversas_tipo")
+  @@map("conversas")
+}
+
+model ConversaParticipantes {
+  id         BigInt    @id(map: "conversa_participantes_pkey")
+  conversaId BigInt    @map("conversa_id")
+  usuarioId  BigInt    @map("usuario_id")
+  conversa   Conversas @relation(fields: [conversaId], references: [id], onDelete: Cascade, map: "fk_conversa_participantes_conversa", index: false)
+  usuario    Usuarios  @relation(fields: [usuarioId], references: [id], onDelete: Cascade, map: "fk_conversa_participantes_usuario")
+
+  @@unique([conversaId, usuarioId], map: "uq_conversa_participantes")
+  @@index([usuarioId], map: "ix_conversa_part_usuario")
+  @@map("conversa_participantes")
+}
+
+model Curtidas {
+  id           BigInt      @id(map: "curtidas_pkey") @default(autoincrement())
+  publicacaoId BigInt      @map("publicacao_id")
+  usuarioId    BigInt      @map("usuario_id")
+  createdAt    Timestamptz @default(now()) @map("created_at")
+  publicacao   Publicacoes @relation(fields: [publicacaoId], references: [id], onDelete: Cascade, map: "fk_curtidas_publicacao", index: false)
+  usuario      Usuarios    @relation(fields: [usuarioId], references: [id], onDelete: Cascade, map: "fk_curtidas_usuario")
+
+  @@unique([publicacaoId, usuarioId], map: "uq_curtidas")
+  @@index([usuarioId], map: "ix_curtidas_usuario")
+  @@map("curtidas")
+}
+
+model Mensagens {
+  id          BigInt      @id(map: "mensagens_pkey") @default(autoincrement())
+  conversaId  BigInt      @map("conversa_id")
+  remetenteId BigInt      @map("remetente_id")
+  conteudo    String
+  lida        Boolean     @default(false)
+  createdAt   Timestamptz @default(now()) @map("created_at")
+  conversa    Conversas   @relation(fields: [conversaId], references: [id], onDelete: Cascade, map: "fk_mensagens_conversa", index: false)
+  remetente   Usuarios    @relation(fields: [remetenteId], references: [id], onDelete: Cascade, map: "fk_mensagens_remetente")
+
+  @@index([conversaId, createdAt], map: "ix_mensagens_conversa")
+  @@index([remetenteId], map: "ix_mensagens_remetente")
+  @@check(expression: "(length(btrim(conteudo)) > 0)", map: "ck_mensagens_conteudo")
+  @@map("mensagens")
+}
+
+model PublicacaoMidias {
+  id           BigInt       @id(map: "publicacao_midias_pkey") @default(autoincrement())
+  publicacaoId BigInt       @map("publicacao_id")
+  tipo         VarChar(10)
+  url          VarChar(500)
+  ordem        SmallInt     @default(0)
+  publicacao   Publicacoes  @relation(fields: [publicacaoId], references: [id], onDelete: Cascade, map: "fk_publicacao_midias_publicacao", index: false)
+
+  @@unique([publicacaoId, ordem], map: "uq_publicacao_midias_ord")
+  @@check(expression: "(ordem >= 0)", map: "ck_publicacao_midias_ordem")
+  @@check(expression: "((tipo)::text = ANY ((ARRAY['imagem'::character varying, 'video'::character varying])::text[]))", map: "ck_publicacao_midias_tipo")
+  @@map("publicacao_midias")
+}
+
+model Seguidores {
+  id         BigInt      @id(map: "seguidores_pkey") @default(autoincrement())
+  seguidorId BigInt      @map("seguidor_id")
+  seguidoId  BigInt      @map("seguido_id")
+  createdAt  Timestamptz @default(now()) @map("created_at")
+  seguido    Usuarios    @relation(name: "fk_seguidores_seguido", fields: [seguidoId], references: [id], onDelete: Cascade, map: "fk_seguidores_seguido")
+  seguidor   Usuarios    @relation(name: "fk_seguidores_seguidor", fields: [seguidorId], references: [id], onDelete: Cascade, map: "fk_seguidores_seguidor", index: false)
+
+  @@unique([seguidorId, seguidoId], map: "uq_seguidores")
+  @@index([seguidoId], map: "ix_seguidores_seguido")
+  @@check(expression: "(seguidor_id <> seguido_id)", map: "ck_seguidores_diferentes")
+  @@map("seguidores")
+}
+
+model UsuarioEsportes {
+  id        BigInt      @id(map: "usuario_esportes_pkey") @default(autoincrement())
+  usuarioId BigInt      @map("usuario_id")
+  esporteId Int         @map("esporte_id")
+  nivel     VarChar(20) @default("iniciante")
+  esporte   Esportes    @relation(fields: [esporteId], references: [id], onDelete: Restrict, map: "fk_usuario_esportes_esporte")
+  usuario   Usuarios    @relation(fields: [usuarioId], references: [id], onDelete: Cascade, map: "fk_usuario_esportes_usuario", index: false)
+
+  @@unique([usuarioId, esporteId], map: "uq_usuario_esportes")
+  @@index([esporteId], map: "ix_usuario_esportes_esporte")
+  @@check(expression: "((nivel)::text = ANY ((ARRAY['iniciante'::character varying, 'intermediario'::character varying, 'avancado'::character varying, 'profissional'::character varying])::text[]))", map: "ck_usuario_esportes_nivel")
+  @@map("usuario_esportes")
 }
