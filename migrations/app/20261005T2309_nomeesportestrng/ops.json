@@ -1,0 +1,3119 @@
+[
+  {
+    "id": "table.anuncio_favoritos",
+    "label": "Create table \"anuncio_favoritos\"",
+    "summary": "Creates table \"anuncio_favoritos\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "anuncio_favoritos"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"anuncio_favoritos\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"anuncio_favoritos\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"anuncio_favoritos\"",
+        "sql": "CREATE TABLE \"public\".\"anuncio_favoritos\" (\n  \"anuncio_id\" int8 NOT NULL,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" BIGSERIAL NOT NULL,\n  \"usuario_id\" int8 NOT NULL,\n  CONSTRAINT \"anuncio_favoritos_pkey\" PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"anuncio_favoritos\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"anuncio_favoritos\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.anuncio_midias",
+    "label": "Create table \"anuncio_midias\"",
+    "summary": "Creates table \"anuncio_midias\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "anuncio_midias"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"anuncio_midias\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"anuncio_midias\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"anuncio_midias\"",
+        "sql": "CREATE TABLE \"public\".\"anuncio_midias\" (\n  \"anuncio_id\" int8 NOT NULL,\n  \"id\" BIGSERIAL NOT NULL,\n  \"ordem\" int2 DEFAULT 0 NOT NULL,\n  \"url\" character varying(500) NOT NULL,\n  CONSTRAINT \"anuncio_midias_pkey\" PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ck_anuncio_midias_ordem\" CHECK ((ordem >= 0))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"anuncio_midias\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"anuncio_midias\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.anuncios",
+    "label": "Create table \"anuncios\"",
+    "summary": "Creates table \"anuncios\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "anuncios"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"anuncios\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"anuncios\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"anuncios\"",
+        "sql": "CREATE TABLE \"public\".\"anuncios\" (\n  \"cidade\" character varying(100),\n  \"condicao\" character varying(15) NOT NULL,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"descricao\" text,\n  \"esporte_id\" int4,\n  \"id\" BIGSERIAL NOT NULL,\n  \"latitude\" numeric(9,6),\n  \"longitude\" numeric(9,6),\n  \"preco\" numeric(10,2) NOT NULL,\n  \"status\" character varying(15) DEFAULT 'ativo' NOT NULL,\n  \"titulo\" character varying(150) NOT NULL,\n  \"usuario_id\" int8 NOT NULL,\n  CONSTRAINT \"anuncios_pkey\" PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ck_anuncios_condicao\" CHECK (((condicao)::text = ANY ((ARRAY['novo'::character varying, 'seminovo'::character varying, 'usado'::character varying])::text[]))),\n  CONSTRAINT \"ck_anuncios_coord\" CHECK (((latitude IS NULL) = (longitude IS NULL))),\n  CONSTRAINT \"ck_anuncios_lat\" CHECK (((latitude >= ('-90'::integer)::numeric) AND (latitude <= (90)::numeric))),\n  CONSTRAINT \"ck_anuncios_lng\" CHECK (((longitude >= ('-180'::integer)::numeric) AND (longitude <= (180)::numeric))),\n  CONSTRAINT \"ck_anuncios_preco\" CHECK ((preco >= (0)::numeric)),\n  CONSTRAINT \"ck_anuncios_status\" CHECK (((status)::text = ANY ((ARRAY['ativo'::character varying, 'pausado'::character varying, 'vendido'::character varying, 'removido'::character varying])::text[])))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"anuncios\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"anuncios\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.atividades",
+    "label": "Create table \"atividades\"",
+    "summary": "Creates table \"atividades\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "atividades"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"atividades\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"atividades\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"atividades\"",
+        "sql": "CREATE TABLE \"public\".\"atividades\" (\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"descricao\" character varying(500),\n  \"esporte_id\" int4 NOT NULL,\n  \"expira_em\" timestamptz NOT NULL,\n  \"id\" BIGSERIAL NOT NULL,\n  \"latitude\" numeric(9,6) NOT NULL,\n  \"longitude\" numeric(9,6) NOT NULL,\n  \"status\" character varying(20) DEFAULT 'aberta' NOT NULL,\n  \"usuario_id\" int8 NOT NULL,\n  CONSTRAINT \"atividades_pkey\" PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ck_atividades_expira\" CHECK ((expira_em > created_at)),\n  CONSTRAINT \"ck_atividades_lat\" CHECK (((latitude >= ('-90'::integer)::numeric) AND (latitude <= (90)::numeric))),\n  CONSTRAINT \"ck_atividades_lng\" CHECK (((longitude >= ('-180'::integer)::numeric) AND (longitude <= (180)::numeric))),\n  CONSTRAINT \"ck_atividades_status\" CHECK (((status)::text = ANY ((ARRAY['aberta'::character varying, 'em_andamento'::character varying, 'concluida'::character varying, 'cancelada'::character varying, 'expirada'::character varying])::text[])))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"atividades\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"atividades\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.avaliacoes",
+    "label": "Create table \"avaliacoes\"",
+    "summary": "Creates table \"avaliacoes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "avaliacoes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"avaliacoes\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"avaliacoes\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"avaliacoes\"",
+        "sql": "CREATE TABLE \"public\".\"avaliacoes\" (\n  \"anuncio_id\" int8 NOT NULL,\n  \"avaliado_id\" int8 NOT NULL,\n  \"avaliador_id\" int8 NOT NULL,\n  \"comentario\" text,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" BIGSERIAL NOT NULL,\n  \"nota\" int2 NOT NULL,\n  CONSTRAINT \"avaliacoes_pkey\" PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ck_avaliacoes_diferentes\" CHECK ((avaliado_id <> avaliador_id)),\n  CONSTRAINT \"ck_avaliacoes_nota\" CHECK (((nota >= 1) AND (nota <= 5)))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"avaliacoes\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"avaliacoes\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.comentarios",
+    "label": "Create table \"comentarios\"",
+    "summary": "Creates table \"comentarios\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "comentarios"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"comentarios\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"comentarios\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"comentarios\"",
+        "sql": "CREATE TABLE \"public\".\"comentarios\" (\n  \"conteudo\" text NOT NULL,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" BIGSERIAL NOT NULL,\n  \"publicacao_id\" int8 NOT NULL,\n  \"usuario_id\" int8 NOT NULL,\n  CONSTRAINT \"comentarios_pkey\" PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ck_comentarios_conteudo\" CHECK ((length(btrim(conteudo)) > 0))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"comentarios\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"comentarios\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.compartilhamentos",
+    "label": "Create table \"compartilhamentos\"",
+    "summary": "Creates table \"compartilhamentos\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "compartilhamentos"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"compartilhamentos\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"compartilhamentos\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"compartilhamentos\"",
+        "sql": "CREATE TABLE \"public\".\"compartilhamentos\" (\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" BIGSERIAL NOT NULL,\n  \"publicacao_id\" int8 NOT NULL,\n  \"usuario_id\" int8 NOT NULL,\n  CONSTRAINT \"compartilhamentos_pkey\" PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"compartilhamentos\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"compartilhamentos\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.conversa_participantes",
+    "label": "Create table \"conversa_participantes\"",
+    "summary": "Creates table \"conversa_participantes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "conversa_participantes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"conversa_participantes\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"conversa_participantes\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"conversa_participantes\"",
+        "sql": "CREATE TABLE \"public\".\"conversa_participantes\" (\n  \"conversa_id\" int8 NOT NULL,\n  \"id\" int8 NOT NULL,\n  \"usuario_id\" int8 NOT NULL,\n  CONSTRAINT \"conversa_participantes_pkey\" PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"conversa_participantes\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"conversa_participantes\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.conversas",
+    "label": "Create table \"conversas\"",
+    "summary": "Creates table \"conversas\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "conversas"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"conversas\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"conversas\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"conversas\"",
+        "sql": "CREATE TABLE \"public\".\"conversas\" (\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" BIGSERIAL NOT NULL,\n  \"tipo\" character varying(10) DEFAULT 'direta' NOT NULL,\n  CONSTRAINT \"conversas_pkey\" PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ck_conversas_tipo\" CHECK (((tipo)::text = ANY ((ARRAY['direta'::character varying, 'grupo'::character varying])::text[])))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"conversas\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"conversas\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.curtidas",
+    "label": "Create table \"curtidas\"",
+    "summary": "Creates table \"curtidas\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "curtidas"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"curtidas\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"curtidas\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"curtidas\"",
+        "sql": "CREATE TABLE \"public\".\"curtidas\" (\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" BIGSERIAL NOT NULL,\n  \"publicacao_id\" int8 NOT NULL,\n  \"usuario_id\" int8 NOT NULL,\n  CONSTRAINT \"curtidas_pkey\" PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"curtidas\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"curtidas\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.esportes",
+    "label": "Create table \"esportes\"",
+    "summary": "Creates table \"esportes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "esportes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"esportes\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"esportes\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"esportes\"",
+        "sql": "CREATE TABLE \"public\".\"esportes\" (\n  \"cor\" character varying(7) DEFAULT '#000000' NOT NULL,\n  \"icone\" character varying(100) NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"nome\" text NOT NULL,\n  CONSTRAINT \"esportes_pkey\" PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ck_esportes_cor\" CHECK (((cor)::text ~ '^#[0-9A-Fa-f]{6}$'::text))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"esportes\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"esportes\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.mensagens",
+    "label": "Create table \"mensagens\"",
+    "summary": "Creates table \"mensagens\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "mensagens"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"mensagens\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"mensagens\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"mensagens\"",
+        "sql": "CREATE TABLE \"public\".\"mensagens\" (\n  \"conteudo\" text NOT NULL,\n  \"conversa_id\" int8 NOT NULL,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" BIGSERIAL NOT NULL,\n  \"lida\" bool DEFAULT false NOT NULL,\n  \"remetente_id\" int8 NOT NULL,\n  CONSTRAINT \"mensagens_pkey\" PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ck_mensagens_conteudo\" CHECK ((length(btrim(conteudo)) > 0))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"mensagens\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"mensagens\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.publicacao_midias",
+    "label": "Create table \"publicacao_midias\"",
+    "summary": "Creates table \"publicacao_midias\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "publicacao_midias"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"publicacao_midias\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"publicacao_midias\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"publicacao_midias\"",
+        "sql": "CREATE TABLE \"public\".\"publicacao_midias\" (\n  \"id\" BIGSERIAL NOT NULL,\n  \"ordem\" int2 DEFAULT 0 NOT NULL,\n  \"publicacao_id\" int8 NOT NULL,\n  \"tipo\" character varying(10) NOT NULL,\n  \"url\" character varying(500) NOT NULL,\n  CONSTRAINT \"publicacao_midias_pkey\" PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ck_publicacao_midias_ordem\" CHECK ((ordem >= 0)),\n  CONSTRAINT \"ck_publicacao_midias_tipo\" CHECK (((tipo)::text = ANY ((ARRAY['imagem'::character varying, 'video'::character varying])::text[])))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"publicacao_midias\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"publicacao_midias\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.publicacoes",
+    "label": "Create table \"publicacoes\"",
+    "summary": "Creates table \"publicacoes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "publicacoes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"publicacoes\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"publicacoes\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"publicacoes\"",
+        "sql": "CREATE TABLE \"public\".\"publicacoes\" (\n  \"conteudo\" text,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"esporte_id\" int4,\n  \"id\" BIGSERIAL NOT NULL,\n  \"latitude\" numeric(9,6),\n  \"longitude\" numeric(9,6),\n  \"usuario_id\" int8 NOT NULL,\n  CONSTRAINT \"publicacoes_pkey\" PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ck_publicacoes_coord\" CHECK (((latitude IS NULL) = (longitude IS NULL))),\n  CONSTRAINT \"ck_publicacoes_lat\" CHECK (((latitude >= ('-90'::integer)::numeric) AND (latitude <= (90)::numeric))),\n  CONSTRAINT \"ck_publicacoes_lng\" CHECK (((longitude >= ('-180'::integer)::numeric) AND (longitude <= (180)::numeric)))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"publicacoes\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"publicacoes\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.seguidores",
+    "label": "Create table \"seguidores\"",
+    "summary": "Creates table \"seguidores\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "seguidores"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"seguidores\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"seguidores\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"seguidores\"",
+        "sql": "CREATE TABLE \"public\".\"seguidores\" (\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" BIGSERIAL NOT NULL,\n  \"seguido_id\" int8 NOT NULL,\n  \"seguidor_id\" int8 NOT NULL,\n  CONSTRAINT \"seguidores_pkey\" PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ck_seguidores_diferentes\" CHECK ((seguidor_id <> seguido_id))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"seguidores\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"seguidores\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.usuario_esportes",
+    "label": "Create table \"usuario_esportes\"",
+    "summary": "Creates table \"usuario_esportes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "usuario_esportes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"usuario_esportes\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"usuario_esportes\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"usuario_esportes\"",
+        "sql": "CREATE TABLE \"public\".\"usuario_esportes\" (\n  \"esporte_id\" int4 NOT NULL,\n  \"id\" BIGSERIAL NOT NULL,\n  \"nivel\" character varying(20) DEFAULT 'iniciante' NOT NULL,\n  \"usuario_id\" int8 NOT NULL,\n  CONSTRAINT \"usuario_esportes_pkey\" PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ck_usuario_esportes_nivel\" CHECK (((nivel)::text = ANY ((ARRAY['iniciante'::character varying, 'intermediario'::character varying, 'avancado'::character varying, 'profissional'::character varying])::text[])))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"usuario_esportes\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"usuario_esportes\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.usuarios",
+    "label": "Create table \"usuarios\"",
+    "summary": "Creates table \"usuarios\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "usuarios"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"usuarios\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"usuarios\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"usuarios\"",
+        "sql": "CREATE TABLE \"public\".\"usuarios\" (\n  \"bio\" text,\n  \"cidade\" character varying(100),\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"email\" character varying(255) NOT NULL,\n  \"foto_perfil_url\" character varying(500),\n  \"id\" BIGSERIAL NOT NULL,\n  \"latitude\" numeric(9,6),\n  \"longitude\" numeric(9,6),\n  \"nome\" character varying(100) NOT NULL,\n  \"senha_hash\" character varying(255) NOT NULL,\n  \"sobrenome\" character varying(100) NOT NULL,\n  \"updated_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"username\" character varying(30) NOT NULL,\n  CONSTRAINT \"usuarios_pkey\" PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ck_usuarios_coord\" CHECK (((latitude IS NULL) = (longitude IS NULL))),\n  CONSTRAINT \"ck_usuarios_lat\" CHECK (((latitude >= ('-90'::integer)::numeric) AND (latitude <= (90)::numeric))),\n  CONSTRAINT \"ck_usuarios_lng\" CHECK (((longitude >= ('-180'::integer)::numeric) AND (longitude <= (180)::numeric)))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"usuarios\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"usuarios\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.anuncio_favoritos.uq_anuncio_favoritos",
+    "label": "Add unique constraint on \"anuncio_favoritos\" (usuario_id, anuncio_id)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "uq_anuncio_favoritos",
+        "table": "anuncio_favoritos"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"uq_anuncio_favoritos\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "uq_anuncio_favoritos",
+          "public",
+          "\"public\".\"anuncio_favoritos\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"uq_anuncio_favoritos\"",
+        "sql": "ALTER TABLE \"public\".\"anuncio_favoritos\" ADD CONSTRAINT \"uq_anuncio_favoritos\" UNIQUE (\"usuario_id\", \"anuncio_id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"uq_anuncio_favoritos\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "uq_anuncio_favoritos",
+          "public",
+          "\"public\".\"anuncio_favoritos\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.anuncio_midias.uq_anuncio_midias_ord",
+    "label": "Add unique constraint on \"anuncio_midias\" (anuncio_id, ordem)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "uq_anuncio_midias_ord",
+        "table": "anuncio_midias"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"uq_anuncio_midias_ord\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "uq_anuncio_midias_ord",
+          "public",
+          "\"public\".\"anuncio_midias\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"uq_anuncio_midias_ord\"",
+        "sql": "ALTER TABLE \"public\".\"anuncio_midias\" ADD CONSTRAINT \"uq_anuncio_midias_ord\" UNIQUE (\"anuncio_id\", \"ordem\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"uq_anuncio_midias_ord\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "uq_anuncio_midias_ord",
+          "public",
+          "\"public\".\"anuncio_midias\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.avaliacoes.uq_avaliacoes",
+    "label": "Add unique constraint on \"avaliacoes\" (avaliador_id, anuncio_id)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "uq_avaliacoes",
+        "table": "avaliacoes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"uq_avaliacoes\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "uq_avaliacoes",
+          "public",
+          "\"public\".\"avaliacoes\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"uq_avaliacoes\"",
+        "sql": "ALTER TABLE \"public\".\"avaliacoes\" ADD CONSTRAINT \"uq_avaliacoes\" UNIQUE (\"avaliador_id\", \"anuncio_id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"uq_avaliacoes\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "uq_avaliacoes",
+          "public",
+          "\"public\".\"avaliacoes\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.conversa_participantes.uq_conversa_participantes",
+    "label": "Add unique constraint on \"conversa_participantes\" (conversa_id, usuario_id)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "uq_conversa_participantes",
+        "table": "conversa_participantes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"uq_conversa_participantes\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "uq_conversa_participantes",
+          "public",
+          "\"public\".\"conversa_participantes\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"uq_conversa_participantes\"",
+        "sql": "ALTER TABLE \"public\".\"conversa_participantes\" ADD CONSTRAINT \"uq_conversa_participantes\" UNIQUE (\"conversa_id\", \"usuario_id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"uq_conversa_participantes\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "uq_conversa_participantes",
+          "public",
+          "\"public\".\"conversa_participantes\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.curtidas.uq_curtidas",
+    "label": "Add unique constraint on \"curtidas\" (publicacao_id, usuario_id)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "uq_curtidas",
+        "table": "curtidas"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"uq_curtidas\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "uq_curtidas",
+          "public",
+          "\"public\".\"curtidas\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"uq_curtidas\"",
+        "sql": "ALTER TABLE \"public\".\"curtidas\" ADD CONSTRAINT \"uq_curtidas\" UNIQUE (\"publicacao_id\", \"usuario_id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"uq_curtidas\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "uq_curtidas",
+          "public",
+          "\"public\".\"curtidas\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.esportes.esportes_nome_key",
+    "label": "Add unique constraint on \"esportes\" (nome)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "esportes_nome_key",
+        "table": "esportes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"esportes_nome_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "esportes_nome_key",
+          "public",
+          "\"public\".\"esportes\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"esportes_nome_key\"",
+        "sql": "ALTER TABLE \"public\".\"esportes\" ADD CONSTRAINT \"esportes_nome_key\" UNIQUE (\"nome\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"esportes_nome_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "esportes_nome_key",
+          "public",
+          "\"public\".\"esportes\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.publicacao_midias.uq_publicacao_midias_ord",
+    "label": "Add unique constraint on \"publicacao_midias\" (publicacao_id, ordem)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "uq_publicacao_midias_ord",
+        "table": "publicacao_midias"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"uq_publicacao_midias_ord\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "uq_publicacao_midias_ord",
+          "public",
+          "\"public\".\"publicacao_midias\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"uq_publicacao_midias_ord\"",
+        "sql": "ALTER TABLE \"public\".\"publicacao_midias\" ADD CONSTRAINT \"uq_publicacao_midias_ord\" UNIQUE (\"publicacao_id\", \"ordem\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"uq_publicacao_midias_ord\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "uq_publicacao_midias_ord",
+          "public",
+          "\"public\".\"publicacao_midias\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.seguidores.uq_seguidores",
+    "label": "Add unique constraint on \"seguidores\" (seguidor_id, seguido_id)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "uq_seguidores",
+        "table": "seguidores"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"uq_seguidores\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "uq_seguidores",
+          "public",
+          "\"public\".\"seguidores\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"uq_seguidores\"",
+        "sql": "ALTER TABLE \"public\".\"seguidores\" ADD CONSTRAINT \"uq_seguidores\" UNIQUE (\"seguidor_id\", \"seguido_id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"uq_seguidores\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "uq_seguidores",
+          "public",
+          "\"public\".\"seguidores\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.usuario_esportes.uq_usuario_esportes",
+    "label": "Add unique constraint on \"usuario_esportes\" (usuario_id, esporte_id)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "uq_usuario_esportes",
+        "table": "usuario_esportes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"uq_usuario_esportes\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "uq_usuario_esportes",
+          "public",
+          "\"public\".\"usuario_esportes\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"uq_usuario_esportes\"",
+        "sql": "ALTER TABLE \"public\".\"usuario_esportes\" ADD CONSTRAINT \"uq_usuario_esportes\" UNIQUE (\"usuario_id\", \"esporte_id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"uq_usuario_esportes\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "uq_usuario_esportes",
+          "public",
+          "\"public\".\"usuario_esportes\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.usuarios.usuarios_email_key",
+    "label": "Add unique constraint on \"usuarios\" (email)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "usuarios_email_key",
+        "table": "usuarios"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"usuarios_email_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "usuarios_email_key",
+          "public",
+          "\"public\".\"usuarios\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"usuarios_email_key\"",
+        "sql": "ALTER TABLE \"public\".\"usuarios\" ADD CONSTRAINT \"usuarios_email_key\" UNIQUE (\"email\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"usuarios_email_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "usuarios_email_key",
+          "public",
+          "\"public\".\"usuarios\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.usuarios.usuarios_username_key",
+    "label": "Add unique constraint on \"usuarios\" (username)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "usuarios_username_key",
+        "table": "usuarios"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"usuarios_username_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "usuarios_username_key",
+          "public",
+          "\"public\".\"usuarios\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"usuarios_username_key\"",
+        "sql": "ALTER TABLE \"public\".\"usuarios\" ADD CONSTRAINT \"usuarios_username_key\" UNIQUE (\"username\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"usuarios_username_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "usuarios_username_key",
+          "public",
+          "\"public\".\"usuarios\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.anuncio_favoritos.ix_anuncio_favoritos_anuncio",
+    "label": "Create index \"ix_anuncio_favoritos_anuncio\" on \"anuncio_favoritos\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_anuncio_favoritos_anuncio",
+        "table": "anuncio_favoritos"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_anuncio_favoritos_anuncio\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_anuncio_favoritos_anuncio\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_anuncio_favoritos_anuncio\"",
+        "sql": "CREATE INDEX \"ix_anuncio_favoritos_anuncio\" ON \"public\".\"anuncio_favoritos\" (\"anuncio_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_anuncio_favoritos_anuncio\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_anuncio_favoritos_anuncio\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.anuncios.ix_anuncios_busca",
+    "label": "Create index \"ix_anuncios_busca\" on \"anuncios\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_anuncios_busca",
+        "table": "anuncios"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_anuncios_busca\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_anuncios_busca\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_anuncios_busca\"",
+        "sql": "CREATE INDEX \"ix_anuncios_busca\" ON \"public\".\"anuncios\" (\"status\", \"esporte_id\", \"cidade\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_anuncios_busca\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_anuncios_busca\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.anuncios.ix_anuncios_coord",
+    "label": "Create index \"ix_anuncios_coord\" on \"anuncios\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_anuncios_coord",
+        "table": "anuncios"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_anuncios_coord\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_anuncios_coord\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_anuncios_coord\"",
+        "sql": "CREATE INDEX \"ix_anuncios_coord\" ON \"public\".\"anuncios\" (\"latitude\", \"longitude\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_anuncios_coord\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_anuncios_coord\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.anuncios.ix_anuncios_usuario",
+    "label": "Create index \"ix_anuncios_usuario\" on \"anuncios\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_anuncios_usuario",
+        "table": "anuncios"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_anuncios_usuario\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_anuncios_usuario\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_anuncios_usuario\"",
+        "sql": "CREATE INDEX \"ix_anuncios_usuario\" ON \"public\".\"anuncios\" (\"usuario_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_anuncios_usuario\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_anuncios_usuario\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.atividades.ix_atividades_esporte",
+    "label": "Create index \"ix_atividades_esporte\" on \"atividades\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_atividades_esporte",
+        "table": "atividades"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_atividades_esporte\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_atividades_esporte\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_atividades_esporte\"",
+        "sql": "CREATE INDEX \"ix_atividades_esporte\" ON \"public\".\"atividades\" (\"esporte_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_atividades_esporte\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_atividades_esporte\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.atividades.ix_atividades_mapa",
+    "label": "Create index \"ix_atividades_mapa\" on \"atividades\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_atividades_mapa",
+        "table": "atividades"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_atividades_mapa\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_atividades_mapa\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_atividades_mapa\"",
+        "sql": "CREATE INDEX \"ix_atividades_mapa\" ON \"public\".\"atividades\" (\"status\", \"expira_em\", \"latitude\", \"longitude\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_atividades_mapa\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_atividades_mapa\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.atividades.ix_atividades_usuario",
+    "label": "Create index \"ix_atividades_usuario\" on \"atividades\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_atividades_usuario",
+        "table": "atividades"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_atividades_usuario\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_atividades_usuario\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_atividades_usuario\"",
+        "sql": "CREATE INDEX \"ix_atividades_usuario\" ON \"public\".\"atividades\" (\"usuario_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_atividades_usuario\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_atividades_usuario\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.avaliacoes.ix_avaliacoes_anuncio",
+    "label": "Create index \"ix_avaliacoes_anuncio\" on \"avaliacoes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_avaliacoes_anuncio",
+        "table": "avaliacoes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_avaliacoes_anuncio\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_avaliacoes_anuncio\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_avaliacoes_anuncio\"",
+        "sql": "CREATE INDEX \"ix_avaliacoes_anuncio\" ON \"public\".\"avaliacoes\" (\"anuncio_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_avaliacoes_anuncio\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_avaliacoes_anuncio\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.avaliacoes.ix_avaliacoes_avaliado",
+    "label": "Create index \"ix_avaliacoes_avaliado\" on \"avaliacoes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_avaliacoes_avaliado",
+        "table": "avaliacoes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_avaliacoes_avaliado\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_avaliacoes_avaliado\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_avaliacoes_avaliado\"",
+        "sql": "CREATE INDEX \"ix_avaliacoes_avaliado\" ON \"public\".\"avaliacoes\" (\"avaliado_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_avaliacoes_avaliado\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_avaliacoes_avaliado\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.comentarios.ix_comentarios_publicacao",
+    "label": "Create index \"ix_comentarios_publicacao\" on \"comentarios\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_comentarios_publicacao",
+        "table": "comentarios"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_comentarios_publicacao\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_comentarios_publicacao\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_comentarios_publicacao\"",
+        "sql": "CREATE INDEX \"ix_comentarios_publicacao\" ON \"public\".\"comentarios\" (\"publicacao_id\", \"created_at\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_comentarios_publicacao\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_comentarios_publicacao\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.comentarios.ix_comentarios_usuario",
+    "label": "Create index \"ix_comentarios_usuario\" on \"comentarios\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_comentarios_usuario",
+        "table": "comentarios"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_comentarios_usuario\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_comentarios_usuario\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_comentarios_usuario\"",
+        "sql": "CREATE INDEX \"ix_comentarios_usuario\" ON \"public\".\"comentarios\" (\"usuario_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_comentarios_usuario\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_comentarios_usuario\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.compartilhamentos.ix_compartilhamentos_publicacao",
+    "label": "Create index \"ix_compartilhamentos_publicacao\" on \"compartilhamentos\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_compartilhamentos_publicacao",
+        "table": "compartilhamentos"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_compartilhamentos_publicacao\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_compartilhamentos_publicacao\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_compartilhamentos_publicacao\"",
+        "sql": "CREATE INDEX \"ix_compartilhamentos_publicacao\" ON \"public\".\"compartilhamentos\" (\"publicacao_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_compartilhamentos_publicacao\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_compartilhamentos_publicacao\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.compartilhamentos.ix_compartilhamentos_usuario",
+    "label": "Create index \"ix_compartilhamentos_usuario\" on \"compartilhamentos\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_compartilhamentos_usuario",
+        "table": "compartilhamentos"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_compartilhamentos_usuario\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_compartilhamentos_usuario\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_compartilhamentos_usuario\"",
+        "sql": "CREATE INDEX \"ix_compartilhamentos_usuario\" ON \"public\".\"compartilhamentos\" (\"usuario_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_compartilhamentos_usuario\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_compartilhamentos_usuario\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.conversa_participantes.ix_conversa_part_usuario",
+    "label": "Create index \"ix_conversa_part_usuario\" on \"conversa_participantes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_conversa_part_usuario",
+        "table": "conversa_participantes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_conversa_part_usuario\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_conversa_part_usuario\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_conversa_part_usuario\"",
+        "sql": "CREATE INDEX \"ix_conversa_part_usuario\" ON \"public\".\"conversa_participantes\" (\"usuario_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_conversa_part_usuario\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_conversa_part_usuario\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.curtidas.ix_curtidas_usuario",
+    "label": "Create index \"ix_curtidas_usuario\" on \"curtidas\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_curtidas_usuario",
+        "table": "curtidas"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_curtidas_usuario\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_curtidas_usuario\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_curtidas_usuario\"",
+        "sql": "CREATE INDEX \"ix_curtidas_usuario\" ON \"public\".\"curtidas\" (\"usuario_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_curtidas_usuario\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_curtidas_usuario\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.mensagens.ix_mensagens_conversa",
+    "label": "Create index \"ix_mensagens_conversa\" on \"mensagens\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_mensagens_conversa",
+        "table": "mensagens"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_mensagens_conversa\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_mensagens_conversa\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_mensagens_conversa\"",
+        "sql": "CREATE INDEX \"ix_mensagens_conversa\" ON \"public\".\"mensagens\" (\"conversa_id\", \"created_at\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_mensagens_conversa\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_mensagens_conversa\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.mensagens.ix_mensagens_remetente",
+    "label": "Create index \"ix_mensagens_remetente\" on \"mensagens\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_mensagens_remetente",
+        "table": "mensagens"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_mensagens_remetente\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_mensagens_remetente\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_mensagens_remetente\"",
+        "sql": "CREATE INDEX \"ix_mensagens_remetente\" ON \"public\".\"mensagens\" (\"remetente_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_mensagens_remetente\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_mensagens_remetente\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.publicacoes.ix_publicacoes_esporte",
+    "label": "Create index \"ix_publicacoes_esporte\" on \"publicacoes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_publicacoes_esporte",
+        "table": "publicacoes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_publicacoes_esporte\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_publicacoes_esporte\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_publicacoes_esporte\"",
+        "sql": "CREATE INDEX \"ix_publicacoes_esporte\" ON \"public\".\"publicacoes\" (\"esporte_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_publicacoes_esporte\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_publicacoes_esporte\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.publicacoes.ix_publicacoes_feed",
+    "label": "Create index \"ix_publicacoes_feed\" on \"publicacoes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_publicacoes_feed",
+        "table": "publicacoes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_publicacoes_feed\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_publicacoes_feed\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_publicacoes_feed\"",
+        "sql": "CREATE INDEX \"ix_publicacoes_feed\" ON \"public\".\"publicacoes\" (\"usuario_id\", \"created_at\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_publicacoes_feed\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_publicacoes_feed\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.seguidores.ix_seguidores_seguido",
+    "label": "Create index \"ix_seguidores_seguido\" on \"seguidores\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_seguidores_seguido",
+        "table": "seguidores"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_seguidores_seguido\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_seguidores_seguido\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_seguidores_seguido\"",
+        "sql": "CREATE INDEX \"ix_seguidores_seguido\" ON \"public\".\"seguidores\" (\"seguido_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_seguidores_seguido\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_seguidores_seguido\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.usuario_esportes.ix_usuario_esportes_esporte",
+    "label": "Create index \"ix_usuario_esportes_esporte\" on \"usuario_esportes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_usuario_esportes_esporte",
+        "table": "usuario_esportes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_usuario_esportes_esporte\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_usuario_esportes_esporte\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_usuario_esportes_esporte\"",
+        "sql": "CREATE INDEX \"ix_usuario_esportes_esporte\" ON \"public\".\"usuario_esportes\" (\"esporte_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_usuario_esportes_esporte\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_usuario_esportes_esporte\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.usuarios.ix_usuarios_coord",
+    "label": "Create index \"ix_usuarios_coord\" on \"usuarios\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_usuarios_coord",
+        "table": "usuarios"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_usuarios_coord\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_usuarios_coord\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_usuarios_coord\"",
+        "sql": "CREATE INDEX \"ix_usuarios_coord\" ON \"public\".\"usuarios\" (\"latitude\", \"longitude\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_usuarios_coord\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_usuarios_coord\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.anuncio_favoritos.fk_anuncio_favoritos_anuncio",
+    "label": "Add foreign key \"fk_anuncio_favoritos_anuncio\" on \"anuncio_favoritos\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "fk_anuncio_favoritos_anuncio",
+        "table": "anuncio_favoritos"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"fk_anuncio_favoritos_anuncio\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_anuncio_favoritos_anuncio",
+          "public",
+          "\"public\".\"anuncio_favoritos\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"fk_anuncio_favoritos_anuncio\"",
+        "sql": "ALTER TABLE \"public\".\"anuncio_favoritos\"\nADD CONSTRAINT \"fk_anuncio_favoritos_anuncio\"\nFOREIGN KEY (\"anuncio_id\")\nREFERENCES \"public\".\"anuncios\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"fk_anuncio_favoritos_anuncio\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_anuncio_favoritos_anuncio",
+          "public",
+          "\"public\".\"anuncio_favoritos\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.anuncio_favoritos.fk_anuncio_favoritos_usuario",
+    "label": "Add foreign key \"fk_anuncio_favoritos_usuario\" on \"anuncio_favoritos\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "fk_anuncio_favoritos_usuario",
+        "table": "anuncio_favoritos"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"fk_anuncio_favoritos_usuario\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_anuncio_favoritos_usuario",
+          "public",
+          "\"public\".\"anuncio_favoritos\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"fk_anuncio_favoritos_usuario\"",
+        "sql": "ALTER TABLE \"public\".\"anuncio_favoritos\"\nADD CONSTRAINT \"fk_anuncio_favoritos_usuario\"\nFOREIGN KEY (\"usuario_id\")\nREFERENCES \"public\".\"usuarios\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"fk_anuncio_favoritos_usuario\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_anuncio_favoritos_usuario",
+          "public",
+          "\"public\".\"anuncio_favoritos\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.anuncio_midias.fk_anuncio_midias_anuncio",
+    "label": "Add foreign key \"fk_anuncio_midias_anuncio\" on \"anuncio_midias\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "fk_anuncio_midias_anuncio",
+        "table": "anuncio_midias"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"fk_anuncio_midias_anuncio\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_anuncio_midias_anuncio",
+          "public",
+          "\"public\".\"anuncio_midias\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"fk_anuncio_midias_anuncio\"",
+        "sql": "ALTER TABLE \"public\".\"anuncio_midias\"\nADD CONSTRAINT \"fk_anuncio_midias_anuncio\"\nFOREIGN KEY (\"anuncio_id\")\nREFERENCES \"public\".\"anuncios\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"fk_anuncio_midias_anuncio\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_anuncio_midias_anuncio",
+          "public",
+          "\"public\".\"anuncio_midias\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.anuncios.fk_anuncios_esporte",
+    "label": "Add foreign key \"fk_anuncios_esporte\" on \"anuncios\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "fk_anuncios_esporte",
+        "table": "anuncios"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"fk_anuncios_esporte\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_anuncios_esporte",
+          "public",
+          "\"public\".\"anuncios\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"fk_anuncios_esporte\"",
+        "sql": "ALTER TABLE \"public\".\"anuncios\"\nADD CONSTRAINT \"fk_anuncios_esporte\"\nFOREIGN KEY (\"esporte_id\")\nREFERENCES \"public\".\"esportes\" (\"id\")\nON DELETE SET NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"fk_anuncios_esporte\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_anuncios_esporte",
+          "public",
+          "\"public\".\"anuncios\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.anuncios.fk_anuncios_usuario",
+    "label": "Add foreign key \"fk_anuncios_usuario\" on \"anuncios\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "fk_anuncios_usuario",
+        "table": "anuncios"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"fk_anuncios_usuario\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_anuncios_usuario",
+          "public",
+          "\"public\".\"anuncios\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"fk_anuncios_usuario\"",
+        "sql": "ALTER TABLE \"public\".\"anuncios\"\nADD CONSTRAINT \"fk_anuncios_usuario\"\nFOREIGN KEY (\"usuario_id\")\nREFERENCES \"public\".\"usuarios\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"fk_anuncios_usuario\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_anuncios_usuario",
+          "public",
+          "\"public\".\"anuncios\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.atividades.fk_atividades_esporte",
+    "label": "Add foreign key \"fk_atividades_esporte\" on \"atividades\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "fk_atividades_esporte",
+        "table": "atividades"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"fk_atividades_esporte\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_atividades_esporte",
+          "public",
+          "\"public\".\"atividades\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"fk_atividades_esporte\"",
+        "sql": "ALTER TABLE \"public\".\"atividades\"\nADD CONSTRAINT \"fk_atividades_esporte\"\nFOREIGN KEY (\"esporte_id\")\nREFERENCES \"public\".\"esportes\" (\"id\")\nON DELETE RESTRICT"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"fk_atividades_esporte\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_atividades_esporte",
+          "public",
+          "\"public\".\"atividades\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.atividades.fk_atividades_usuario",
+    "label": "Add foreign key \"fk_atividades_usuario\" on \"atividades\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "fk_atividades_usuario",
+        "table": "atividades"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"fk_atividades_usuario\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_atividades_usuario",
+          "public",
+          "\"public\".\"atividades\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"fk_atividades_usuario\"",
+        "sql": "ALTER TABLE \"public\".\"atividades\"\nADD CONSTRAINT \"fk_atividades_usuario\"\nFOREIGN KEY (\"usuario_id\")\nREFERENCES \"public\".\"usuarios\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"fk_atividades_usuario\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_atividades_usuario",
+          "public",
+          "\"public\".\"atividades\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.avaliacoes.fk_avaliacoes_anuncio",
+    "label": "Add foreign key \"fk_avaliacoes_anuncio\" on \"avaliacoes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "fk_avaliacoes_anuncio",
+        "table": "avaliacoes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"fk_avaliacoes_anuncio\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_avaliacoes_anuncio",
+          "public",
+          "\"public\".\"avaliacoes\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"fk_avaliacoes_anuncio\"",
+        "sql": "ALTER TABLE \"public\".\"avaliacoes\"\nADD CONSTRAINT \"fk_avaliacoes_anuncio\"\nFOREIGN KEY (\"anuncio_id\")\nREFERENCES \"public\".\"anuncios\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"fk_avaliacoes_anuncio\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_avaliacoes_anuncio",
+          "public",
+          "\"public\".\"avaliacoes\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.avaliacoes.fk_avaliacoes_avaliado",
+    "label": "Add foreign key \"fk_avaliacoes_avaliado\" on \"avaliacoes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "fk_avaliacoes_avaliado",
+        "table": "avaliacoes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"fk_avaliacoes_avaliado\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_avaliacoes_avaliado",
+          "public",
+          "\"public\".\"avaliacoes\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"fk_avaliacoes_avaliado\"",
+        "sql": "ALTER TABLE \"public\".\"avaliacoes\"\nADD CONSTRAINT \"fk_avaliacoes_avaliado\"\nFOREIGN KEY (\"avaliado_id\")\nREFERENCES \"public\".\"usuarios\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"fk_avaliacoes_avaliado\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_avaliacoes_avaliado",
+          "public",
+          "\"public\".\"avaliacoes\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.avaliacoes.fk_avaliacoes_avaliador",
+    "label": "Add foreign key \"fk_avaliacoes_avaliador\" on \"avaliacoes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "fk_avaliacoes_avaliador",
+        "table": "avaliacoes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"fk_avaliacoes_avaliador\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_avaliacoes_avaliador",
+          "public",
+          "\"public\".\"avaliacoes\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"fk_avaliacoes_avaliador\"",
+        "sql": "ALTER TABLE \"public\".\"avaliacoes\"\nADD CONSTRAINT \"fk_avaliacoes_avaliador\"\nFOREIGN KEY (\"avaliador_id\")\nREFERENCES \"public\".\"usuarios\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"fk_avaliacoes_avaliador\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_avaliacoes_avaliador",
+          "public",
+          "\"public\".\"avaliacoes\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.comentarios.fk_comentarios_publicacao",
+    "label": "Add foreign key \"fk_comentarios_publicacao\" on \"comentarios\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "fk_comentarios_publicacao",
+        "table": "comentarios"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"fk_comentarios_publicacao\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_comentarios_publicacao",
+          "public",
+          "\"public\".\"comentarios\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"fk_comentarios_publicacao\"",
+        "sql": "ALTER TABLE \"public\".\"comentarios\"\nADD CONSTRAINT \"fk_comentarios_publicacao\"\nFOREIGN KEY (\"publicacao_id\")\nREFERENCES \"public\".\"publicacoes\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"fk_comentarios_publicacao\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_comentarios_publicacao",
+          "public",
+          "\"public\".\"comentarios\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.comentarios.fk_comentarios_usuario",
+    "label": "Add foreign key \"fk_comentarios_usuario\" on \"comentarios\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "fk_comentarios_usuario",
+        "table": "comentarios"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"fk_comentarios_usuario\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_comentarios_usuario",
+          "public",
+          "\"public\".\"comentarios\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"fk_comentarios_usuario\"",
+        "sql": "ALTER TABLE \"public\".\"comentarios\"\nADD CONSTRAINT \"fk_comentarios_usuario\"\nFOREIGN KEY (\"usuario_id\")\nREFERENCES \"public\".\"usuarios\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"fk_comentarios_usuario\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_comentarios_usuario",
+          "public",
+          "\"public\".\"comentarios\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.compartilhamentos.fk_compartilhamentos_publicacao",
+    "label": "Add foreign key \"fk_compartilhamentos_publicacao\" on \"compartilhamentos\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "fk_compartilhamentos_publicacao",
+        "table": "compartilhamentos"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"fk_compartilhamentos_publicacao\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_compartilhamentos_publicacao",
+          "public",
+          "\"public\".\"compartilhamentos\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"fk_compartilhamentos_publicacao\"",
+        "sql": "ALTER TABLE \"public\".\"compartilhamentos\"\nADD CONSTRAINT \"fk_compartilhamentos_publicacao\"\nFOREIGN KEY (\"publicacao_id\")\nREFERENCES \"public\".\"publicacoes\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"fk_compartilhamentos_publicacao\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_compartilhamentos_publicacao",
+          "public",
+          "\"public\".\"compartilhamentos\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.compartilhamentos.fk_compartilhamentos_usuario",
+    "label": "Add foreign key \"fk_compartilhamentos_usuario\" on \"compartilhamentos\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "fk_compartilhamentos_usuario",
+        "table": "compartilhamentos"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"fk_compartilhamentos_usuario\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_compartilhamentos_usuario",
+          "public",
+          "\"public\".\"compartilhamentos\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"fk_compartilhamentos_usuario\"",
+        "sql": "ALTER TABLE \"public\".\"compartilhamentos\"\nADD CONSTRAINT \"fk_compartilhamentos_usuario\"\nFOREIGN KEY (\"usuario_id\")\nREFERENCES \"public\".\"usuarios\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"fk_compartilhamentos_usuario\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_compartilhamentos_usuario",
+          "public",
+          "\"public\".\"compartilhamentos\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.conversa_participantes.fk_conversa_participantes_conversa",
+    "label": "Add foreign key \"fk_conversa_participantes_conversa\" on \"conversa_participantes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "fk_conversa_participantes_conversa",
+        "table": "conversa_participantes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"fk_conversa_participantes_conversa\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_conversa_participantes_conversa",
+          "public",
+          "\"public\".\"conversa_participantes\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"fk_conversa_participantes_conversa\"",
+        "sql": "ALTER TABLE \"public\".\"conversa_participantes\"\nADD CONSTRAINT \"fk_conversa_participantes_conversa\"\nFOREIGN KEY (\"conversa_id\")\nREFERENCES \"public\".\"conversas\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"fk_conversa_participantes_conversa\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_conversa_participantes_conversa",
+          "public",
+          "\"public\".\"conversa_participantes\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.conversa_participantes.fk_conversa_participantes_usuario",
+    "label": "Add foreign key \"fk_conversa_participantes_usuario\" on \"conversa_participantes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "fk_conversa_participantes_usuario",
+        "table": "conversa_participantes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"fk_conversa_participantes_usuario\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_conversa_participantes_usuario",
+          "public",
+          "\"public\".\"conversa_participantes\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"fk_conversa_participantes_usuario\"",
+        "sql": "ALTER TABLE \"public\".\"conversa_participantes\"\nADD CONSTRAINT \"fk_conversa_participantes_usuario\"\nFOREIGN KEY (\"usuario_id\")\nREFERENCES \"public\".\"usuarios\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"fk_conversa_participantes_usuario\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_conversa_participantes_usuario",
+          "public",
+          "\"public\".\"conversa_participantes\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.curtidas.fk_curtidas_publicacao",
+    "label": "Add foreign key \"fk_curtidas_publicacao\" on \"curtidas\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "fk_curtidas_publicacao",
+        "table": "curtidas"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"fk_curtidas_publicacao\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_curtidas_publicacao",
+          "public",
+          "\"public\".\"curtidas\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"fk_curtidas_publicacao\"",
+        "sql": "ALTER TABLE \"public\".\"curtidas\"\nADD CONSTRAINT \"fk_curtidas_publicacao\"\nFOREIGN KEY (\"publicacao_id\")\nREFERENCES \"public\".\"publicacoes\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"fk_curtidas_publicacao\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_curtidas_publicacao",
+          "public",
+          "\"public\".\"curtidas\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.curtidas.fk_curtidas_usuario",
+    "label": "Add foreign key \"fk_curtidas_usuario\" on \"curtidas\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "fk_curtidas_usuario",
+        "table": "curtidas"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"fk_curtidas_usuario\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_curtidas_usuario",
+          "public",
+          "\"public\".\"curtidas\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"fk_curtidas_usuario\"",
+        "sql": "ALTER TABLE \"public\".\"curtidas\"\nADD CONSTRAINT \"fk_curtidas_usuario\"\nFOREIGN KEY (\"usuario_id\")\nREFERENCES \"public\".\"usuarios\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"fk_curtidas_usuario\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_curtidas_usuario",
+          "public",
+          "\"public\".\"curtidas\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.mensagens.fk_mensagens_conversa",
+    "label": "Add foreign key \"fk_mensagens_conversa\" on \"mensagens\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "fk_mensagens_conversa",
+        "table": "mensagens"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"fk_mensagens_conversa\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_mensagens_conversa",
+          "public",
+          "\"public\".\"mensagens\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"fk_mensagens_conversa\"",
+        "sql": "ALTER TABLE \"public\".\"mensagens\"\nADD CONSTRAINT \"fk_mensagens_conversa\"\nFOREIGN KEY (\"conversa_id\")\nREFERENCES \"public\".\"conversas\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"fk_mensagens_conversa\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_mensagens_conversa",
+          "public",
+          "\"public\".\"mensagens\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.mensagens.fk_mensagens_remetente",
+    "label": "Add foreign key \"fk_mensagens_remetente\" on \"mensagens\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "fk_mensagens_remetente",
+        "table": "mensagens"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"fk_mensagens_remetente\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_mensagens_remetente",
+          "public",
+          "\"public\".\"mensagens\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"fk_mensagens_remetente\"",
+        "sql": "ALTER TABLE \"public\".\"mensagens\"\nADD CONSTRAINT \"fk_mensagens_remetente\"\nFOREIGN KEY (\"remetente_id\")\nREFERENCES \"public\".\"usuarios\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"fk_mensagens_remetente\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_mensagens_remetente",
+          "public",
+          "\"public\".\"mensagens\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.publicacao_midias.fk_publicacao_midias_publicacao",
+    "label": "Add foreign key \"fk_publicacao_midias_publicacao\" on \"publicacao_midias\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "fk_publicacao_midias_publicacao",
+        "table": "publicacao_midias"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"fk_publicacao_midias_publicacao\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_publicacao_midias_publicacao",
+          "public",
+          "\"public\".\"publicacao_midias\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"fk_publicacao_midias_publicacao\"",
+        "sql": "ALTER TABLE \"public\".\"publicacao_midias\"\nADD CONSTRAINT \"fk_publicacao_midias_publicacao\"\nFOREIGN KEY (\"publicacao_id\")\nREFERENCES \"public\".\"publicacoes\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"fk_publicacao_midias_publicacao\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_publicacao_midias_publicacao",
+          "public",
+          "\"public\".\"publicacao_midias\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.publicacoes.fk_publicacoes_esporte",
+    "label": "Add foreign key \"fk_publicacoes_esporte\" on \"publicacoes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "fk_publicacoes_esporte",
+        "table": "publicacoes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"fk_publicacoes_esporte\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_publicacoes_esporte",
+          "public",
+          "\"public\".\"publicacoes\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"fk_publicacoes_esporte\"",
+        "sql": "ALTER TABLE \"public\".\"publicacoes\"\nADD CONSTRAINT \"fk_publicacoes_esporte\"\nFOREIGN KEY (\"esporte_id\")\nREFERENCES \"public\".\"esportes\" (\"id\")\nON DELETE SET NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"fk_publicacoes_esporte\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_publicacoes_esporte",
+          "public",
+          "\"public\".\"publicacoes\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.publicacoes.fk_publicacoes_usuario",
+    "label": "Add foreign key \"fk_publicacoes_usuario\" on \"publicacoes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "fk_publicacoes_usuario",
+        "table": "publicacoes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"fk_publicacoes_usuario\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_publicacoes_usuario",
+          "public",
+          "\"public\".\"publicacoes\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"fk_publicacoes_usuario\"",
+        "sql": "ALTER TABLE \"public\".\"publicacoes\"\nADD CONSTRAINT \"fk_publicacoes_usuario\"\nFOREIGN KEY (\"usuario_id\")\nREFERENCES \"public\".\"usuarios\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"fk_publicacoes_usuario\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_publicacoes_usuario",
+          "public",
+          "\"public\".\"publicacoes\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.seguidores.fk_seguidores_seguido",
+    "label": "Add foreign key \"fk_seguidores_seguido\" on \"seguidores\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "fk_seguidores_seguido",
+        "table": "seguidores"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"fk_seguidores_seguido\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_seguidores_seguido",
+          "public",
+          "\"public\".\"seguidores\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"fk_seguidores_seguido\"",
+        "sql": "ALTER TABLE \"public\".\"seguidores\"\nADD CONSTRAINT \"fk_seguidores_seguido\"\nFOREIGN KEY (\"seguido_id\")\nREFERENCES \"public\".\"usuarios\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"fk_seguidores_seguido\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_seguidores_seguido",
+          "public",
+          "\"public\".\"seguidores\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.seguidores.fk_seguidores_seguidor",
+    "label": "Add foreign key \"fk_seguidores_seguidor\" on \"seguidores\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "fk_seguidores_seguidor",
+        "table": "seguidores"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"fk_seguidores_seguidor\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_seguidores_seguidor",
+          "public",
+          "\"public\".\"seguidores\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"fk_seguidores_seguidor\"",
+        "sql": "ALTER TABLE \"public\".\"seguidores\"\nADD CONSTRAINT \"fk_seguidores_seguidor\"\nFOREIGN KEY (\"seguidor_id\")\nREFERENCES \"public\".\"usuarios\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"fk_seguidores_seguidor\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_seguidores_seguidor",
+          "public",
+          "\"public\".\"seguidores\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.usuario_esportes.fk_usuario_esportes_esporte",
+    "label": "Add foreign key \"fk_usuario_esportes_esporte\" on \"usuario_esportes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "fk_usuario_esportes_esporte",
+        "table": "usuario_esportes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"fk_usuario_esportes_esporte\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_usuario_esportes_esporte",
+          "public",
+          "\"public\".\"usuario_esportes\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"fk_usuario_esportes_esporte\"",
+        "sql": "ALTER TABLE \"public\".\"usuario_esportes\"\nADD CONSTRAINT \"fk_usuario_esportes_esporte\"\nFOREIGN KEY (\"esporte_id\")\nREFERENCES \"public\".\"esportes\" (\"id\")\nON DELETE RESTRICT"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"fk_usuario_esportes_esporte\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_usuario_esportes_esporte",
+          "public",
+          "\"public\".\"usuario_esportes\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.usuario_esportes.fk_usuario_esportes_usuario",
+    "label": "Add foreign key \"fk_usuario_esportes_usuario\" on \"usuario_esportes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "fk_usuario_esportes_usuario",
+        "table": "usuario_esportes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"fk_usuario_esportes_usuario\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_usuario_esportes_usuario",
+          "public",
+          "\"public\".\"usuario_esportes\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"fk_usuario_esportes_usuario\"",
+        "sql": "ALTER TABLE \"public\".\"usuario_esportes\"\nADD CONSTRAINT \"fk_usuario_esportes_usuario\"\nFOREIGN KEY (\"usuario_id\")\nREFERENCES \"public\".\"usuarios\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"fk_usuario_esportes_usuario\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_usuario_esportes_usuario",
+          "public",
+          "\"public\".\"usuario_esportes\""
+        ]
+      }
+    ]
+  }
+]

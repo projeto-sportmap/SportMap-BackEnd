@@ -622,13 +622,6 @@
                   "kind": "scalar"
                 }
               },
-              "avaliadoId": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/int8@1",
-                  "kind": "scalar"
-                }
-              },
               "avaliadorId": {
                 "nullable": false,
                 "type": {
@@ -682,22 +675,6 @@
                   "namespace": "public"
                 }
               },
-              "avaliado": {
-                "cardinality": "N:1",
-                "nullable": false,
-                "on": {
-                  "localFields": [
-                    "avaliadoId"
-                  ],
-                  "targetFields": [
-                    "id"
-                  ]
-                },
-                "to": {
-                  "model": "Usuarios",
-                  "namespace": "public"
-                }
-              },
               "avaliador": {
                 "cardinality": "N:1",
                 "nullable": false,
@@ -719,9 +696,6 @@
               "fields": {
                 "anuncioId": {
                   "column": "anuncio_id"
-                },
-                "avaliadoId": {
-                  "column": "avaliado_id"
                 },
                 "avaliadorId": {
                   "column": "avaliador_id"
@@ -1010,16 +984,6 @@
                   "codecId": "pg/int8@1",
                   "kind": "scalar"
                 }
-              },
-              "tipo": {
-                "nullable": false,
-                "type": {
-                  "codecId": "sql/varchar@1",
-                  "kind": "scalar",
-                  "typeParams": {
-                    "length": 10
-                  }
-                }
               }
             },
             "relations": {
@@ -1061,9 +1025,6 @@
                 },
                 "id": {
                   "column": "id"
-                },
-                "tipo": {
-                  "column": "tipo"
                 }
               },
               "namespaceId": "public",
@@ -1156,26 +1117,6 @@
           },
           "Esportes": {
             "fields": {
-              "cor": {
-                "nullable": false,
-                "type": {
-                  "codecId": "sql/varchar@1",
-                  "kind": "scalar",
-                  "typeParams": {
-                    "length": 7
-                  }
-                }
-              },
-              "icone": {
-                "nullable": false,
-                "type": {
-                  "codecId": "sql/varchar@1",
-                  "kind": "scalar",
-                  "typeParams": {
-                    "length": 100
-                  }
-                }
-              },
               "id": {
                 "nullable": false,
                 "type": {
@@ -1258,12 +1199,6 @@
             },
             "storage": {
               "fields": {
-                "cor": {
-                  "column": "cor"
-                },
-                "icone": {
-                  "column": "icone"
-                },
                 "id": {
                   "column": "id"
                 },
@@ -1921,13 +1856,6 @@
                   }
                 }
               },
-              "updatedAt": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/timestamptz-temporal@1",
-                  "kind": "scalar"
-                }
-              },
               "username": {
                 "nullable": false,
                 "type": {
@@ -1986,21 +1914,6 @@
                 }
               },
               "avaliacoes": {
-                "cardinality": "1:N",
-                "on": {
-                  "localFields": [
-                    "id"
-                  ],
-                  "targetFields": [
-                    "avaliadoId"
-                  ]
-                },
-                "to": {
-                  "model": "Avaliacoes",
-                  "namespace": "public"
-                }
-              },
-              "avaliacoesAvaliacoes": {
                 "cardinality": "1:N",
                 "on": {
                   "localFields": [
@@ -2185,9 +2098,6 @@
                 },
                 "sobrenome": {
                   "column": "sobrenome"
-                },
-                "updatedAt": {
-                  "column": "updated_at"
                 },
                 "username": {
                   "column": "username"
@@ -2741,21 +2651,12 @@
             "avaliacoes": {
               "checks": [
                 {
-                  "expression": "(avaliado_id <> avaliador_id)",
-                  "name": "ck_avaliacoes_diferentes"
-                },
-                {
                   "expression": "((nota >= 1) AND (nota <= 5))",
                   "name": "ck_avaliacoes_nota"
                 }
               ],
               "columns": {
                 "anuncio_id": {
-                  "codecId": "pg/int8@1",
-                  "nativeType": "int8",
-                  "nullable": false
-                },
-                "avaliado_id": {
                   "codecId": "pg/int8@1",
                   "nativeType": "int8",
                   "nullable": false
@@ -2814,24 +2715,6 @@
                   }
                 },
                 {
-                  "name": "fk_avaliacoes_avaliado",
-                  "onDelete": "cascade",
-                  "source": {
-                    "columns": [
-                      "avaliado_id"
-                    ],
-                    "namespaceId": "public",
-                    "tableName": "avaliacoes"
-                  },
-                  "target": {
-                    "columns": [
-                      "id"
-                    ],
-                    "namespaceId": "public",
-                    "tableName": "usuarios"
-                  }
-                },
-                {
                   "name": "fk_avaliacoes_avaliador",
                   "onDelete": "cascade",
                   "source": {
@@ -2856,13 +2739,6 @@
                     "anuncio_id"
                   ],
                   "name": "ix_avaliacoes_anuncio",
-                  "unique": false
-                },
-                {
-                  "columns": [
-                    "avaliado_id"
-                  ],
-                  "name": "ix_avaliacoes_avaliado",
                   "unique": false
                 }
               ],
@@ -3089,6 +2965,10 @@
                 },
                 "id": {
                   "codecId": "pg/int8@1",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
                   "nativeType": "int8",
                   "nullable": false
                 },
@@ -3162,12 +3042,6 @@
               ]
             },
             "conversas": {
-              "checks": [
-                {
-                  "expression": "((tipo)::text = ANY ((ARRAY['direta'::character varying, 'grupo'::character varying])::text[]))",
-                  "name": "ck_conversas_tipo"
-                }
-              ],
               "columns": {
                 "created_at": {
                   "codecId": "pg/timestamptz-temporal@1",
@@ -3186,18 +3060,6 @@
                   },
                   "nativeType": "int8",
                   "nullable": false
-                },
-                "tipo": {
-                  "codecId": "sql/varchar@1",
-                  "default": {
-                    "kind": "literal",
-                    "value": "direta"
-                  },
-                  "nativeType": "character varying",
-                  "nullable": false,
-                  "typeParams": {
-                    "length": 10
-                  }
                 }
               },
               "foreignKeys": [],
@@ -3305,33 +3167,7 @@
               ]
             },
             "esportes": {
-              "checks": [
-                {
-                  "expression": "((cor)::text ~ '^#[0-9A-Fa-f]{6}$'::text)",
-                  "name": "ck_esportes_cor"
-                }
-              ],
               "columns": {
-                "cor": {
-                  "codecId": "sql/varchar@1",
-                  "default": {
-                    "kind": "literal",
-                    "value": "#000000"
-                  },
-                  "nativeType": "character varying",
-                  "nullable": false,
-                  "typeParams": {
-                    "length": 7
-                  }
-                },
-                "icone": {
-                  "codecId": "sql/varchar@1",
-                  "nativeType": "character varying",
-                  "nullable": false,
-                  "typeParams": {
-                    "length": 100
-                  }
-                },
                 "id": {
                   "codecId": "pg/int4@1",
                   "default": {
@@ -4009,15 +3845,6 @@
                     "length": 100
                   }
                 },
-                "updated_at": {
-                  "codecId": "pg/timestamptz-temporal@1",
-                  "default": {
-                    "expression": "now()",
-                    "kind": "function"
-                  },
-                  "nativeType": "timestamptz",
-                  "nullable": false
-                },
                 "username": {
                   "codecId": "sql/varchar@1",
                   "nativeType": "character varying",
@@ -4065,7 +3892,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "018d0f5d8c5296973715195aa977507307479610cfbf0f3d90668a60d5791b7f"
+    "storageHash": "fcf4f840642914c756c22f2bb90f1020f073cec7b178bb18c419ee620a9de3e5"
   },
   "capabilities": {
     "postgres": {
