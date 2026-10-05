@@ -14,5 +14,5 @@
       "node"
     ]
   },
-  "include": ["src/**/*", "src/prisma/**/*", "src/prisma"]
+  "include": ["src/**/*", "prisma/**/*", "prisma"]
 }
