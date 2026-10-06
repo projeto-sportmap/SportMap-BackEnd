@@ -1,4 +1,3 @@
-// Arquivo: src/routes/esportes.route.ts
 import { Router } from 'express';
 import * as EsportesController from '../controllers/esportes.controller.js';
 
