@@ -4,14 +4,11 @@
 model Esportes {
   id              Int               @id(map: "esportes_pkey") @default(autoincrement())
   nome            VarChar(50)       @unique(map: "esportes_nome_key")
-  icone           VarChar(100)
-  cor             VarChar(7)        @default("#000000")
   anuncios        Anuncios[]
   atividades      Atividades[]
   publicacoes     Publicacoes[]
   usuarioEsportes UsuarioEsportes[]
 
-  @@check(expression: "((cor)::text ~ '^#[0-9A-Fa-f]{6}$'::text)", map: "ck_esportes_cor")
   @@map("esportes")
 }
 
@@ -28,10 +25,10 @@ model Usuarios {
   longitude             Numeric(9, 6)?
   bio                   String?
   createdAt             Timestamptz             @default(now()) @map("created_at")
-  updatedAt             Timestamptz             @default(now()) @map("updated_at")
   anuncioFavoritos      AnuncioFavoritos[]
   anuncios              Anuncios[]
   atividades            Atividades[]
+  avaliacoes            Avaliacoes[]
   comentarios           Comentarios[]
   compartilhamentos     Compartilhamentos[]
   conversaParticipantes ConversaParticipantes[]
@@ -39,8 +36,6 @@ model Usuarios {
   mensagens             Mensagens[]
   publicacoes           Publicacoes[]
   usuarioEsportes       UsuarioEsportes[]
-  avaliacoes            Avaliacoes[]            @relation(name: "fk_avaliacoes_avaliado")
-  avaliacoesAvaliacoes  Avaliacoes[]            @relation(name: "fk_avaliacoes_avaliador")
   seguidores            Seguidores[]            @relation(name: "fk_seguidores_seguido")
   seguidoresSeguidores  Seguidores[]            @relation(name: "fk_seguidores_seguidor")
 
@@ -132,20 +127,16 @@ model Atividades {
 
 model Avaliacoes {
   id          BigInt      @id(map: "avaliacoes_pkey") @default(autoincrement())
-  avaliadoId  BigInt      @map("avaliado_id")
   avaliadorId BigInt      @map("avaliador_id")
   anuncioId   BigInt      @map("anuncio_id")
   nota        SmallInt
   comentario  String?
   createdAt   Timestamptz @default(now()) @map("created_at")
   anuncio     Anuncios    @relation(fields: [anuncioId], references: [id], onDelete: Cascade, map: "fk_avaliacoes_anuncio")
-  avaliado    Usuarios    @relation(name: "fk_avaliacoes_avaliado", fields: [avaliadoId], references: [id], onDelete: Cascade, map: "fk_avaliacoes_avaliado")
-  avaliador   Usuarios    @relation(name: "fk_avaliacoes_avaliador", fields: [avaliadorId], references: [id], onDelete: Cascade, map: "fk_avaliacoes_avaliador", index: false)
+  avaliador   Usuarios    @relation(fields: [avaliadorId], references: [id], onDelete: Cascade, map: "fk_avaliacoes_avaliador", index: false)
 
   @@unique([avaliadorId, anuncioId], map: "uq_avaliacoes")
   @@index([anuncioId], map: "ix_avaliacoes_anuncio")
-  @@index([avaliadoId], map: "ix_avaliacoes_avaliado")
-  @@check(expression: "(avaliado_id <> avaliador_id)", map: "ck_avaliacoes_diferentes")
   @@check(expression: "((nota >= 1) AND (nota <= 5))", map: "ck_avaliacoes_nota")
   @@map("avaliacoes")
 }
@@ -203,17 +194,15 @@ model Compartilhamentos {
 
 model Conversas {
   id                    BigInt                  @id(map: "conversas_pkey") @default(autoincrement())
-  tipo                  VarChar(10)             @default("direta")
   createdAt             Timestamptz             @default(now()) @map("created_at")
   conversaParticipantes ConversaParticipantes[]
   mensagens             Mensagens[]
 
-  @@check(expression: "((tipo)::text = ANY ((ARRAY['direta'::character varying, 'grupo'::character varying])::text[]))", map: "ck_conversas_tipo")
   @@map("conversas")
 }
 
 model ConversaParticipantes {
-  id         BigInt    @id(map: "conversa_participantes_pkey")
+  id         BigInt    @id(map: "conversa_participantes_pkey") @default(autoincrement())
   conversaId BigInt    @map("conversa_id")
   usuarioId  BigInt    @map("usuario_id")
   conversa   Conversas @relation(fields: [conversaId], references: [id], onDelete: Cascade, map: "fk_conversa_participantes_conversa", index: false)

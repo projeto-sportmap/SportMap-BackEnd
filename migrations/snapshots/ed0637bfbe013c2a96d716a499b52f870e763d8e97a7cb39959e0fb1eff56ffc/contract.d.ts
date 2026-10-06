@@ -34,7 +34,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'fcf4f840642914c756c22f2bb90f1020f073cec7b178bb18c419ee620a9de3e5'>;
+  StorageHashBase<'ed0637bfbe013c2a96d716a499b52f870e763d8e97a7cb39959e0fb1eff56ffc'>;
 export type ExecutionHash = ExecutionHashBase<string>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
@@ -280,6 +280,7 @@ export type FieldOutputTypes = {
     };
     readonly Avaliacoes: {
       readonly id: CodecTypes['pg/int8@1']['output'];
+      readonly avaliadoId: CodecTypes['pg/int8@1']['output'];
       readonly avaliadorId: CodecTypes['pg/int8@1']['output'];
       readonly anuncioId: CodecTypes['pg/int8@1']['output'];
       readonly nota: CodecTypes['pg/int2@1']['output'];
@@ -306,6 +307,7 @@ export type FieldOutputTypes = {
     };
     readonly Conversas: {
       readonly id: CodecTypes['pg/int8@1']['output'];
+      readonly tipo: Varchar<10>;
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
     };
     readonly Curtidas: {
@@ -316,7 +318,9 @@ export type FieldOutputTypes = {
     };
     readonly Esportes: {
       readonly id: CodecTypes['pg/int4@1']['output'];
-      readonly nome: Varchar<50>;
+      readonly nome: CodecTypes['pg/text@1']['output'];
+      readonly icone: Varchar<100>;
+      readonly cor: Varchar<7>;
     };
     readonly Mensagens: {
       readonly id: CodecTypes['pg/int8@1']['output'];
@@ -367,6 +371,7 @@ export type FieldOutputTypes = {
       readonly longitude: Numeric<9, 6> | null;
       readonly bio: CodecTypes['pg/text@1']['output'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+      readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
     };
   };
 };
@@ -411,6 +416,7 @@ export type FieldInputTypes = {
     };
     readonly Avaliacoes: {
       readonly id: CodecTypes['pg/int8@1']['input'];
+      readonly avaliadoId: CodecTypes['pg/int8@1']['input'];
       readonly avaliadorId: CodecTypes['pg/int8@1']['input'];
       readonly anuncioId: CodecTypes['pg/int8@1']['input'];
       readonly nota: CodecTypes['pg/int2@1']['input'];
@@ -437,6 +443,7 @@ export type FieldInputTypes = {
     };
     readonly Conversas: {
       readonly id: CodecTypes['pg/int8@1']['input'];
+      readonly tipo: CodecTypes['sql/varchar@1']['input'];
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
     };
     readonly Curtidas: {
@@ -447,7 +454,9 @@ export type FieldInputTypes = {
     };
     readonly Esportes: {
       readonly id: CodecTypes['pg/int4@1']['input'];
-      readonly nome: CodecTypes['sql/varchar@1']['input'];
+      readonly nome: CodecTypes['pg/text@1']['input'];
+      readonly icone: CodecTypes['sql/varchar@1']['input'];
+      readonly cor: CodecTypes['sql/varchar@1']['input'];
     };
     readonly Mensagens: {
       readonly id: CodecTypes['pg/int8@1']['input'];
@@ -498,6 +507,7 @@ export type FieldInputTypes = {
       readonly longitude: CodecTypes['pg/numeric@1']['input'] | null;
       readonly bio: CodecTypes['pg/text@1']['input'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
+      readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
     };
   };
 };
@@ -542,6 +552,7 @@ export type StorageColumnTypes = {
     };
     readonly avaliacoes: {
       readonly anuncio_id: CodecTypes['pg/int8@1']['output'];
+      readonly avaliado_id: CodecTypes['pg/int8@1']['output'];
       readonly avaliador_id: CodecTypes['pg/int8@1']['output'];
       readonly comentario: CodecTypes['pg/text@1']['output'] | null;
       readonly created_at: CodecTypes['pg/timestamptz-temporal@1']['output'];
@@ -569,6 +580,7 @@ export type StorageColumnTypes = {
     readonly conversas: {
       readonly created_at: CodecTypes['pg/timestamptz-temporal@1']['output'];
       readonly id: CodecTypes['pg/int8@1']['output'];
+      readonly tipo: Varchar<10>;
     };
     readonly curtidas: {
       readonly created_at: CodecTypes['pg/timestamptz-temporal@1']['output'];
@@ -577,8 +589,10 @@ export type StorageColumnTypes = {
       readonly usuario_id: CodecTypes['pg/int8@1']['output'];
     };
     readonly esportes: {
+      readonly cor: Varchar<7>;
+      readonly icone: Varchar<100>;
       readonly id: CodecTypes['pg/int4@1']['output'];
-      readonly nome: Varchar<50>;
+      readonly nome: CodecTypes['pg/text@1']['output'];
     };
     readonly mensagens: {
       readonly conteudo: CodecTypes['pg/text@1']['output'];
@@ -628,6 +642,7 @@ export type StorageColumnTypes = {
       readonly nome: Varchar<100>;
       readonly senha_hash: Varchar<255>;
       readonly sobrenome: Varchar<100>;
+      readonly updated_at: CodecTypes['pg/timestamptz-temporal@1']['output'];
       readonly username: Varchar<30>;
     };
   };
@@ -673,6 +688,7 @@ export type StorageColumnInputTypes = {
     };
     readonly avaliacoes: {
       readonly anuncio_id: CodecTypes['pg/int8@1']['input'];
+      readonly avaliado_id: CodecTypes['pg/int8@1']['input'];
       readonly avaliador_id: CodecTypes['pg/int8@1']['input'];
       readonly comentario: CodecTypes['pg/text@1']['input'] | null;
       readonly created_at: CodecTypes['pg/timestamptz-temporal@1']['input'];
@@ -700,6 +716,7 @@ export type StorageColumnInputTypes = {
     readonly conversas: {
       readonly created_at: CodecTypes['pg/timestamptz-temporal@1']['input'];
       readonly id: CodecTypes['pg/int8@1']['input'];
+      readonly tipo: CodecTypes['sql/varchar@1']['input'];
     };
     readonly curtidas: {
       readonly created_at: CodecTypes['pg/timestamptz-temporal@1']['input'];
@@ -708,8 +725,10 @@ export type StorageColumnInputTypes = {
       readonly usuario_id: CodecTypes['pg/int8@1']['input'];
     };
     readonly esportes: {
+      readonly cor: CodecTypes['sql/varchar@1']['input'];
+      readonly icone: CodecTypes['sql/varchar@1']['input'];
       readonly id: CodecTypes['pg/int4@1']['input'];
-      readonly nome: CodecTypes['sql/varchar@1']['input'];
+      readonly nome: CodecTypes['pg/text@1']['input'];
     };
     readonly mensagens: {
       readonly conteudo: CodecTypes['pg/text@1']['input'];
@@ -759,6 +778,7 @@ export type StorageColumnInputTypes = {
       readonly nome: CodecTypes['sql/varchar@1']['input'];
       readonly senha_hash: CodecTypes['sql/varchar@1']['input'];
       readonly sobrenome: CodecTypes['sql/varchar@1']['input'];
+      readonly updated_at: CodecTypes['pg/timestamptz-temporal@1']['input'];
       readonly username: CodecTypes['sql/varchar@1']['input'];
     };
   };
@@ -767,7 +787,9 @@ export type StorageColumnInputTypes = {
 export namespace Models {
   export type public_Esportes = {
     id: CodecTypes['pg/int4@1']['output'];
-    nome: Varchar<50>;
+    nome: CodecTypes['pg/text@1']['output'];
+    icone: Varchar<100>;
+    cor: Varchar<7>;
     anuncios: public_Anuncios[];
     atividades: public_Atividades[];
     publicacoes: public_Publicacoes[];
@@ -787,10 +809,12 @@ export namespace Models {
     longitude: Numeric<9, 6> | null;
     bio: CodecTypes['pg/text@1']['output'] | null;
     createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
     anuncioFavoritos: public_AnuncioFavoritos[];
     anuncios: public_Anuncios[];
     atividades: public_Atividades[];
     avaliacoes: public_Avaliacoes[];
+    avaliacoesAvaliacoes: public_Avaliacoes[];
     comentarios: public_Comentarios[];
     compartilhamentos: public_Compartilhamentos[];
     conversaParticipantes: public_ConversaParticipantes[];
@@ -805,6 +829,7 @@ export namespace Models {
       | 'anuncios'
       | 'atividades'
       | 'avaliacoes'
+      | 'avaliacoesAvaliacoes'
       | 'comentarios'
       | 'compartilhamentos'
       | 'conversaParticipantes'
@@ -869,14 +894,16 @@ export namespace Models {
   };
   export type public_Avaliacoes = {
     id: CodecTypes['pg/int8@1']['output'];
+    avaliadoId: CodecTypes['pg/int8@1']['output'];
     avaliadorId: CodecTypes['pg/int8@1']['output'];
     anuncioId: CodecTypes['pg/int8@1']['output'];
     nota: CodecTypes['pg/int2@1']['output'];
     comentario: CodecTypes['pg/text@1']['output'] | null;
     createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
     anuncio: public_Anuncios;
+    avaliado: public_Usuarios;
     avaliador: public_Usuarios;
-    readonly [RelationKeys]?: 'anuncio' | 'avaliador';
+    readonly [RelationKeys]?: 'anuncio' | 'avaliado' | 'avaliador';
   };
   export type public_Publicacoes = {
     id: CodecTypes['pg/int8@1']['output'];
@@ -916,6 +943,7 @@ export namespace Models {
   };
   export type public_Conversas = {
     id: CodecTypes['pg/int8@1']['output'];
+    tipo: Varchar<10>;
     createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
     conversaParticipantes: public_ConversaParticipantes[];
     mensagens: public_Mensagens[];
@@ -1398,6 +1426,11 @@ type ContractBase = Omit<
                     readonly expression: 'autoincrement()';
                   };
                 };
+                readonly avaliado_id: {
+                  readonly nativeType: 'int8';
+                  readonly codecId: 'pg/int8@1';
+                  readonly nullable: false;
+                };
                 readonly avaliador_id: {
                   readonly nativeType: 'int8';
                   readonly codecId: 'pg/int8@1';
@@ -1438,6 +1471,11 @@ type ContractBase = Omit<
                   readonly columns: readonly ['anuncio_id'];
                   readonly unique: false;
                 },
+                {
+                  readonly name: 'ix_avaliacoes_avaliado';
+                  readonly columns: readonly ['avaliado_id'];
+                  readonly unique: false;
+                },
               ];
               foreignKeys: readonly [
                 {
@@ -1452,6 +1490,19 @@ type ContractBase = Omit<
                     readonly columns: readonly ['id'];
                   };
                   readonly name: 'fk_avaliacoes_anuncio';
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'avaliacoes';
+                    readonly columns: readonly ['avaliado_id'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'usuarios';
+                    readonly columns: readonly ['id'];
+                  };
+                  readonly name: 'fk_avaliacoes_avaliado';
                 },
                 {
                   readonly source: {
@@ -1624,10 +1675,6 @@ type ContractBase = Omit<
                   readonly nativeType: 'int8';
                   readonly codecId: 'pg/int8@1';
                   readonly nullable: false;
-                  readonly default: {
-                    readonly kind: 'function';
-                    readonly expression: 'autoincrement()';
-                  };
                 };
                 readonly conversa_id: {
                   readonly nativeType: 'int8';
@@ -1696,6 +1743,16 @@ type ContractBase = Omit<
                     readonly kind: 'function';
                     readonly expression: 'autoincrement()';
                   };
+                };
+                readonly tipo: {
+                  readonly nativeType: 'character varying';
+                  readonly codecId: 'sql/varchar@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'sql/varchar@1', 'direta'>;
+                  };
+                  readonly typeParams: { readonly length: 10 };
                 };
                 readonly created_at: {
                   readonly nativeType: 'timestamptz';
@@ -1792,10 +1849,25 @@ type ContractBase = Omit<
                   };
                 };
                 readonly nome: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                };
+                readonly icone: {
                   readonly nativeType: 'character varying';
                   readonly codecId: 'sql/varchar@1';
                   readonly nullable: false;
-                  readonly typeParams: { readonly length: 50 };
+                  readonly typeParams: { readonly length: 100 };
+                };
+                readonly cor: {
+                  readonly nativeType: 'character varying';
+                  readonly codecId: 'sql/varchar@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'sql/varchar@1', '#000000'>;
+                  };
+                  readonly typeParams: { readonly length: 7 };
                 };
               };
               primaryKey: { readonly columns: readonly ['id']; readonly name: 'esportes_pkey' };
@@ -2268,6 +2340,12 @@ type ContractBase = Omit<
                   readonly nullable: false;
                   readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
                 };
+                readonly updated_at: {
+                  readonly nativeType: 'timestamptz';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                };
               };
               primaryKey: { readonly columns: readonly ['id']; readonly name: 'usuarios_pkey' };
               uniques: readonly [
@@ -2725,6 +2803,10 @@ type ContractBase = Omit<
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int8@1' };
               };
+              readonly avaliadoId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int8@1' };
+              };
               readonly avaliadorId: {
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int8@1' };
@@ -2762,6 +2844,18 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['id'];
                 };
               };
+              readonly avaliado: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Usuarios';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['avaliadoId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
               readonly avaliador: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
@@ -2780,6 +2874,7 @@ type ContractBase = Omit<
               readonly namespaceId: 'public';
               readonly fields: {
                 readonly id: { readonly column: 'id' };
+                readonly avaliadoId: { readonly column: 'avaliado_id' };
                 readonly avaliadorId: { readonly column: 'avaliador_id' };
                 readonly anuncioId: { readonly column: 'anuncio_id' };
                 readonly nota: { readonly column: 'nota' };
@@ -2968,6 +3063,14 @@ type ContractBase = Omit<
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int8@1' };
               };
+              readonly tipo: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'sql/varchar@1';
+                  readonly typeParams: { readonly length: 10 };
+                };
+              };
               readonly createdAt: {
                 readonly nullable: false;
                 readonly type: {
@@ -3005,6 +3108,7 @@ type ContractBase = Omit<
               readonly namespaceId: 'public';
               readonly fields: {
                 readonly id: { readonly column: 'id' };
+                readonly tipo: { readonly column: 'tipo' };
                 readonly createdAt: { readonly column: 'created_at' };
               };
             };
@@ -3076,10 +3180,22 @@ type ContractBase = Omit<
               };
               readonly nome: {
                 readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly icone: {
+                readonly nullable: false;
                 readonly type: {
                   readonly kind: 'scalar';
                   readonly codecId: 'sql/varchar@1';
-                  readonly typeParams: { readonly length: 50 };
+                  readonly typeParams: { readonly length: 100 };
+                };
+              };
+              readonly cor: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'sql/varchar@1';
+                  readonly typeParams: { readonly length: 7 };
                 };
               };
             };
@@ -3135,6 +3251,8 @@ type ContractBase = Omit<
               readonly fields: {
                 readonly id: { readonly column: 'id' };
                 readonly nome: { readonly column: 'nome' };
+                readonly icone: { readonly column: 'icone' };
+                readonly cor: { readonly column: 'cor' };
               };
             };
           };
@@ -3598,6 +3716,13 @@ type ContractBase = Omit<
                   readonly codecId: 'pg/timestamptz-temporal@1';
                 };
               };
+              readonly updatedAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                };
+              };
             };
             readonly relations: {
               readonly anuncioFavoritos: {
@@ -3634,6 +3759,17 @@ type ContractBase = Omit<
                 };
               };
               readonly avaliacoes: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Avaliacoes';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['avaliadoId'];
+                };
+              };
+              readonly avaliacoesAvaliacoes: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
                   readonly model: 'Avaliacoes';
@@ -3760,6 +3896,7 @@ type ContractBase = Omit<
                 readonly longitude: { readonly column: 'longitude' };
                 readonly bio: { readonly column: 'bio' };
                 readonly createdAt: { readonly column: 'created_at' };
+                readonly updatedAt: { readonly column: 'updated_at' };
               };
             };
           };
