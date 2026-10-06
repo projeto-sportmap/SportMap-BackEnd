@@ -3,7 +3,7 @@
 
 model Esportes {
   id              Int               @id(map: "esportes_pkey") @default(autoincrement())
-  nome            VarChar(50)       @unique(map: "esportes_nome_key")
+  nome            String            @unique(map: "esportes_nome_key")
   anuncios        Anuncios[]
   atividades      Atividades[]
   publicacoes     Publicacoes[]

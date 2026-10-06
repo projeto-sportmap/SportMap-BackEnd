@@ -1,0 +1,1 @@
+export type Varchar<N extends number> = string & { readonly __varchar: N };
