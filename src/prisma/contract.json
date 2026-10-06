@@ -1127,11 +1127,8 @@
               "nome": {
                 "nullable": false,
                 "type": {
-                  "codecId": "sql/varchar@1",
-                  "kind": "scalar",
-                  "typeParams": {
-                    "length": 50
-                  }
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
                 }
               }
             },
@@ -3178,12 +3175,9 @@
                   "nullable": false
                 },
                 "nome": {
-                  "codecId": "sql/varchar@1",
-                  "nativeType": "character varying",
-                  "nullable": false,
-                  "typeParams": {
-                    "length": 50
-                  }
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
                 }
               },
               "foreignKeys": [],
@@ -3892,7 +3886,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "fcf4f840642914c756c22f2bb90f1020f073cec7b178bb18c419ee620a9de3e5"
+    "storageHash": "9482f0a0c8e291e76cd733c2e02c905f6b033004dadb3b5eae53273a93db2bfb"
   },
   "capabilities": {
     "postgres": {
