@@ -1,4 +1,3 @@
-// Arquivo: src/controllers/esportes.controller.ts
 import type { Request, Response } from 'express';
 import * as EsportesService from '../services/esportes.service.js';
 import { HttpError } from '../lib/http-error.js';

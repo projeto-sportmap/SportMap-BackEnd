@@ -1,8 +1,5 @@
-// Arquivo: src/services/user.service.ts
 import { db } from '../prisma/db.js';
 import { HttpError } from '../lib/http-error.js';
-
-
 
 export interface CreateEsporteInput {
   nome: string;
