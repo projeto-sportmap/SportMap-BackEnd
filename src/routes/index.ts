@@ -5,10 +5,11 @@ import usuariosRoutes from './usuarios.route.js';
 import conversasRoutes from './conversas.route.js';
 import publicacoesRoutes from './publicacoes.route.js';
 
-const routes = Router();
-routes.use(esportesRoutes);
-routes.use(seguidoresRoutes);
-routes.use(usuariosRoutes);
-routes.use(conversasRoutes);
-routes.use(publicacoesRoutes);
-export default routes;
+const rotas = Router();
+rotas.use(esportesRoutes);     
+rotas.use(seguidoresRoutes);
+rotas.use(usuariosRoutes);
+rotas.use(conversasRoutes);
+rotas.use(publicacoesRoutes);
+
+export default rotas;
