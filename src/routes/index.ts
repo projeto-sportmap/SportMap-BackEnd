@@ -5,15 +5,14 @@ import comentariosRoutes from './comentarios.routes.js';
 import seguidoresRoutes from './seguidores.route.js';
 import usuariosRoutes from './usuarios.route.js';
 import conversasRoutes from './conversas.route.js';
-import compartilhamentosRoutes from './compartilhamentos.route.js';
+import publicacoesRoutes from './publicacoes.route.js';
 
 const routes = Router();
-routes.use(esportesRoutes);
-routes.use(comentariosRoutes);
+routes.use(esportesRoutes);     
 routes.use(seguidoresRoutes);
 routes.use(usuariosRoutes);
 routes.use(conversasRoutes);
-routes.use(compartilhamentosRoutes);
+routes.use(publicacoesRoutes);
 
  
 export default routes;
