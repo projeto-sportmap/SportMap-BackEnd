@@ -1,6 +1,6 @@
 // Arquivo: src/routes/comentarios.routes.ts
 import { Router } from 'express';
-import * as ComentariosController from '../controllers/comentarios.controllers.js';
+import * as ComentariosController from '../controllers/comentarios.controller.js';
 import { validate } from '../middlewares/validate.middlewares.js';
 import { authenticate } from '../middlewares/authenticate.middlewares.js';
 import {
