@@ -5,7 +5,6 @@ import usuariosRoutes from './usuarios.route.js';
 import conversasRoutes from './conversas.route.js';
 import publicacoesRoutes from './publicacoes.route.js';
 
-
 const routes = Router();
 routes.use(esportesRoutes);
 routes.use(seguidoresRoutes);
