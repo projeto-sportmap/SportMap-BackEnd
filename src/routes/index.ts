@@ -7,6 +7,7 @@ import conversasRoutes from './conversas.route.js';
 import publicacoesRoutes from './publicacoes.route.js';
 import curtidasRoutes from './curtidas.route.js';
 import usuarioEsportesRoutes from './usuario-esportes.route.js';
+import publicacaoMidiasRoutes from './publimidia.route.js';
 
 const routes = Router();
 routes.use(esportesRoutes);
@@ -17,5 +18,6 @@ routes.use(conversasRoutes);
 routes.use(publicacoesRoutes);
 routes.use(curtidasRoutes);
 routes.use(usuarioEsportesRoutes);
+routes.use(publicacaoMidiasRoutes);
 
 export default routes;
