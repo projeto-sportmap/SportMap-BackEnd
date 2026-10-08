@@ -2,74 +2,41 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 
 import routes from './routes/index.js';
-
 import { corsMiddleware } from './middlewares/cors.middleware.js';
+import { morganMiddleware } from './middlewares/morgan.middleware.js';
 import { errorHandler } from './middlewares/error.middleware.js';
+import { logger } from './config/logger.js';
 
 export const app = express();
 
-/*
- * CORS
- *
- * Precisa vir antes das rotas.
- */
-app.use(corsMiddleware);
+// Registra os pedidos HTTP.
+app.use(morganMiddleware);
 
-/*
- * Cookies
- *
- * Necessário para ler:
- *
- * req.cookies.token
- */
+// CORS e cookies.
+app.use(corsMiddleware);
 app.use(cookieParser());
 
-/*
- * JSON
- */
-app.use(
-  express.json({
-    limit: '16kb',
-  }),
-);
+// Limite do corpo JSON.
+app.use(express.json({ limit: '16kb' }));
 
-/*
- * Arquivos enviados
- */
-app.use(
-  '/uploads',
-  express.static('uploads'),
-);
+// Preserva o acesso às fotos e mídias enviadas.
+app.use('/uploads', express.static('uploads'));
 
-/*
- * Health check
- */
-app.get(
-  '/health',
-  (_req, res) =>
-    res.json({
-      status: 'ok',
-    }),
-);
+// Verificação de saúde da API.
+app.get('/health', (_req, res) => {
+  res.json({ status: 'ok' });
+});
 
-/*
- * Rotas da API
- */
+// Todas as rotas existentes do SportMap.
 app.use(routes);
 
-/*
- * 404
- */
-app.use(
-  (_req, res) =>
-    res
-      .status(404)
-      .json({
-        error: 'Rota não encontrada.',
-      }),
-);
+// Rota inexistente.
+app.use((_req, res) => {
+  logger.warn('Rota não encontrada.');
+  res.status(404).json({
+    error: 'Rota não encontrada.',
+  });
+});
 
-/*
- * Tratamento de erros
- */
+// Tratamento centralizado de erros: sempre por último.
 app.use(errorHandler);
