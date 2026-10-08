@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import * as PublicacoesController from '../controllers/publicacoes.controller.js';
-import { validate } from '../middlewares/validate.js';
+import { validate } from '../middlewares/validate.middlewares.js';
 import {
   createPublicacaoSchema,
   updatePublicacaoSchema,
