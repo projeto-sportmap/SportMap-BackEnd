@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import * as MidiasController from '../controllers/publimidia.controller.js';
-import { validate } from '../middlewares/validate.js';
+import { validate } from '../middlewares/validate.middlewares.js';
 import {
   createPublicacaoMidiaSchema,
   updatePublicacaoMidiaSchema,
