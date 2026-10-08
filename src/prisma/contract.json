@@ -1853,6 +1853,13 @@
                   }
                 }
               },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
               "username": {
                 "nullable": false,
                 "type": {
@@ -2095,6 +2102,9 @@
                 },
                 "sobrenome": {
                   "column": "sobrenome"
+                },
+                "updatedAt": {
+                  "column": "updated_at"
                 },
                 "username": {
                   "column": "username"
@@ -3839,6 +3849,15 @@
                     "length": 100
                   }
                 },
+                "updated_at": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
                 "username": {
                   "codecId": "sql/varchar@1",
                   "nativeType": "character varying",
@@ -3886,7 +3905,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "9482f0a0c8e291e76cd733c2e02c905f6b033004dadb3b5eae53273a93db2bfb"
+    "storageHash": "47c044ede655e71f1c406e8f936647144b97d9bc854cdb754954d89def9c78db"
   },
   "capabilities": {
     "postgres": {

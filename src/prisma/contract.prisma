@@ -25,6 +25,7 @@ model Usuarios {
   longitude             Numeric(9, 6)?
   bio                   String?
   createdAt             Timestamptz             @default(now()) @map("created_at")
+  updatedAt             Timestamptz             @default(now()) @map("updated_at")
   anuncioFavoritos      AnuncioFavoritos[]
   anuncios              Anuncios[]
   atividades            Atividades[]
