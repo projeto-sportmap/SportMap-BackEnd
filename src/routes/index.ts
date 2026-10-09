@@ -1,5 +1,5 @@
 import { Router } from 'express';
-
+ 
 import esportesRoutes from './esportes.route.js';
 import comentariosRoutes from './comentarios.routes.js';
 import seguidoresRoutes from './seguidores.route.js';
@@ -20,9 +20,9 @@ import compartilhamentosRoutes from './compartilhamentos.route.js';
 
 
 import authRoutes from './auth.route.js';
-
+ 
 const routes = Router();
-
+ 
 routes.use(esportesRoutes);
 routes.use(comentariosRoutes);
 routes.use(seguidoresRoutes);
@@ -48,5 +48,5 @@ routes.use(compartilhamentosRoutes);
  * POST /logout
  */
 routes.use(authRoutes);
-
+ 
 export default routes;
