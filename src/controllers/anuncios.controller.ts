@@ -5,10 +5,6 @@ import { HttpError } from '../lib/http-error.js';
 const MAX_BIGINT = 9223372036854775807n;
 const MAX_INT = 2147483647;
 
-type RequestComUsuarios = Request & {
-  usuarios?: { id: string | number | bigint };
-};
-
 const readBigInt = (value: unknown, campo: string) => {
   const texto = String(value ?? '');
   if (!/^\d+$/.test(texto)) {
@@ -93,11 +89,12 @@ const lerCoordenadas = (body: Record<string, unknown>) => {
   return { latitude, longitude };
 };
 
-// Id do usuário logado, preenchido pelo middleware de autenticação em req.usuarios.
+// Id do usuário logado, preenchido pelo middleware authenticate em req.user.id
+// (provisório, via header x-user-id — ver src/middlewares/authenticate.ts).
 const readUsuarioLogado = (req: Request) => {
-  const { usuarios } = req as RequestComUsuarios;
-  if (!usuarios) throw new HttpError(401, 'Não autenticado.');
-  return readBigInt(usuarios.id, 'usuarioId');
+  const user = (req as Request & { user?: { id: string } }).user;
+  if (!user) throw new HttpError(401, 'Não autenticado.');
+  return readBigInt(user.id, 'usuarioId');
 };
 
 export const createAnuncios = async (req: Request, res: Response) => {
