@@ -1,3 +1,4 @@
+import { Temporal } from '@js-temporal/polyfill';
 import { db } from '../prisma/db.js';
 import { HttpError } from '../lib/http-error.js';
 
@@ -35,6 +36,8 @@ export interface FiltrosAtividades {
 
 type AtividadesRow = Awaited<ReturnType<typeof db.orm.public.Atividades.create>>;
 
+const toInstant = (date: Date) => Temporal.Instant.fromEpochMilliseconds(date.getTime());
+
 export const toPublicAtividades = (atividades: AtividadesRow) => ({
   id: atividades.id.toString(),
   usuarioId: atividades.usuarioId.toString(),
@@ -66,7 +69,7 @@ export async function createAtividades(data: CreateAtividadesInput) {
     latitude: data.latitude,
     longitude: data.longitude,
     status: 'aberta',
-    expiraEm: data.expiraEm
+    expiraEm: toInstant(data.expiraEm)
   } as never);
 }
 
@@ -98,14 +101,14 @@ export async function getAtividadesById(id: bigint) {
 }
 
 export async function updateAtividades(id: bigint, data: UpdateAtividadesInput) {
-  const changes: UpdateAtividadesInput = {};
+  const changes: Record<string, unknown> = {};
   if (data.descricao !== undefined) changes.descricao = data.descricao;
   if (data.status !== undefined) changes.status = data.status;
   if (data.expiraEm !== undefined) {
     if (data.expiraEm.getTime() <= Date.now()) {
       throw new HttpError(400, 'A data de expiração deve ser futura.');
     }
-    changes.expiraEm = data.expiraEm;
+    changes.expiraEm = toInstant(data.expiraEm);
   }
 
   if (Object.keys(changes).length === 0) throw new HttpError(400, 'Informe pelo menos um campo.');
