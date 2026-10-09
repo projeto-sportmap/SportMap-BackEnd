@@ -2,6 +2,8 @@ import express from 'express'; import cookieParser from 'cookie-parser'; import 
 
 import routes from './routes/index.js'; import { env } from './config/env.js'; import { corsMiddleware } from './middlewares/cors.middleware.js'; import { morganMiddleware } from './middlewares/morgan.middleware.js'; import { originGuard } from './middlewares/origin.middleware.js'; import { limiter, loginLimiter, } from './middlewares/rateLimit.middleware.js'; import { errorHandler } from './middlewares/error.middleware.js'; import { logger } from './config/logger.js';
 
+import { setupSwagger } from './config/swagger.js';
+
 export const app = express();
 
 // Registra os pedidos HTTP.
@@ -30,6 +32,9 @@ export const app = express();
 
 // Rotas existentes do SportMap.
  app.use(routes);
+
+  // Documentação da API com Swagger.
+ setupSwagger(app);
 
 // Rota inexistente. 
 app.use((_req, res) => { logger.warn('Rota não encontrada.'); res.status(404).json({ error: 'Rota não encontrada.', }); });
