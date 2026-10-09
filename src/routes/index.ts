@@ -17,9 +17,8 @@ import anuncio_midiasRoutes from './anuncio_midias.route.js';
 import anunciosRoutes from './anuncios.route.js';
 import avaliacoesRoutes from './avaliacoes.route.js';
 import compartilhamentosRoutes from './compartilhamentos.route.js';
-import loginRoutes from './auth.route.js';
- 
- 
+
+
 import authRoutes from './auth.route.js';
  
 const routes = Router();
@@ -41,8 +40,7 @@ routes.use(anuncio_midiasRoutes);
 routes.use(anunciosRoutes);
 routes.use(avaliacoesRoutes);
 routes.use(compartilhamentosRoutes);
-routes.use(loginRoutes);
- 
+
 /*
  * Autenticação
  *
