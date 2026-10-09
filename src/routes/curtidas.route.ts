@@ -29,17 +29,32 @@ const router = Router();
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - publicacaoId
+ *               - usuarioId
  *             properties:
  *               publicacaoId:
- *                 type: integer
- *                 example: 1
+ *                 type: string
+ *                 example: "1"
+ *                 description: ID da publicação curtida
+ *               usuarioId:
+ *                 type: string
+ *                 example: "10"
+ *                 description: ID do usuário que curtiu
+ *           example:
+ *             publicacaoId: "1"
+ *             usuarioId: "10"
  *     responses:
  *       201:
  *         description: Curtida criada com sucesso
  *       400:
  *         description: Dados inválidos
  */
-router.post('/curtidas', validate(createCurtidaSchema), CurtidasController.createCurtida);
+router.post(
+  '/curtidas',
+  validate(createCurtidaSchema),
+  CurtidasController.createCurtida,
+);
 
 /**
  * @swagger
@@ -53,7 +68,11 @@ router.post('/curtidas', validate(createCurtidaSchema), CurtidasController.creat
  *       400:
  *         description: Parâmetros de consulta inválidos
  */
-router.get('/curtidas', validate(listCurtidasSchema), CurtidasController.getAllCurtidas);
+router.get(
+  '/curtidas',
+  validate(listCurtidasSchema),
+  CurtidasController.getAllCurtidas,
+);
 
 /**
  * @swagger
@@ -76,7 +95,11 @@ router.get('/curtidas', validate(listCurtidasSchema), CurtidasController.getAllC
  *       404:
  *         description: Curtida não encontrada
  */
-router.get('/curtidas/:id', validate(curtidaIdSchema), CurtidasController.getCurtidaById);
+router.get(
+  '/curtidas/:id',
+  validate(curtidaIdSchema),
+  CurtidasController.getCurtidaById,
+);
 
 /**
  * @swagger
@@ -99,6 +122,10 @@ router.get('/curtidas/:id', validate(curtidaIdSchema), CurtidasController.getCur
  *       404:
  *         description: Curtida não encontrada
  */
-router.delete('/curtidas/:id', validate(curtidaIdSchema), CurtidasController.deleteCurtida);
+router.delete(
+  '/curtidas/:id',
+  validate(curtidaIdSchema),
+  CurtidasController.deleteCurtida,
+);
 
 export default router;
