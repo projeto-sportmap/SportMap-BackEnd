@@ -1,42 +1,38 @@
-import express from 'express';
-import cookieParser from 'cookie-parser';
+import express from 'express'; import cookieParser from 'cookie-parser'; import helmet from 'helmet';
 
-import routes from './routes/index.js';
-import { corsMiddleware } from './middlewares/cors.middleware.js';
-import { morganMiddleware } from './middlewares/morgan.middleware.js';
-import { errorHandler } from './middlewares/error.middleware.js';
-import { logger } from './config/logger.js';
+import routes from './routes/index.js'; import { env } from './config/env.js'; import { corsMiddleware } from './middlewares/cors.middleware.js'; import { morganMiddleware } from './middlewares/morgan.middleware.js'; import { originGuard } from './middlewares/origin.middleware.js'; import { limiter, loginLimiter, } from './middlewares/rateLimit.middleware.js'; import { errorHandler } from './middlewares/error.middleware.js'; import { logger } from './config/logger.js';
 
 export const app = express();
 
 // Registra os pedidos HTTP.
-app.use(morganMiddleware);
+ app.use(morganMiddleware);
 
-// CORS e cookies.
-app.use(corsMiddleware);
-app.use(cookieParser());
+// Cabeçalhos de segurança.
+ app.use( helmet({ contentSecurityPolicy: env.NODE_ENV === 'production' ? undefined : { directives: { 'upgrade-insecure-requests': null, }, }, }), );
 
-// Limite do corpo JSON.
-app.use(express.json({ limit: '16kb' }));
+// CORS e verificação de origem.
+ app.use(corsMiddleware); app.use(originGuard);
 
-// Preserva o acesso às fotos e mídias enviadas.
-app.use('/uploads', express.static('uploads'));
+// Verificação de disponibilidade antes do limite geral
+ app.get('/health', (_req, res) => { res.json({ status: 'ok' }); });
 
-// Verificação de saúde da API.
-app.get('/health', (_req, res) => {
-  res.json({ status: 'ok' });
-});
+// Limite geral da API.
+ app.use(limiter);
 
-// Todas as rotas existentes do SportMap.
-app.use(routes);
+// Limite específico para login.
+ app.use('/login', loginLimiter);
 
-// Rota inexistente.
-app.use((_req, res) => {
-  logger.warn('Rota não encontrada.');
-  res.status(404).json({
-    error: 'Rota não encontrada.',
-  });
-});
+// Leitura de cookies e JSON
+ app.use(cookieParser()); app.use(express.json({ limit: '16kb' }));
 
-// Tratamento centralizado de erros: sempre por último.
+// Arquivos enviados.
+ app.use('/uploads', express.static('uploads'));
+
+// Rotas existentes do SportMap.
+ app.use(routes);
+
+// Rota inexistente. 
+app.use((_req, res) => { logger.warn('Rota não encontrada.'); res.status(404).json({ error: 'Rota não encontrada.', }); });
+
+// Tratamento centralizado de erros. 
 app.use(errorHandler);
