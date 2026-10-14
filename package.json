@@ -4,8 +4,6 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    
-  "generate": "plop",
     "dev": "tsx watch src/server.ts",
     "typecheck": "tsc --noEmit && tsc --project tsconfig.tests.json",
     "test": "vitest run",
