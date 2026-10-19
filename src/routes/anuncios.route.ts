@@ -1,7 +1,7 @@
 
 import { Router } from 'express';
 import * as AnunciosController from '../controllers/anuncios.controller.js';
-import { authenticate } from '../middlewares/authenticate.middlewares.js';
+import { authMiddleware } from '../middlewares/auth.middleware.js';
 
 const router = Router();
 
@@ -28,7 +28,7 @@ const router = Router();
  *       401:
  *         description: Não autenticado
  */
-router.post('/anuncios', authenticate, AnunciosController.createAnuncios);
+router.post('/anuncios', authMiddleware, AnunciosController.createAnuncios);
 
 /**
  * @swagger
@@ -88,7 +88,7 @@ router.get('/anuncios/:id', AnunciosController.getAnunciosById);
  *       404:
  *         description: Anúncio não encontrado
  */
-router.put('/anuncios/:id', authenticate, AnunciosController.updateAnuncios);
+router.put('/anuncios/:id', authMiddleware, AnunciosController.updateAnuncios);
 
 /**
  * @swagger
@@ -113,6 +113,6 @@ router.put('/anuncios/:id', authenticate, AnunciosController.updateAnuncios);
  *       404:
  *         description: Anúncio não encontrado
  */
-router.delete('/anuncios/:id', authenticate, AnunciosController.removerAnuncios);
+router.delete('/anuncios/:id', authMiddleware, AnunciosController.removerAnuncios);
 
 export default router;
