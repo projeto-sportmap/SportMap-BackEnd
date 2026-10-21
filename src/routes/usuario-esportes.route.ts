@@ -1,4 +1,3 @@
-
 import { Router } from 'express';
 import * as UsuarioEsportesController from '../controllers/usuario-esportes.controller.js';
 import { validate } from '../middlewares/validate.middlewares.js';
@@ -20,6 +19,43 @@ const router = Router();
 
 /**
  * @swagger
+ * components:
+ *   schemas:
+ *     CreateUsuarioEsporte:
+ *       type: object
+ *       required:
+ *         - usuarioId
+ *         - esporteId
+ *       properties:
+ *         usuarioId:
+ *           type: integer
+ *           minimum: 1
+ *           description: ID do usuário (também aceita número em formato de texto, ex. "1").
+ *           example: 1
+ *         esporteId:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 2147483647
+ *           example: 2
+ *         nivel:
+ *           type: string
+ *           enum: [iniciante, intermediario, avancado, profissional]
+ *           description: Se omitido, o padrão é "iniciante".
+ *           example: "iniciante"
+ *     UpdateUsuarioEsporte:
+ *       type: object
+ *       description: Só o nível pode ser alterado.
+ *       required:
+ *         - nivel
+ *       properties:
+ *         nivel:
+ *           type: string
+ *           enum: [iniciante, intermediario, avancado, profissional]
+ *           example: "intermediario"
+ */
+
+/**
+ * @swagger
  * /usuario-esportes:
  *   post:
  *     summary: Vincular um esporte a um usuário
@@ -29,14 +65,7 @@ const router = Router();
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               usuarioId:
- *                 type: integer
- *                 example: 1
- *               esporteId:
- *                 type: integer
- *                 example: 2
+ *             $ref: '#/components/schemas/CreateUsuarioEsporte'
  *     responses:
  *       201:
  *         description: Esporte vinculado ao usuário com sucesso
@@ -51,6 +80,19 @@ router.post('/usuario-esportes', validate(createUsuarioEsporteSchema), UsuarioEs
  *   get:
  *     summary: Listar vínculos entre usuários e esportes
  *     tags: [Usuário Esportes]
+ *     parameters:
+ *       - in: query
+ *         name: usuarioId
+ *         required: false
+ *         schema:
+ *           type: integer
+ *         description: Filtrar pelo ID do usuário
+ *       - in: query
+ *         name: esporteId
+ *         required: false
+ *         schema:
+ *           type: integer
+ *         description: Filtrar pelo ID do esporte
  *     responses:
  *       200:
  *         description: Lista de vínculos retornada com sucesso
@@ -86,7 +128,7 @@ router.get('/usuario-esportes/:id', validate(usuarioEsporteIdSchema), UsuarioEsp
  * @swagger
  * /usuario-esportes/{id}:
  *   put:
- *     summary: Atualizar vínculo entre usuário e esporte
+ *     summary: Atualizar o nível do vínculo entre usuário e esporte
  *     tags: [Usuário Esportes]
  *     parameters:
  *       - in: path
@@ -100,14 +142,7 @@ router.get('/usuario-esportes/:id', validate(usuarioEsporteIdSchema), UsuarioEsp
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               usuarioId:
- *                 type: integer
- *                 example: 1
- *               esporteId:
- *                 type: integer
- *                 example: 3
+ *             $ref: '#/components/schemas/UpdateUsuarioEsporte'
  *     responses:
  *       200:
  *         description: Vínculo atualizado com sucesso
