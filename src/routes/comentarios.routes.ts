@@ -4,7 +4,7 @@
 import { Router } from 'express';
 import * as ComentariosController from '../controllers/comentarios.controller.js';
 import { validate } from '../middlewares/validate.middlewares.js';
-import { authenticate } from '../middlewares/authenticate.middlewares.js';
+import { authMiddleware } from '../middlewares/auth.middleware.js';
 import {
   createComentarioSchema,
   updateComentarioSchema,
@@ -78,7 +78,7 @@ router.get(
  */
 router.post(
   '/publicacoes/:publicacaoId/comentarios',
-  authenticate,
+  authMiddleware,
   validate(createComentarioSchema),
   ComentariosController.createComentario,
 );
@@ -141,7 +141,7 @@ router.get('/comentarios/:id', ComentariosController.getComentarioById);
  */
 router.patch(
   '/comentarios/:id',
-  authenticate,
+  authMiddleware,
   validate(updateComentarioSchema),
   ComentariosController.updateComentario,
 );
@@ -171,7 +171,7 @@ router.patch(
  */
 router.delete(
   '/comentarios/:id',
-  authenticate,
+  authMiddleware,
   ComentariosController.deleteComentario,
 );
 

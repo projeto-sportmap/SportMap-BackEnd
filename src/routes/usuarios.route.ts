@@ -1,4 +1,3 @@
-
 import { Router } from 'express';
 import * as UsuariosController from '../controllers/usuarios.controller.js';
 import { validate } from '../middlewares/validate.middlewares.js';
@@ -27,6 +26,164 @@ const router = Router();
 
 /**
  * @swagger
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ *   schemas:
+ *     CreateUsuario:
+ *       type: object
+ *       required:
+ *         - nome
+ *         - sobrenome
+ *         - username
+ *         - email
+ *         - senha
+ *       properties:
+ *         nome:
+ *           type: string
+ *           minLength: 2
+ *           maxLength: 100
+ *           example: "Brayan"
+ *         sobrenome:
+ *           type: string
+ *           minLength: 2
+ *           maxLength: 100
+ *           example: "Rodrigues"
+ *         username:
+ *           type: string
+ *           minLength: 3
+ *           maxLength: 30
+ *           pattern: '^[a-z0-9_.]+$'
+ *           description: Apenas letras, números, "_" e "." (convertido para minúsculas).
+ *           example: "brayan.rodrigues"
+ *         email:
+ *           type: string
+ *           format: email
+ *           maxLength: 255
+ *           example: "brayan@email.com"
+ *         senha:
+ *           type: string
+ *           format: password
+ *           minLength: 6
+ *           maxLength: 72
+ *           example: "Senha123!"
+ *         fotoPerfilUrl:
+ *           type: string
+ *           maxLength: 500
+ *           nullable: true
+ *           example: "https://exemplo.com/foto.jpg"
+ *         cidade:
+ *           type: string
+ *           maxLength: 100
+ *           nullable: true
+ *           example: "Pindamonhangaba"
+ *         bio:
+ *           type: string
+ *           maxLength: 1000
+ *           nullable: true
+ *           example: "Desenvolvedor backend."
+ *         latitude:
+ *           type: number
+ *           format: double
+ *           minimum: -90
+ *           maximum: 90
+ *           nullable: true
+ *           description: Deve ser enviada junto com longitude.
+ *           example: -22.9235
+ *         longitude:
+ *           type: number
+ *           format: double
+ *           minimum: -180
+ *           maximum: 180
+ *           nullable: true
+ *           description: Deve ser enviada junto com latitude.
+ *           example: -45.4613
+ *     UpdateUsuario:
+ *       type: object
+ *       description: Todos os campos são opcionais, mas é preciso informar pelo menos um. Latitude e longitude devem ser enviadas juntas.
+ *       minProperties: 1
+ *       properties:
+ *         nome:
+ *           type: string
+ *           minLength: 2
+ *           maxLength: 100
+ *           example: "Brayan"
+ *         sobrenome:
+ *           type: string
+ *           minLength: 2
+ *           maxLength: 100
+ *           example: "Rodrigues"
+ *         username:
+ *           type: string
+ *           minLength: 3
+ *           maxLength: 30
+ *           pattern: '^[a-z0-9_.]+$'
+ *           example: "brayan.rodrigues"
+ *         email:
+ *           type: string
+ *           format: email
+ *           maxLength: 255
+ *           example: "brayan@email.com"
+ *         senha:
+ *           type: string
+ *           format: password
+ *           minLength: 6
+ *           maxLength: 72
+ *           example: "NovaSenha123!"
+ *         fotoPerfilUrl:
+ *           type: string
+ *           maxLength: 500
+ *           nullable: true
+ *           example: "https://exemplo.com/foto.jpg"
+ *         cidade:
+ *           type: string
+ *           maxLength: 100
+ *           nullable: true
+ *           example: "Pindamonhangaba"
+ *         bio:
+ *           type: string
+ *           maxLength: 1000
+ *           nullable: true
+ *           example: "Desenvolvedor backend."
+ *         latitude:
+ *           type: number
+ *           format: double
+ *           minimum: -90
+ *           maximum: 90
+ *           nullable: true
+ *           example: -22.9235
+ *         longitude:
+ *           type: number
+ *           format: double
+ *           minimum: -180
+ *           maximum: 180
+ *           nullable: true
+ *           example: -45.4613
+ *     Localizacao:
+ *       type: object
+ *       required:
+ *         - latitude
+ *         - longitude
+ *       properties:
+ *         latitude:
+ *           type: number
+ *           format: double
+ *           minimum: -90
+ *           maximum: 90
+ *           example: -22.9235
+ *         longitude:
+ *           type: number
+ *           format: double
+ *           minimum: -180
+ *           maximum: 180
+ *           example: -45.4613
+ */
+
+/**
+ * @swagger
  * /usuarios:
  *   post:
  *     summary: Cadastrar um novo usuário
@@ -37,12 +194,7 @@ const router = Router();
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             description: Dados necessários para cadastrar um usuário.
- *             example:
- *               nome: "Brayan Rodrigues"
- *               email: "brayan@email.com"
- *               senha: "Senha123!"
+ *             $ref: '#/components/schemas/CreateUsuario'
  *     responses:
  *       201:
  *         description: Usuário cadastrado com sucesso
@@ -137,11 +289,7 @@ router.get(
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             description: Campos permitidos para atualização, conforme o schema de validação.
- *             example:
- *               nome: "Brayan Rodrigues"
- *               email: "brayan@email.com"
+ *             $ref: '#/components/schemas/UpdateUsuario'
  *     responses:
  *       200:
  *         description: Usuário atualizado com sucesso
@@ -183,11 +331,7 @@ router.put(
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             description: Dados de localização conforme localizacaoSchema.
- *             example:
- *               latitude: -22.9235
- *               longitude: -45.4613
+ *             $ref: '#/components/schemas/Localizacao'
  *     responses:
  *       200:
  *         description: Localização atualizada com sucesso
@@ -214,7 +358,7 @@ router.patch(
  *   patch:
  *     summary: Atualizar foto do usuário
  *     tags: [Usuários]
- *     description: Permite enviar uma foto para a própria conta. O formato do envio depende da configuração de uploadFoto.
+ *     description: Permite enviar uma foto para a própria conta (multipart/form-data, campo "foto").
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -230,6 +374,8 @@ router.patch(
  *         multipart/form-data:
  *           schema:
  *             type: object
+ *             required:
+ *               - foto
  *             properties:
  *               foto:
  *                 type: string
