@@ -1,4 +1,3 @@
-
 import { Router } from 'express';
 import * as PublicacoesController from '../controllers/publicacoes.controller.js';
 import { validate } from '../middlewares/validate.middlewares.js';
@@ -20,6 +19,80 @@ const router = Router();
 
 /**
  * @swagger
+ * components:
+ *   schemas:
+ *     CreatePublicacao:
+ *       type: object
+ *       required:
+ *         - usuarioId
+ *       properties:
+ *         usuarioId:
+ *           type: integer
+ *           minimum: 1
+ *           description: ID do usuário autor (também aceita número em formato de texto, ex. "1").
+ *           example: 1
+ *         esporteId:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 2147483647
+ *           nullable: true
+ *           example: 2
+ *         conteudo:
+ *           type: string
+ *           maxLength: 5000
+ *           nullable: true
+ *           description: Texto em branco é salvo como vazio (null).
+ *           example: Hoje foi um ótimo dia para praticar esportes!
+ *         latitude:
+ *           type: number
+ *           format: double
+ *           minimum: -90
+ *           maximum: 90
+ *           nullable: true
+ *           description: Deve ser enviada junto com longitude.
+ *           example: -22.9235
+ *         longitude:
+ *           type: number
+ *           format: double
+ *           minimum: -180
+ *           maximum: 180
+ *           nullable: true
+ *           description: Deve ser enviada junto com latitude.
+ *           example: -45.4613
+ *     UpdatePublicacao:
+ *       type: object
+ *       description: Todos os campos são opcionais, mas é preciso informar pelo menos um. Latitude e longitude devem ser enviadas juntas. O autor (usuarioId) não pode ser alterado.
+ *       minProperties: 1
+ *       properties:
+ *         esporteId:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 2147483647
+ *           nullable: true
+ *           example: 2
+ *         conteudo:
+ *           type: string
+ *           maxLength: 5000
+ *           nullable: true
+ *           example: Conteúdo atualizado da publicação.
+ *         latitude:
+ *           type: number
+ *           format: double
+ *           minimum: -90
+ *           maximum: 90
+ *           nullable: true
+ *           example: -22.9235
+ *         longitude:
+ *           type: number
+ *           format: double
+ *           minimum: -180
+ *           maximum: 180
+ *           nullable: true
+ *           example: -45.4613
+ */
+
+/**
+ * @swagger
  * /publicacoes:
  *   post:
  *     summary: Criar uma publicação
@@ -29,16 +102,14 @@ const router = Router();
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               conteudo:
- *                 type: string
- *                 example: Hoje foi um ótimo dia para praticar esportes!
+ *             $ref: '#/components/schemas/CreatePublicacao'
  *     responses:
  *       201:
  *         description: Publicação criada com sucesso
  *       400:
  *         description: Dados inválidos
+ *       404:
+ *         description: Usuário ou esporte não encontrado
  */
 router.post('/publicacoes', validate(createPublicacaoSchema), PublicacoesController.createPublicacao);
 
@@ -48,6 +119,19 @@ router.post('/publicacoes', validate(createPublicacaoSchema), PublicacoesControl
  *   get:
  *     summary: Listar publicações
  *     tags: [Publicações]
+ *     parameters:
+ *       - in: query
+ *         name: usuarioId
+ *         required: false
+ *         schema:
+ *           type: integer
+ *         description: Filtrar pelo ID do usuário autor
+ *       - in: query
+ *         name: esporteId
+ *         required: false
+ *         schema:
+ *           type: integer
+ *         description: Filtrar pelo ID do esporte
  *     responses:
  *       200:
  *         description: Lista de publicações retornada com sucesso
@@ -97,18 +181,14 @@ router.get('/publicacoes/:id', validate(publicacaoIdSchema), PublicacoesControll
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               conteudo:
- *                 type: string
- *                 example: Conteúdo atualizado da publicação.
+ *             $ref: '#/components/schemas/UpdatePublicacao'
  *     responses:
  *       200:
  *         description: Publicação atualizada com sucesso
  *       400:
  *         description: Dados inválidos
  *       404:
- *         description: Publicação não encontrada
+ *         description: Publicação ou esporte não encontrado
  */
 router.put('/publicacoes/:id', validate(updatePublicacaoSchema), PublicacoesController.updatePublicacao);
 
@@ -126,8 +206,8 @@ router.put('/publicacoes/:id', validate(updatePublicacaoSchema), PublicacoesCont
  *           type: integer
  *         description: ID da publicação
  *     responses:
- *       200:
- *         description: Publicação excluída com sucesso
+ *       204:
+ *         description: Publicação excluída com sucesso (sem conteúdo na resposta)
  *       400:
  *         description: ID inválido
  *       404:
