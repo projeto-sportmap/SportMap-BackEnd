@@ -24,13 +24,8 @@ const router = Router();
  *   schemas:
  *     CreatePublicacao:
  *       type: object
- *       description: O autor é obtido do usuário autenticado. usuarioId é opcional e deve corresponder ao token quando informado.
+ *       description: O autor é o usuário autenticado.
  *       properties:
- *         usuarioId:
- *           type: integer
- *           minimum: 1
- *           description: ID opcional do usuário autor; deve corresponder ao usuário autenticado.
- *           example: 1
  *         esporteId:
  *           type: integer
  *           minimum: 1
@@ -112,8 +107,6 @@ const router = Router();
  *         description: Dados inválidos
  *       401:
  *         description: Autenticação ausente ou inválida
- *       403:
- *         description: usuarioId diferente do usuário autenticado
  *       404:
  *         description: Usuário ou esporte não encontrado
  */
