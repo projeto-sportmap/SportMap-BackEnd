@@ -1,0 +1,1065 @@
+diff --git a/src/middlewares/permission.middleware.ts b/src/middlewares/permission.middleware.ts
+new file mode 100644
+index 0000000..c168020
+--- /dev/null
++++ b/src/middlewares/permission.middleware.ts
+@@ -0,0 +1,38 @@
++// Arquivo: src/middlewares/permission.middleware.ts
++import type { RequestHandler } from 'express';
++import { db } from '../prisma/db.js';
++import { hasPermission, type Permission } from '../security/permissions.js';
++
++/**
++ * Deve rodar DEPOIS do authMiddleware.
++ * O authMiddleware já busca o usuário no banco a cada pedido e guarda em
++ * res.locals.usuario; aqui só buscamos o tipo atual e conferimos a permissão.
++ * O JWT continua carregando apenas o id: o papel vem sempre do banco.
++ */
++export const requirePermission =
++  (permission: Permission): RequestHandler =>
++  async (_req, res, next) => {
++    const usuario = res.locals.usuario as
++      | { tipoUsuarioId: number | null }
++      | undefined;
++
++    if (!usuario) {
++      res.status(401).json({ error: 'Autenticação obrigatória.' });
++      return;
++    }
++
++    // Negação por padrão: sem tipo definido, sem permissão.
++    if (usuario.tipoUsuarioId === null || usuario.tipoUsuarioId === undefined) {
++      res.status(403).json({ error: 'Você não tem permissão para esta operação.' });
++      return;
++    }
++
++    const tipo = await db.orm.public.TipoUsuario.first({ id: usuario.tipoUsuarioId });
++
++    if (!tipo || !hasPermission(tipo.code, permission)) {
++      res.status(403).json({ error: 'Você não tem permissão para esta operação.' });
++      return;
++    }
++
++    next();
++  };
+diff --git a/src/prisma/contract.d.ts b/src/prisma/contract.d.ts
+index ebc9d1a..cf22c22 100644
+--- a/src/prisma/contract.d.ts
++++ b/src/prisma/contract.d.ts
+@@ -34,7 +34,7 @@ import type {
+ } from '@prisma/orm-postgres/contract/types';
+ 
+ export type StorageHash =
+-  StorageHashBase<'47c044ede655e71f1c406e8f936647144b97d9bc854cdb754954d89def9c78db'>;
++  StorageHashBase<'d619be3bc63e019223b6abe233e6a5f73f33d75ef3cd805c095679e285d6ef4c'>;
+ export type ExecutionHash = ExecutionHashBase<string>;
+ export type ProfileHash =
+   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
+@@ -348,6 +348,11 @@ export type FieldOutputTypes = {
+       readonly seguidoId: CodecTypes['pg/int8@1']['output'];
+       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+     };
++    readonly TipoUsuario: {
++      readonly id: CodecTypes['pg/int4@1']['output'];
++      readonly code: Varchar<20>;
++      readonly name: Varchar<50>;
++    };
+     readonly UsuarioEsportes: {
+       readonly id: CodecTypes['pg/int8@1']['output'];
+       readonly usuarioId: CodecTypes['pg/int8@1']['output'];
+@@ -368,6 +373,7 @@ export type FieldOutputTypes = {
+       readonly bio: CodecTypes['pg/text@1']['output'] | null;
+       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+       readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
++      readonly tipoUsuarioId: CodecTypes['pg/int4@1']['output'] | null;
+     };
+   };
+ };
+@@ -480,6 +486,11 @@ export type FieldInputTypes = {
+       readonly seguidoId: CodecTypes['pg/int8@1']['input'];
+       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
+     };
++    readonly TipoUsuario: {
++      readonly id: CodecTypes['pg/int4@1']['input'];
++      readonly code: CodecTypes['sql/varchar@1']['input'];
++      readonly name: CodecTypes['sql/varchar@1']['input'];
++    };
+     readonly UsuarioEsportes: {
+       readonly id: CodecTypes['pg/int8@1']['input'];
+       readonly usuarioId: CodecTypes['pg/int8@1']['input'];
+@@ -500,6 +511,7 @@ export type FieldInputTypes = {
+       readonly bio: CodecTypes['pg/text@1']['input'] | null;
+       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
+       readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
++      readonly tipoUsuarioId: CodecTypes['pg/int4@1']['input'] | null;
+     };
+   };
+ };
+@@ -612,6 +624,11 @@ export type StorageColumnTypes = {
+       readonly seguido_id: CodecTypes['pg/int8@1']['output'];
+       readonly seguidor_id: CodecTypes['pg/int8@1']['output'];
+     };
++    readonly tipo_usuario: {
++      readonly code: Varchar<20>;
++      readonly id: CodecTypes['pg/int4@1']['output'];
++      readonly name: Varchar<50>;
++    };
+     readonly usuario_esportes: {
+       readonly esporte_id: CodecTypes['pg/int4@1']['output'];
+       readonly id: CodecTypes['pg/int8@1']['output'];
+@@ -630,6 +647,7 @@ export type StorageColumnTypes = {
+       readonly nome: Varchar<100>;
+       readonly senha_hash: Varchar<255>;
+       readonly sobrenome: Varchar<100>;
++      readonly tipo_usuario_id: CodecTypes['pg/int4@1']['output'] | null;
+       readonly updated_at: CodecTypes['pg/timestamptz-temporal@1']['output'];
+       readonly username: Varchar<30>;
+     };
+@@ -744,6 +762,11 @@ export type StorageColumnInputTypes = {
+       readonly seguido_id: CodecTypes['pg/int8@1']['input'];
+       readonly seguidor_id: CodecTypes['pg/int8@1']['input'];
+     };
++    readonly tipo_usuario: {
++      readonly code: CodecTypes['sql/varchar@1']['input'];
++      readonly id: CodecTypes['pg/int4@1']['input'];
++      readonly name: CodecTypes['sql/varchar@1']['input'];
++    };
+     readonly usuario_esportes: {
+       readonly esporte_id: CodecTypes['pg/int4@1']['input'];
+       readonly id: CodecTypes['pg/int8@1']['input'];
+@@ -762,6 +785,7 @@ export type StorageColumnInputTypes = {
+       readonly nome: CodecTypes['sql/varchar@1']['input'];
+       readonly senha_hash: CodecTypes['sql/varchar@1']['input'];
+       readonly sobrenome: CodecTypes['sql/varchar@1']['input'];
++      readonly tipo_usuario_id: CodecTypes['pg/int4@1']['input'] | null;
+       readonly updated_at: CodecTypes['pg/timestamptz-temporal@1']['input'];
+       readonly username: CodecTypes['sql/varchar@1']['input'];
+     };
+@@ -792,6 +816,7 @@ export namespace Models {
+     bio: CodecTypes['pg/text@1']['output'] | null;
+     createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+     updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
++    tipoUsuarioId: CodecTypes['pg/int4@1']['output'] | null;
+     anuncioFavoritos: public_AnuncioFavoritos[];
+     anuncios: public_Anuncios[];
+     atividades: public_Atividades[];
+@@ -804,6 +829,7 @@ export namespace Models {
+     publicacoes: public_Publicacoes[];
+     seguidores: public_Seguidores[];
+     seguidoresSeguidores: public_Seguidores[];
++    tipoUsuario: public_TipoUsuario | null;
+     usuarioEsportes: public_UsuarioEsportes[];
+     readonly [RelationKeys]?:
+       | 'anuncioFavoritos'
+@@ -818,6 +844,7 @@ export namespace Models {
+       | 'publicacoes'
+       | 'seguidores'
+       | 'seguidoresSeguidores'
++      | 'tipoUsuario'
+       | 'usuarioEsportes';
+   };
+   export type public_Anuncios = {
+@@ -981,6 +1008,13 @@ export namespace Models {
+     usuario: public_Usuarios;
+     readonly [RelationKeys]?: 'esporte' | 'usuario';
+   };
++  export type public_TipoUsuario = {
++    id: CodecTypes['pg/int4@1']['output'];
++    code: Varchar<20>;
++    name: Varchar<50>;
++    usuarios: public_Usuarios[];
++    readonly [RelationKeys]?: 'usuarios';
++  };
+ }
+ 
+ export declare const models: {
+@@ -1002,6 +1036,7 @@ export declare const models: {
+     PublicacaoMidias: Models.public_PublicacaoMidias;
+     Seguidores: Models.public_Seguidores;
+     UsuarioEsportes: Models.public_UsuarioEsportes;
++    TipoUsuario: Models.public_TipoUsuario;
+   };
+ };
+ 
+@@ -2118,6 +2153,33 @@ type ContractBase = Omit<
+                 },
+               ];
+             };
++            readonly tipo_usuario: {
++              columns: {
++                readonly id: {
++                  readonly nativeType: 'int4';
++                  readonly codecId: 'pg/int4@1';
++                  readonly nullable: false;
++                };
++                readonly code: {
++                  readonly nativeType: 'character varying';
++                  readonly codecId: 'sql/varchar@1';
++                  readonly nullable: false;
++                  readonly typeParams: { readonly length: 20 };
++                };
++                readonly name: {
++                  readonly nativeType: 'character varying';
++                  readonly codecId: 'sql/varchar@1';
++                  readonly nullable: false;
++                  readonly typeParams: { readonly length: 50 };
++                };
++              };
++              primaryKey: { readonly columns: readonly ['id']; readonly name: 'tipo_usuario_pkey' };
++              uniques: readonly [
++                { readonly columns: readonly ['code']; readonly name: 'tipo_usuario_code_key' },
++              ];
++              indexes: readonly [];
++              foreignKeys: readonly [];
++            };
+             readonly usuario_esportes: {
+               columns: {
+                 readonly id: {
+@@ -2278,6 +2340,11 @@ type ContractBase = Omit<
+                   readonly nullable: false;
+                   readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                 };
++                readonly tipo_usuario_id: {
++                  readonly nativeType: 'int4';
++                  readonly codecId: 'pg/int4@1';
++                  readonly nullable: true;
++                };
+               };
+               primaryKey: { readonly columns: readonly ['id']; readonly name: 'usuarios_pkey' };
+               uniques: readonly [
+@@ -2290,8 +2357,27 @@ type ContractBase = Omit<
+                   readonly columns: readonly ['latitude', 'longitude'];
+                   readonly unique: false;
+                 },
++                {
++                  readonly name: 'ix_usuarios_tipo_usuario';
++                  readonly columns: readonly ['tipo_usuario_id'];
++                  readonly unique: false;
++                },
++              ];
++              foreignKeys: readonly [
++                {
++                  readonly source: {
++                    readonly namespaceId: 'public' & NamespaceId;
++                    readonly tableName: 'usuarios';
++                    readonly columns: readonly ['tipo_usuario_id'];
++                  };
++                  readonly target: {
++                    readonly namespaceId: 'public' & NamespaceId;
++                    readonly tableName: 'tipo_usuario';
++                    readonly columns: readonly ['id'];
++                  };
++                  readonly name: 'fk_usuarios_tipo_usuario';
++                },
+               ];
+-              foreignKeys: readonly [];
+             };
+           };
+         };
+@@ -2354,6 +2440,10 @@ type ContractBase = Omit<
+       readonly namespace: 'public' & NamespaceId;
+       readonly model: 'UsuarioEsportes';
+     };
++    readonly tipo_usuario: {
++      readonly namespace: 'public' & NamespaceId;
++      readonly model: 'TipoUsuario';
++    };
+   };
+   readonly domain: {
+     readonly namespaces: {
+@@ -3455,6 +3545,52 @@ type ContractBase = Omit<
+               };
+             };
+           };
++          readonly TipoUsuario: {
++            readonly fields: {
++              readonly id: {
++                readonly nullable: false;
++                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
++              };
++              readonly code: {
++                readonly nullable: false;
++                readonly type: {
++                  readonly kind: 'scalar';
++                  readonly codecId: 'sql/varchar@1';
++                  readonly typeParams: { readonly length: 20 };
++                };
++              };
++              readonly name: {
++                readonly nullable: false;
++                readonly type: {
++                  readonly kind: 'scalar';
++                  readonly codecId: 'sql/varchar@1';
++                  readonly typeParams: { readonly length: 50 };
++                };
++              };
++            };
++            readonly relations: {
++              readonly usuarios: {
++                readonly to: {
++                  readonly namespace: 'public' & NamespaceId;
++                  readonly model: 'Usuarios';
++                };
++                readonly cardinality: '1:N';
++                readonly on: {
++                  readonly localFields: readonly ['id'];
++                  readonly targetFields: readonly ['tipoUsuarioId'];
++                };
++              };
++            };
++            readonly storage: {
++              readonly table: 'tipo_usuario';
++              readonly namespaceId: 'public';
++              readonly fields: {
++                readonly id: { readonly column: 'id' };
++                readonly code: { readonly column: 'code' };
++                readonly name: { readonly column: 'name' };
++              };
++            };
++          };
+           readonly UsuarioEsportes: {
+             readonly fields: {
+               readonly id: {
+@@ -3611,6 +3747,10 @@ type ContractBase = Omit<
+                   readonly codecId: 'pg/timestamptz-temporal@1';
+                 };
+               };
++              readonly tipoUsuarioId: {
++                readonly nullable: true;
++                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
++              };
+             };
+             readonly relations: {
+               readonly anuncioFavoritos: {
+@@ -3745,6 +3885,18 @@ type ContractBase = Omit<
+                   readonly targetFields: readonly ['seguidorId'];
+                 };
+               };
++              readonly tipoUsuario: {
++                readonly to: {
++                  readonly namespace: 'public' & NamespaceId;
++                  readonly model: 'TipoUsuario';
++                };
++                readonly cardinality: 'N:1';
++                readonly nullable: true;
++                readonly on: {
++                  readonly localFields: readonly ['tipoUsuarioId'];
++                  readonly targetFields: readonly ['id'];
++                };
++              };
+               readonly usuarioEsportes: {
+                 readonly to: {
+                   readonly namespace: 'public' & NamespaceId;
+@@ -3774,6 +3926,7 @@ type ContractBase = Omit<
+                 readonly bio: { readonly column: 'bio' };
+                 readonly createdAt: { readonly column: 'created_at' };
+                 readonly updatedAt: { readonly column: 'updated_at' };
++                readonly tipoUsuarioId: { readonly column: 'tipo_usuario_id' };
+               };
+             };
+           };
+diff --git a/src/prisma/contract.json b/src/prisma/contract.json
+index dd10596..d404d87 100644
+--- a/src/prisma/contract.json
++++ b/src/prisma/contract.json
+@@ -64,6 +64,10 @@
+       "model": "Seguidores",
+       "namespace": "public"
+     },
++    "tipo_usuario": {
++      "model": "TipoUsuario",
++      "namespace": "public"
++    },
+     "usuario_esportes": {
+       "model": "UsuarioEsportes",
+       "namespace": "public"
+@@ -1661,6 +1665,69 @@
+               "table": "seguidores"
+             }
+           },
++          "TipoUsuario": {
++            "fields": {
++              "code": {
++                "nullable": false,
++                "type": {
++                  "codecId": "sql/varchar@1",
++                  "kind": "scalar",
++                  "typeParams": {
++                    "length": 20
++                  }
++                }
++              },
++              "id": {
++                "nullable": false,
++                "type": {
++                  "codecId": "pg/int4@1",
++                  "kind": "scalar"
++                }
++              },
++              "name": {
++                "nullable": false,
++                "type": {
++                  "codecId": "sql/varchar@1",
++                  "kind": "scalar",
++                  "typeParams": {
++                    "length": 50
++                  }
++                }
++              }
++            },
++            "relations": {
++              "usuarios": {
++                "cardinality": "1:N",
++                "on": {
++                  "localFields": [
++                    "id"
++                  ],
++                  "targetFields": [
++                    "tipoUsuarioId"
++                  ]
++                },
++                "to": {
++                  "model": "Usuarios",
++                  "namespace": "public"
++                }
++              }
++            },
++            "storage": {
++              "fields": {
++                "code": {
++                  "column": "code"
++                },
++                "id": {
++                  "column": "id"
++                },
++                "name": {
++                  "column": "name"
++                }
++              },
++              "namespaceId": "public",
++              "table": "tipo_usuario"
++            }
++          },
+           "UsuarioEsportes": {
+             "fields": {
+               "esporteId": {
+@@ -1853,6 +1920,13 @@
+                   }
+                 }
+               },
++              "tipoUsuarioId": {
++                "nullable": true,
++                "type": {
++                  "codecId": "pg/int4@1",
++                  "kind": "scalar"
++                }
++              },
+               "updatedAt": {
+                 "nullable": false,
+                 "type": {
+@@ -2052,6 +2126,22 @@
+                   "namespace": "public"
+                 }
+               },
++              "tipoUsuario": {
++                "cardinality": "N:1",
++                "nullable": true,
++                "on": {
++                  "localFields": [
++                    "tipoUsuarioId"
++                  ],
++                  "targetFields": [
++                    "id"
++                  ]
++                },
++                "to": {
++                  "model": "TipoUsuario",
++                  "namespace": "public"
++                }
++              },
+               "usuarioEsportes": {
+                 "cardinality": "1:N",
+                 "on": {
+@@ -2103,6 +2193,9 @@
+                 "sobrenome": {
+                   "column": "sobrenome"
+                 },
++                "tipoUsuarioId": {
++                  "column": "tipo_usuario_id"
++                },
+                 "updatedAt": {
+                   "column": "updated_at"
+                 },
+@@ -3641,6 +3734,47 @@
+                 }
+               ]
+             },
++            "tipo_usuario": {
++              "columns": {
++                "code": {
++                  "codecId": "sql/varchar@1",
++                  "nativeType": "character varying",
++                  "nullable": false,
++                  "typeParams": {
++                    "length": 20
++                  }
++                },
++                "id": {
++                  "codecId": "pg/int4@1",
++                  "nativeType": "int4",
++                  "nullable": false
++                },
++                "name": {
++                  "codecId": "sql/varchar@1",
++                  "nativeType": "character varying",
++                  "nullable": false,
++                  "typeParams": {
++                    "length": 50
++                  }
++                }
++              },
++              "foreignKeys": [],
++              "indexes": [],
++              "primaryKey": {
++                "columns": [
++                  "id"
++                ],
++                "name": "tipo_usuario_pkey"
++              },
++              "uniques": [
++                {
++                  "columns": [
++                    "code"
++                  ],
++                  "name": "tipo_usuario_code_key"
++                }
++              ]
++            },
+             "usuario_esportes": {
+               "checks": [
+                 {
+@@ -3849,6 +3983,11 @@
+                     "length": 100
+                   }
+                 },
++                "tipo_usuario_id": {
++                  "codecId": "pg/int4@1",
++                  "nativeType": "int4",
++                  "nullable": true
++                },
+                 "updated_at": {
+                   "codecId": "pg/timestamptz-temporal@1",
+                   "default": {
+@@ -3867,7 +4006,26 @@
+                   }
+                 }
+               },
+-              "foreignKeys": [],
++              "foreignKeys": [
++                {
++                  "name": "fk_usuarios_tipo_usuario",
++                  "onDelete": "restrict",
++                  "source": {
++                    "columns": [
++                      "tipo_usuario_id"
++                    ],
++                    "namespaceId": "public",
++                    "tableName": "usuarios"
++                  },
++                  "target": {
++                    "columns": [
++                      "id"
++                    ],
++                    "namespaceId": "public",
++                    "tableName": "tipo_usuario"
++                  }
++                }
++              ],
+               "indexes": [
+                 {
+                   "columns": [
+@@ -3876,6 +4034,13 @@
+                   ],
+                   "name": "ix_usuarios_coord",
+                   "unique": false
++                },
++                {
++                  "columns": [
++                    "tipo_usuario_id"
++                  ],
++                  "name": "ix_usuarios_tipo_usuario",
++                  "unique": false
+                 }
+               ],
+               "primaryKey": {
+@@ -3905,7 +4070,7 @@
+         "kind": "postgres-schema"
+       }
+     },
+-    "storageHash": "47c044ede655e71f1c406e8f936647144b97d9bc854cdb754954d89def9c78db"
++    "storageHash": "d619be3bc63e019223b6abe233e6a5f73f33d75ef3cd805c095679e285d6ef4c"
+   },
+   "capabilities": {
+     "postgres": {
+diff --git a/src/prisma/contract.prisma b/src/prisma/contract.prisma
+index eccd512..b309b1c 100644
+--- a/src/prisma/contract.prisma
++++ b/src/prisma/contract.prisma
+@@ -26,6 +26,8 @@ model Usuarios {
+   bio                   String?
+   createdAt             Timestamptz             @default(now()) @map("created_at")
+   updatedAt             Timestamptz             @default(now()) @map("updated_at")
++  tipoUsuarioId         Int?                    @map("tipo_usuario_id")
++  tipoUsuario           TipoUsuario?            @relation(fields: [tipoUsuarioId], references: [id], onDelete: Restrict, map: "fk_usuarios_tipo_usuario", index: false)
+   anuncioFavoritos      AnuncioFavoritos[]
+   anuncios              Anuncios[]
+   atividades            Atividades[]
+@@ -41,6 +43,7 @@ model Usuarios {
+   seguidoresSeguidores  Seguidores[]            @relation(name: "fk_seguidores_seguidor")
+ 
+   @@index([latitude, longitude], map: "ix_usuarios_coord")
++  @@index([tipoUsuarioId], map: "ix_usuarios_tipo_usuario")
+   @@check(expression: "((latitude IS NULL) = (longitude IS NULL))", map: "ck_usuarios_coord")
+   @@check(expression: "((latitude >= ('-90'::integer)::numeric) AND (latitude <= (90)::numeric))", map: "ck_usuarios_lat")
+   @@check(expression: "((longitude >= ('-180'::integer)::numeric) AND (longitude <= (180)::numeric))", map: "ck_usuarios_lng")
+@@ -284,3 +287,12 @@ model UsuarioEsportes {
+   @@check(expression: "((nivel)::text = ANY ((ARRAY['iniciante'::character varying, 'intermediario'::character varying, 'avancado'::character varying, 'profissional'::character varying])::text[]))", map: "ck_usuario_esportes_nivel")
+   @@map("usuario_esportes")
+ }
++
++model TipoUsuario {
++  id       Int        @id(map: "tipo_usuario_pkey")
++  code     VarChar(20) @unique(map: "tipo_usuario_code_key")
++  name     VarChar(50)
++  usuarios Usuarios[]
++
++  @@map("tipo_usuario")
++}
+diff --git a/src/routes/admin.route.ts b/src/routes/admin.route.ts
+new file mode 100644
+index 0000000..b4d98ba
+--- /dev/null
++++ b/src/routes/admin.route.ts
+@@ -0,0 +1,59 @@
++// Arquivo: src/routes/admin.route.ts
++import { Router } from 'express';
++import { authMiddleware } from '../middlewares/auth.middleware.js';
++import { requirePermission } from '../middlewares/permission.middleware.js';
++import { validate } from '../middlewares/validate.middlewares.js';
++import { usuarioIdSchema } from '../schemas/usuarios.schema.js';
++import { getUsuarioById } from '../controllers/usuarios.controller.js';
++
++const router = Router();
++
++/**
++ * @swagger
++ * tags:
++ *   name: Administração
++ *   description: Operações restritas a contas com permissão administrativa
++ */
++
++/**
++ * @swagger
++ * /admin/usuarios/{id}:
++ *   get:
++ *     summary: Consultar uma conta com permissão administrativa
++ *     tags: [Administração]
++ *     description: Exige o tipo ADMIN (permissão usuarios:read:any). Retorna a conta sem senha.
++ *     security:
++ *       - bearerAuth: []
++ *     parameters:
++ *       - in: path
++ *         name: id
++ *         required: true
++ *         schema:
++ *           type: integer
++ *           minimum: 1
++ *           maximum: 2147483647
++ *         description: ID do usuário consultado
++ *     responses:
++ *       200:
++ *         description: Conta encontrada (sem senhaHash)
++ *       400:
++ *         description: ID inválido
++ *       401:
++ *         description: Token ausente, inválido ou conta inexistente
++ *       403:
++ *         description: Tipo de usuário sem a permissão usuarios:read:any
++ *       404:
++ *         description: Conta consultada não encontrada
++ *       429:
++ *         description: Limite de requisições
++ */
++// Ordem: autenticar → conferir permissão → validar ID → consultar.
++router.get(
++  '/admin/usuarios/:id',
++  authMiddleware,
++  requirePermission('usuarios:read:any'),
++  validate(usuarioIdSchema),
++  getUsuarioById,
++);
++
++export default router;
+diff --git a/src/routes/index.ts b/src/routes/index.ts
+index 911b1ed..b7a9d32 100644
+--- a/src/routes/index.ts
++++ b/src/routes/index.ts
+@@ -18,6 +18,7 @@ import anunciosRoutes from './anuncios.route.js';
+ import avaliacoesRoutes from './avaliacoes.route.js';
+ import compartilhamentosRoutes from './compartilhamentos.route.js';
+ import loginRoutes from './auth.route.js';
++import adminRoutes from './admin.route.js';
+ 
+ 
+ import authRoutes from './auth.route.js';
+@@ -42,6 +43,7 @@ routes.use(anunciosRoutes);
+ routes.use(avaliacoesRoutes);
+ routes.use(compartilhamentosRoutes);
+ routes.use(loginRoutes);
++routes.use(adminRoutes);
+ 
+ /*
+  * Autenticação
+diff --git a/src/scripts/init-rbac.ts b/src/scripts/init-rbac.ts
+new file mode 100644
+index 0000000..82c743d
+--- /dev/null
++++ b/src/scripts/init-rbac.ts
+@@ -0,0 +1,35 @@
++// Arquivo: src/scripts/init-rbac.ts
++import { db } from '../prisma/db.js';
++
++type TipoRow = Awaited<ReturnType<typeof db.orm.public.TipoUsuario.create>>;
++
++try {
++  const types = [
++    { id: 1, code: 'USUARIO', name: 'Usuario Comum' },
++    { id: 2, code: 'ADMIN', name: 'Administração' },
++  ];
++  for (const type of types) {
++    const byId = await db.orm.public.TipoUsuario.first({ id: type.id });
++    const byCode = await db.orm.public.TipoUsuario.first({ code: type.code as TipoRow['code'] });
++    if ((byId && byId.code !== type.code) || (byCode && byCode.id !== type.id)) {
++      throw new Error('Catálogo de tipos conflitante. Revise os IDs antes de continuar.');
++    }
++    if (!byId) {
++      await db.orm.public.TipoUsuario.create({
++        id: type.id,
++        code: type.code as TipoRow['code'],
++        name: type.name as TipoRow['name'],
++      });
++    }
++  }
++  let updated = 0;
++  for (const usuario of await db.orm.public.Usuarios.all()) {
++    if (usuario.tipoUsuarioId === null) {
++      await db.orm.public.Usuarios.where({ id: usuario.id }).update({ tipoUsuarioId: 1 });
++      updated++;
++    }
++  }
++  console.log(`Tipos preparados; ${updated} conta(s) antiga(s) vinculada(s) a USUARIO.`);
++} finally {
++  await db.close();
++}
+diff --git a/src/scripts/set-user-role.ts b/src/scripts/set-user-role.ts
+new file mode 100644
+index 0000000..d44d6d1
+--- /dev/null
++++ b/src/scripts/set-user-role.ts
+@@ -0,0 +1,21 @@
++// Arquivo: src/scripts/set-user-role.ts
++import { db } from '../prisma/db.js';
++
++type TipoRow = Awaited<ReturnType<typeof db.orm.public.TipoUsuario.create>>;
++type UsuarioRow = Awaited<ReturnType<typeof db.orm.public.Usuarios.create>>;
++
++try {
++  const [emailArg, code, ...extra] = process.argv.slice(2);
++  if (!emailArg || (code !== 'USUARIO' && code !== 'ADMIN') || extra.length > 0) {
++    throw new Error('Uso: npx tsx src/scripts/set-user-role.ts email USUARIO|ADMIN');
++  }
++  const usuario = await db.orm.public.Usuarios.first({
++    email: emailArg.trim().toLowerCase() as UsuarioRow['email'],
++  });
++  const tipo = await db.orm.public.TipoUsuario.first({ code: code as TipoRow['code'] });
++  if (!usuario || !tipo) throw new Error('Conta ou tipo inexistente. Confira o cadastro e o init-rbac.');
++  await db.orm.public.Usuarios.where({ id: usuario.id }).update({ tipoUsuarioId: tipo.id });
++  console.log(`Conta ${usuario.id}: tipo alterado para ${code}.`);
++} finally {
++  await db.close();
++}
+diff --git a/src/security/permissions.ts b/src/security/permissions.ts
+new file mode 100644
+index 0000000..f92eda6
+--- /dev/null
++++ b/src/security/permissions.ts
+@@ -0,0 +1,13 @@
++// Arquivo: src/security/permissions.ts
++export type Role = 'USUARIO' | 'ADMIN';
++export type Permission = 'usuarios:read:any';
++
++const permissions: Record<Role, readonly Permission[]> = {
++  USUARIO: [],
++  ADMIN: ['usuarios:read:any'],
++};
++
++export function hasPermission(role: string, permission: Permission): boolean {
++  if (role !== 'USUARIO' && role !== 'ADMIN') return false;
++  return permissions[role].includes(permission);
++}
+diff --git a/tests/rbac.integration.test.ts b/tests/rbac.integration.test.ts
+new file mode 100644
+index 0000000..b7d0663
+--- /dev/null
++++ b/tests/rbac.integration.test.ts
+@@ -0,0 +1,115 @@
++// Arquivo: tests/rbac.integration.test.ts
++import { afterAll, expect, it } from 'vitest';
++import request from 'supertest';
++import { randomUUID } from 'node:crypto';
++import jwt from 'jsonwebtoken';
++import { app } from '../src/app.js';
++import { db } from '../src/prisma/db.js';
++import { env } from '../src/config/env.js';
++import { hasPermission } from '../src/security/permissions.js';
++
++type UsuarioRow = Awaited<ReturnType<typeof db.orm.public.Usuarios.create>>;
++type TipoRow = Awaited<ReturnType<typeof db.orm.public.TipoUsuario.create>>;
++
++const emails: string[] = [];
++
++afterAll(async () => {
++  try {
++    for (const email of emails) {
++      const usuario = await db.orm.public.Usuarios.first({ email: email as UsuarioRow['email'] });
++      if (usuario) await db.orm.public.Usuarios.where({ id: usuario.id }).delete();
++    }
++  } finally {
++    await db.close();
++  }
++});
++
++function novoUsuario(nome: string) {
++  const sufixo = randomUUID().replace(/-/g, '').slice(0, 12);
++  return {
++    email: `rbac-${randomUUID()}@example.com`,
++    username: `rbac_${sufixo}`,
++    nome,
++    sobrenome: 'RBAC',
++    senha: 'Estudo123!',
++  };
++}
++
++it('RBAC: padrão seguro, permissão atual e proteção contra promoção pública', async () => {
++  const aluno = await db.orm.public.TipoUsuario.first({ code: 'USUARIO' as TipoRow['code'] });
++  const admin = await db.orm.public.TipoUsuario.first({ code: 'ADMIN' as TipoRow['code'] });
++  expect(aluno?.id).toBe(1);
++  expect(admin?.id).toBe(2);
++  expect(hasPermission('DESCONHECIDO', 'usuarios:read:any')).toBe(false);
++  expect(hasPermission('__proto__', 'usuarios:read:any')).toBe(false);
++
++  const data = novoUsuario('Aluna');
++  const other = novoUsuario('Admin');
++  emails.push(data.email, other.email);
++
++  // Campos de privilégio enviados no cadastro são descartados pelo schema:
++  // a conta nasce USUARIO (tipo 1) de qualquer forma.
++  const tentativa = { ...novoUsuario('Fraude'), tipoUsuarioId: 2, role: 'ADMIN', code: 'ADMIN' };
++  emails.push(tentativa.email);
++  const fraude = await request(app).post('/usuarios').send(tentativa);
++  expect(fraude.status).toBe(201);
++  expect((await db.orm.public.Usuarios.first({ id: BigInt(fraude.body.id) }))?.tipoUsuarioId).toBe(1);
++
++  const created = await request(app).post('/usuarios').send(data);
++  const second = await request(app).post('/usuarios').send(other);
++  expect(created.status).toBe(201);
++  expect(second.status).toBe(201);
++  const id = created.body.id as string;
++  const adminId = BigInt(second.body.id);
++  expect((await db.orm.public.Usuarios.first({ id: BigInt(id) }))?.tipoUsuarioId).toBe(1);
++
++  const login = await request(app).post('/login').send({ email: data.email, password: data.senha });
++  const otherLogin = await request(app).post('/login').send({ email: other.email, password: other.senha });
++  expect(login.status).toBe(200);
++  expect(otherLogin.status).toBe(200);
++  const auth = `Bearer ${login.body.token}`;
++  const otherAuth = `Bearer ${otherLogin.body.token}`;
++  const path = `/admin/usuarios/${id}`;
++
++  expect((await request(app).get(path)).status).toBe(401);
++  expect((await request(app).get(path).set('Authorization', 'Bearer invalido')).status).toBe(401);
++  expect((await request(app).get(path).set('Authorization', auth)).status).toBe(403);
++
++  // Mesmo um papel extra num JWT assinado não substitui o papel do banco.
++  const extraRole = jwt.sign({ id, role: 'ADMIN' }, env.JWT_SECRET, {
++    algorithm: 'HS256',
++    expiresIn: '15m',
++    issuer: 'sportmap-api',
++    audience: 'sportmap',
++  });
++  expect((await request(app).get(path).set('Authorization', `Bearer ${extraRole}`)).status).toBe(403);
++
++  // Promoção feita direto no banco (equivale ao script set-user-role).
++  await db.orm.public.Usuarios.where({ id: adminId }).update({ tipoUsuarioId: admin!.id });
++  const allowed = await request(app).get(path).set('Authorization', otherAuth);
++  expect(allowed.status).toBe(200);
++  expect(String(allowed.body.id)).toBe(id);
++  expect(allowed.body).not.toHaveProperty('senhaHash');
++  expect((await request(app).get(path).set('Cookie', `token=${otherLogin.body.token}`)).status).toBe(200);
++
++  // Rotas pessoais continuam só para a própria conta, inclusive para ADMIN.
++  expect((await request(app).get(`/usuarios/${id}`).set('Authorization', otherAuth)).status).toBe(403);
++  expect((await request(app).put(`/usuarios/${id}`).set('Authorization', otherAuth).send({ nome: 'Outro' })).status).toBe(403);
++  expect((await request(app).delete(`/usuarios/${id}`).set('Authorization', otherAuth)).status).toBe(403);
++
++  // Editar a própria conta não consegue mudar o tipo (campo descartado).
++  expect((await request(app).put(`/usuarios/${id}`).set('Authorization', auth).send({ tipoUsuarioId: 2 })).status).toBe(400);
++  expect((await request(app).put(`/usuarios/${id}`).set('Authorization', auth).send({ nome: 'Aluna Nova', tipoUsuarioId: 2 })).status).toBe(200);
++  expect((await db.orm.public.Usuarios.first({ id: BigInt(id) }))?.tipoUsuarioId).toBe(1);
++
++  expect((await request(app).get('/admin/usuarios/abc').set('Authorization', otherAuth)).status).toBe(400);
++  expect((await request(app).get('/admin/usuarios/2147483647').set('Authorization', otherAuth)).status).toBe(404);
++
++  // Retirar o privilégio bloqueia o mesmo token no pedido seguinte.
++  await db.orm.public.Usuarios.where({ id: adminId }).update({ tipoUsuarioId: aluno!.id });
++  expect((await request(app).get(path).set('Authorization', otherAuth)).status).toBe(403);
++
++  // Conta removida: o mesmo token passa a receber 401.
++  await db.orm.public.Usuarios.where({ id: adminId }).delete();
++  expect((await request(app).get(path).set('Authorization', otherAuth)).status).toBe(401);
++});
+diff --git a/tests/rbac.test.ts b/tests/rbac.test.ts
+new file mode 100644
+index 0000000..26b70bb
+--- /dev/null
++++ b/tests/rbac.test.ts
+@@ -0,0 +1,129 @@
++// Arquivo: tests/rbac.test.ts
++// Testes sem banco: o RBAC da rota administrativa com o banco simulado.
++import { beforeEach, describe, expect, it, vi } from 'vitest';
++import request from 'supertest';
++import jwt from 'jsonwebtoken';
++
++const mocks = vi.hoisted(() => ({
++  dbUsuarioFirst: vi.fn(),
++  dbTipoFirst: vi.fn(),
++  getUsuarioById: vi.fn(),
++}));
++
++vi.mock('../src/services/usuarios.service.js', () => ({
++  getUsuarioById: mocks.getUsuarioById,
++  toPublicUsuario: (u: any) => ({ id: String(u.id), nome: u.nome, email: u.email }),
++}));
++
++vi.mock('../src/prisma/db.js', () => ({
++  db: {
++    orm: {
++      public: {
++        Usuarios: { first: mocks.dbUsuarioFirst },
++        TipoUsuario: { first: mocks.dbTipoFirst },
++      },
++    },
++  },
++}));
++
++import { app } from '../src/app.js';
++import { env } from '../src/config/env.js';
++import { hasPermission } from '../src/security/permissions.js';
++
++const token = (extra: Record<string, unknown> = {}) =>
++  jwt.sign({ id: '1', ...extra }, env.JWT_SECRET, {
++    algorithm: 'HS256',
++    expiresIn: '15m',
++    issuer: 'sportmap-api',
++    audience: 'sportmap',
++  });
++
++const bearer = (t = token()) => `Bearer ${t}`;
++const alvo = { id: 2n, nome: 'Alvo', email: 'alvo@example.com' };
++
++beforeEach(() => {
++  vi.clearAllMocks();
++  mocks.dbUsuarioFirst.mockResolvedValue({ id: 1n, tipoUsuarioId: 1 });
++  mocks.dbTipoFirst.mockResolvedValue({ id: 1, code: 'USUARIO', name: 'Usuario Comum' });
++  mocks.getUsuarioById.mockResolvedValue(alvo);
++});
++
++describe('hasPermission', () => {
++  it('só ADMIN lê qualquer conta; papéis desconhecidos são negados', () => {
++    expect(hasPermission('ADMIN', 'usuarios:read:any')).toBe(true);
++    expect(hasPermission('USUARIO', 'usuarios:read:any')).toBe(false);
++    expect(hasPermission('DESCONHECIDO', 'usuarios:read:any')).toBe(false);
++    expect(hasPermission('__proto__', 'usuarios:read:any')).toBe(false);
++    expect(hasPermission('', 'usuarios:read:any')).toBe(false);
++  });
++});
++
++describe('GET /admin/usuarios/:id', () => {
++  it('401 sem login e com token inválido', async () => {
++    expect((await request(app).get('/admin/usuarios/2')).status).toBe(401);
++    const r = await request(app).get('/admin/usuarios/2').set('Authorization', 'Bearer invalido');
++    expect(r.status).toBe(401);
++  });
++
++  it('403 para USUARIO, mesmo com ID inválido (permissão vem antes da validação)', async () => {
++    expect((await request(app).get('/admin/usuarios/2').set('Authorization', bearer())).status).toBe(403);
++    expect((await request(app).get('/admin/usuarios/abc').set('Authorization', bearer())).status).toBe(403);
++    expect(mocks.getUsuarioById).not.toHaveBeenCalled();
++  });
++
++  it('403 quando a conta não tem tipo ou o tipo é desconhecido', async () => {
++    mocks.dbUsuarioFirst.mockResolvedValue({ id: 1n, tipoUsuarioId: null });
++    expect((await request(app).get('/admin/usuarios/2').set('Authorization', bearer())).status).toBe(403);
++
++    mocks.dbUsuarioFirst.mockResolvedValue({ id: 1n, tipoUsuarioId: 99 });
++    mocks.dbTipoFirst.mockResolvedValue({ id: 99, code: 'SUPER', name: 'Inventado' });
++    expect((await request(app).get('/admin/usuarios/2').set('Authorization', bearer())).status).toBe(403);
++
++    mocks.dbTipoFirst.mockResolvedValue(null);
++    expect((await request(app).get('/admin/usuarios/2').set('Authorization', bearer())).status).toBe(403);
++  });
++
++  it('um papel extra dentro do JWT não concede privilégio', async () => {
++    const r = await request(app)
++      .get('/admin/usuarios/2')
++      .set('Authorization', bearer(token({ role: 'ADMIN', tipoUsuarioId: 2 })));
++    expect(r.status).toBe(403);
++  });
++
++  describe('como ADMIN', () => {
++    beforeEach(() => {
++      mocks.dbUsuarioFirst.mockResolvedValue({ id: 1n, tipoUsuarioId: 2 });
++      mocks.dbTipoFirst.mockResolvedValue({ id: 2, code: 'ADMIN', name: 'Administração' });
++    });
++
++    it('200 sem senha, também por cookie', async () => {
++      const r = await request(app).get('/admin/usuarios/2').set('Authorization', bearer());
++      expect(r.status).toBe(200);
++      expect(r.body.id).toBe('2');
++      expect(r.body).not.toHaveProperty('senhaHash');
++      expect(r.body).not.toHaveProperty('senha');
++      expect((await request(app).get('/admin/usuarios/2').set('Cookie', `token=${token()}`)).status).toBe(200);
++    });
++
++    it('400 para ID inválido', async () => {
++      expect((await request(app).get('/admin/usuarios/abc').set('Authorization', bearer())).status).toBe(400);
++    });
++
++    it('rotas pessoais continuam só para a própria conta (403 em conta alheia)', async () => {
++      expect((await request(app).get('/usuarios/2').set('Authorization', bearer())).status).toBe(403);
++      expect((await request(app).put('/usuarios/2').set('Authorization', bearer()).send({ nome: 'Outro' })).status).toBe(403);
++      expect((await request(app).delete('/usuarios/2').set('Authorization', bearer())).status).toBe(403);
++    });
++  });
++
++  it('retirar o privilégio bloqueia o mesmo token no pedido seguinte', async () => {
++    mocks.dbUsuarioFirst.mockResolvedValue({ id: 1n, tipoUsuarioId: 2 });
++    mocks.dbTipoFirst.mockResolvedValue({ id: 2, code: 'ADMIN', name: 'Administração' });
++    const t = bearer();
++    expect((await request(app).get('/admin/usuarios/2').set('Authorization', t)).status).toBe(200);
++
++    mocks.dbUsuarioFirst.mockResolvedValue({ id: 1n, tipoUsuarioId: 1 });
++    mocks.dbTipoFirst.mockResolvedValue({ id: 1, code: 'USUARIO', name: 'Usuario Comum' });
++    expect((await request(app).get('/admin/usuarios/2').set('Authorization', t)).status).toBe(403);
++  });
++});

@@ -18,12 +18,14 @@ import anunciosRoutes from './anuncios.route.js';
 import avaliacoesRoutes from './avaliacoes.route.js';
 import compartilhamentosRoutes from './compartilhamentos.route.js';
 import loginRoutes from './auth.route.js';
+import adminRoutes from './admin.route.js';   // junto dos outros imports
 
 
 import authRoutes from './auth.route.js';
  
 const routes = Router();
  
+routes.use(adminRoutes);                        // depois de routes.use(loginRoutes);
 routes.use(esportesRoutes);
 routes.use(comentariosRoutes);
 routes.use(seguidoresRoutes);
