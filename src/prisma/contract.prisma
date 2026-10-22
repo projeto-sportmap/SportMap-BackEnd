@@ -12,6 +12,15 @@ model Esportes {
   @@map("esportes")
 }
 
+model TipoUsuario {
+  id       Int         @id(map: "tipo_usuario_pkey")
+  code     VarChar(20) @unique(map: "tipo_usuario_code_key")
+  name     VarChar(50)
+  usuarios Usuarios[]
+
+  @@map("tipo_usuario")
+}
+
 model Usuarios {
   id                    BigInt                  @id(map: "usuarios_pkey") @default(autoincrement())
   nome                  VarChar(100)
@@ -26,6 +35,7 @@ model Usuarios {
   bio                   String?
   createdAt             Timestamptz             @default(now()) @map("created_at")
   updatedAt             Timestamptz             @default(now()) @map("updated_at")
+  tipoUsuarioId         Int                     @default(1) @map("tipo_usuario_id")
   anuncioFavoritos      AnuncioFavoritos[]
   anuncios              Anuncios[]
   atividades            Atividades[]
@@ -39,8 +49,10 @@ model Usuarios {
   usuarioEsportes       UsuarioEsportes[]
   seguidores            Seguidores[]            @relation(name: "fk_seguidores_seguido")
   seguidoresSeguidores  Seguidores[]            @relation(name: "fk_seguidores_seguidor")
+  tipoUsuario           TipoUsuario             @relation(fields: [tipoUsuarioId], references: [id], onDelete: Restrict, map: "fk_usuarios_tipo_usuario")
 
   @@index([latitude, longitude], map: "ix_usuarios_coord")
+  @@index([tipoUsuarioId], map: "ix_usuarios_tipo_usuario")
   @@check(expression: "((latitude IS NULL) = (longitude IS NULL))", map: "ck_usuarios_coord")
   @@check(expression: "((latitude >= ('-90'::integer)::numeric) AND (latitude <= (90)::numeric))", map: "ck_usuarios_lat")
   @@check(expression: "((longitude >= ('-180'::integer)::numeric) AND (longitude <= (180)::numeric))", map: "ck_usuarios_lng")
