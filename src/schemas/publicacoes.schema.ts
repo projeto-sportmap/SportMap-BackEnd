@@ -33,7 +33,7 @@ const msgCoordenadas = { message: 'Informe latitude e longitude juntas.', path: 
 export const createPublicacaoSchema = z.object({
   body: z
     .object({
-      usuarioId: usuarioIdBody,
+      usuarioId: usuarioIdBody.optional(),
       esporteId: esporteIdBody.nullish(),
       conteudo: conteudo.nullish(),
       latitude: latitude.nullish(),

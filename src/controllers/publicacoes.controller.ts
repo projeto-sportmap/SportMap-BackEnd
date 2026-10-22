@@ -13,7 +13,11 @@ const readId = (req: Request) => {
 
 // Os dados já chegam validados e limpos pelo middleware validate (Zod)
 export const createPublicacao = async (req: Request, res: Response) => {
-  const publicacao = await PublicacoesService.createPublicacao(req.body);
+  const usuarioId = String(res.locals.userId);
+  if (req.body.usuarioId !== undefined && BigInt(req.body.usuarioId) !== BigInt(usuarioId)) {
+    throw new HttpError(403, 'Você só pode publicar na própria conta.');
+  }
+  const publicacao = await PublicacoesService.createPublicacao({ ...req.body, usuarioId });
   res.status(201).json(PublicacoesService.toPublicPublicacao(publicacao));
 };
 

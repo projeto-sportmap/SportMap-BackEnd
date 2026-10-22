@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import * as PublicacoesController from '../controllers/publicacoes.controller.js';
 import { validate } from '../middlewares/validate.middlewares.js';
+import { authMiddleware } from '../middlewares/auth.middleware.js';
 import {
   createPublicacaoSchema,
   updatePublicacaoSchema,
@@ -23,13 +24,12 @@ const router = Router();
  *   schemas:
  *     CreatePublicacao:
  *       type: object
- *       required:
- *         - usuarioId
+ *       description: O autor é obtido do usuário autenticado. usuarioId é opcional e deve corresponder ao token quando informado.
  *       properties:
  *         usuarioId:
  *           type: integer
  *           minimum: 1
- *           description: ID do usuário autor (também aceita número em formato de texto, ex. "1").
+ *           description: ID opcional do usuário autor; deve corresponder ao usuário autenticado.
  *           example: 1
  *         esporteId:
  *           type: integer
@@ -97,6 +97,8 @@ const router = Router();
  *   post:
  *     summary: Criar uma publicação
  *     tags: [Publicações]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -108,10 +110,14 @@ const router = Router();
  *         description: Publicação criada com sucesso
  *       400:
  *         description: Dados inválidos
+ *       401:
+ *         description: Autenticação ausente ou inválida
+ *       403:
+ *         description: usuarioId diferente do usuário autenticado
  *       404:
  *         description: Usuário ou esporte não encontrado
  */
-router.post('/publicacoes', validate(createPublicacaoSchema), PublicacoesController.createPublicacao);
+router.post('/publicacoes', authMiddleware, validate(createPublicacaoSchema), PublicacoesController.createPublicacao);
 
 /**
  * @swagger

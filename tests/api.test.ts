@@ -28,6 +28,7 @@ const mocks = vi.hoisted(() => ({
   })),
   login: vi.fn(),
   dbUsuarioFirst: vi.fn(),
+  dbPublicacaoCreate: vi.fn(),
 }));
 
 vi.mock('../src/services/esportes.service.js', () => ({
@@ -56,6 +57,7 @@ vi.mock('../src/prisma/db.js', () => ({
     orm: {
       public: {
         Usuarios: { first: mocks.dbUsuarioFirst },
+        Publicacoes: { create: mocks.dbPublicacaoCreate },
       },
     },
   },
@@ -103,6 +105,11 @@ beforeEach(() => {
   vi.clearAllMocks();
 
   mocks.dbUsuarioFirst.mockResolvedValue(usuario);
+  mocks.dbPublicacaoCreate.mockImplementation(async (dados) => ({
+    id: 1n,
+    ...dados,
+    createdAt: usuario.createdAt,
+  }));
 
   mocks.createEsporte.mockImplementation(async (dados: { nome: string }) => ({
     id: 1,
@@ -340,5 +347,35 @@ describe('Testes automatizados da API SportMap', () => {
       expect(resposta.status).toBe(204);
       expect(resposta.headers['set-cookie']?.[0]).toContain('token=;');
     });
+  });
+});
+
+describe('Publicação autenticada', () => {
+  it('publica após login usando cookie e sem usuarioId', async () => {
+    const cliente = request.agent(app);
+    await cliente.post('/login').send({ email: 'pessoa@example.com', password: 'Senha123' }).expect(200);
+    const resposta = await cliente.post('/publicacoes').set('Origin', env.FRONTEND_ORIGIN).send({ conteudo: '  Meu treino  ' });
+    expect(resposta.status).toBe(201);
+    expect(resposta.body).toMatchObject({ id: '1', usuarioId: '1', conteudo: 'Meu treino' });
+    expect(mocks.dbPublicacaoCreate).toHaveBeenCalledWith(expect.objectContaining({ usuarioId: 1n, conteudo: 'Meu treino' }));
+  });
+
+  it('exige autenticação', async () => {
+    await request(app).post('/publicacoes').send({ usuarioId: 1, conteudo: 'Treino' }).expect(401);
+    expect(mocks.dbPublicacaoCreate).not.toHaveBeenCalled();
+  });
+
+  it('impede publicar como outro usuário', async () => {
+    await request(app).post('/publicacoes').set('Authorization', 'Bearer ' + tokenValido()).send({ usuarioId: '2', conteudo: 'Treino' }).expect(403);
+    expect(mocks.dbPublicacaoCreate).not.toHaveBeenCalled();
+  });
+
+  it('aceita usuarioId correspondente com Bearer', async () => {
+    await request(app).post('/publicacoes').set('Authorization', 'Bearer ' + tokenValido()).send({ usuarioId: 1, conteudo: 'Treino' }).expect(201);
+  });
+
+  it('mantém a validação das coordenadas', async () => {
+    await request(app).post('/publicacoes').set('Authorization', 'Bearer ' + tokenValido()).send({ conteudo: 'Treino', latitude: 10 }).expect(400);
+    expect(mocks.dbPublicacaoCreate).not.toHaveBeenCalled();
   });
 });
