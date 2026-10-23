@@ -11,20 +11,22 @@ const readId = (req: Request) => {
   return id;
 };
 
-export const createEsporte = async (req: Request, res: Response) => {
-  const { nome } = req.body ?? {};
-    if (typeof nome !== 'string' || !nome.trim()) {
-      throw new HttpError(400, 'Nome obrigatório.');
-    }
-  const nomeLimpo = nome.trim();
-
-  if (nomeLimpo.length > 50) {
-     throw new HttpError(400, 'Nome deve ter no máximo 50 caracteres.');
+const readNome = (value: unknown) => {
+  if (typeof value !== 'string' || !value.trim()) {
+    throw new HttpError(400, 'Nome obrigatório.');
   }
+  const limpo = value.trim();
+  if (limpo.length > 50) {
+    throw new HttpError(400, 'Nome deve ter no máximo 50 caracteres.');
+  }
+  return limpo;
+};
+
+export const createEsporte = async (req: Request, res: Response) => {
   const esporte = await EsportesService.createEsporte({
-    nome: nomeLimpo,
+    nome: readNome(req.body?.nome),
   });
-  res.status(201).json(esporte);
+  res.status(201).json(EsportesService.toPublicEsporte(esporte));
 };
 
 export const getAllEsportes = async (_req: Request, res: Response) => {
@@ -36,7 +38,10 @@ export const getEsportesById = async (req: Request, res: Response) => {
 };
 
 export const updateEsportes = async (req: Request, res: Response) => {
-  res.json(EsportesService.toPublicEsporte(await EsportesService.updateEsporte(readId(req), req.body ?? {})));
+  const { nome } = req.body ?? {};
+  const data = nome === undefined ? {} : { nome: readNome(nome) };
+
+  res.json(EsportesService.toPublicEsporte(await EsportesService.updateEsporte(readId(req), data)));
 };
 
 export const deleteEsportes = async (req: Request, res: Response) => {
