@@ -8,7 +8,7 @@ const mocks = vi.hoisted(() => ({
   getEsporteById: vi.fn(),
   updateEsporte: vi.fn(),
   deleteEsporte: vi.fn(),
-  toPublicEsporte: vi.fn((esporte: any) => ({ nome: esporte.nome })),
+  toPublicEsporte: vi.fn((esporte: any) => ({ id: esporte.id, nome: esporte.nome })),
   createUsuario: vi.fn(),
   getUsuarioById: vi.fn(),
   updateUsuario: vi.fn(),
@@ -172,11 +172,11 @@ describe('Testes automatizados da API SportMap', () => {
 
   describe('CRUD de esportes', () => {
     it('POST /esportes deve cadastrar um esporte', async () => {
-      const resposta = await request(app).post('/esportes').send({ id: 1, nome: 'Futebol' });
+      const resposta = await request(app).post('/esportes').send({ nome: 'Futebol' });
 
       expect(resposta.status).toBe(201);
       expect(resposta.body).toEqual({ id: 1, nome: 'Futebol' });
-      expect(mocks.createEsporte).toHaveBeenCalledWith({id: 1, nome: 'Futebol' });
+      expect(mocks.createEsporte).toHaveBeenCalledWith({ nome: 'Futebol' });
     });
 
     it('POST /esportes deve rejeitar nome ausente', async () => {
@@ -220,7 +220,7 @@ describe('Testes automatizados da API SportMap', () => {
       const resposta = await request(app).put('/esportes/1').send({ nome: 'Vôlei' });
 
       expect(resposta.status).toBe(200);
-      expect(resposta.body).toEqual({ nome: 'Vôlei' });
+      expect(resposta.body).toEqual({ id: 1, nome: 'Vôlei' });
       expect(mocks.updateEsporte).toHaveBeenCalledWith(1, { nome: 'Vôlei' });
     });
 
@@ -351,6 +351,7 @@ describe('Testes automatizados da API SportMap', () => {
       expect(resposta.headers['set-cookie']?.[0]).toContain('token=;');
     });
   });
+
 });
 
 describe('Publicação autenticada', () => {
