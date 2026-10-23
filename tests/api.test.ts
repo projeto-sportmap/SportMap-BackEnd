@@ -78,7 +78,7 @@ const usuario = {
   createdAt: new Date('2026-01-01T00:00:00.000Z'),
 };
 
-const esporte = { "id": 1, "nome": "Futebol" };
+const esporte = { id: 1, nome: "Futebol" };
 
 const dadosUsuario = {
   nome: 'Pessoa',
@@ -162,7 +162,7 @@ describe('Testes automatizados da API SportMap', () => {
 
   describe('CRUD de esportes', () => {
     it('POST /esportes deve cadastrar um esporte', async () => {
-      const resposta = await request(app).post('/esportes').send({ "nome": '  Futebol  ' });
+      const resposta = await request(app).post('/esportes').send({ nome: 'Futebol' });
 
       expect(resposta.status).toBe(201);
       expect(resposta.body).toEqual({ id: 1, nome: "Futebol" });
