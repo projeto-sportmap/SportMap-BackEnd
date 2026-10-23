@@ -9,6 +9,7 @@ export type UpdateEsporteInput = Partial<CreateEsporteInput>;
 type EsporteRow = Awaited<ReturnType<typeof db.orm.public.Esportes.create>>;
 
 export const toPublicEsporte = (esporte: EsporteRow) => ({
+  id: esporte.id,
   nome: esporte.nome,
 });
 
