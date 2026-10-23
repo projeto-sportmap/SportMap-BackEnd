@@ -83,7 +83,7 @@ const usuario = {
   createdAt: new Date('2026-01-01T00:00:00.000Z'),
 };
 
-const esporte = { id: 1, nome: "Futebol" };
+const esporte = { id: 1, nome: 'Futebol' };
 
 const dadosUsuario = {
   nome: 'Pessoa',
@@ -172,11 +172,11 @@ describe('Testes automatizados da API SportMap', () => {
 
   describe('CRUD de esportes', () => {
     it('POST /esportes deve cadastrar um esporte', async () => {
-      const resposta = await request(app).post('/esportes').send({ nome: 'Futebol' });
+      const resposta = await request(app).post('/esportes').send({ id: 1, nome: 'Futebol' });
 
       expect(resposta.status).toBe(201);
-      expect(resposta.body).toEqual({ id: 1, nome: "Futebol" });
-      expect(mocks.createEsporte).toHaveBeenCalledWith({ nome: "Futebol" });
+      expect(resposta.body).toEqual({ id: 1, nome: 'Futebol' });
+      expect(mocks.createEsporte).toHaveBeenCalledWith({id: 1, nome: 'Futebol' });
     });
 
     it('POST /esportes deve rejeitar nome ausente', async () => {
@@ -197,7 +197,7 @@ describe('Testes automatizados da API SportMap', () => {
       const resposta = await request(app).get('/esportes');
 
       expect(resposta.status).toBe(200);
-      expect(resposta.body).toEqual([{ nome: "Futebol" }]);
+      expect(resposta.body).toEqual([{ id: 1, nome: 'Futebol' }]);
       expect(mocks.getAllEsportes).toHaveBeenCalledOnce();
     });
 
@@ -205,7 +205,7 @@ describe('Testes automatizados da API SportMap', () => {
       const resposta = await request(app).get('/esportes/1');
 
       expect(resposta.status).toBe(200);
-      expect(resposta.body).toEqual({ nome: "Futebol" });
+      expect(resposta.body).toEqual({ id: 1, nome: 'Futebol' });
       expect(mocks.getEsporteById).toHaveBeenCalledWith(1);
     });
 
