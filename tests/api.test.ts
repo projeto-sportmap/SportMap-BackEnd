@@ -28,6 +28,9 @@ const mocks = vi.hoisted(() => ({
   })),
   login: vi.fn(),
   dbUsuarioFirst: vi.fn(),
+  dbPublicacaoCreate: vi.fn(),
+  dbPublicacaoFirst: vi.fn(),
+  dbComentarioCreate: vi.fn(),
 }));
 
 vi.mock('../src/services/esportes.service.js', () => ({
@@ -56,6 +59,8 @@ vi.mock('../src/prisma/db.js', () => ({
     orm: {
       public: {
         Usuarios: { first: mocks.dbUsuarioFirst },
+        Publicacoes: { create: mocks.dbPublicacaoCreate, first: mocks.dbPublicacaoFirst },
+        Comentarios: { create: mocks.dbComentarioCreate },
       },
     },
   },
@@ -103,6 +108,11 @@ beforeEach(() => {
   vi.clearAllMocks();
 
   mocks.dbUsuarioFirst.mockResolvedValue(usuario);
+  mocks.dbPublicacaoCreate.mockImplementation(async (dados) => ({
+    id: 1n,
+    ...dados,
+    createdAt: usuario.createdAt,
+  }));
 
   mocks.createEsporte.mockImplementation(async (dados: { nome: string }) => ({
     id: 1,
@@ -340,5 +350,82 @@ describe('Testes automatizados da API SportMap', () => {
       expect(resposta.status).toBe(204);
       expect(resposta.headers['set-cookie']?.[0]).toContain('token=;');
     });
+  });
+
+});
+
+describe('Publicação autenticada', () => {
+  it('publica após login usando cookie e sem usuarioId', async () => {
+    const cliente = request.agent(app);
+    await cliente.post('/login').send({ email: 'pessoa@example.com', password: 'Senha123' }).expect(200);
+    const resposta = await cliente.post('/publicacoes').set('Origin', env.FRONTEND_ORIGIN).send({ conteudo: '  Meu treino  ' });
+    expect(resposta.status).toBe(201);
+    expect(resposta.body).toMatchObject({ id: '1', usuarioId: '1', conteudo: 'Meu treino' });
+    expect(mocks.dbPublicacaoCreate).toHaveBeenCalledWith(expect.objectContaining({ usuarioId: 1n, conteudo: 'Meu treino' }));
+  });
+
+  it('exige autenticação', async () => {
+    await request(app).post('/publicacoes').send({ usuarioId: 1, conteudo: 'Treino' }).expect(401);
+    expect(mocks.dbPublicacaoCreate).not.toHaveBeenCalled();
+  });
+
+  it('usa o autor autenticado mesmo com usuarioId diferente no corpo', async () => {
+    const resposta = await request(app).post('/publicacoes').set('Authorization', 'Bearer ' + tokenValido()).send({ usuarioId: '2', conteudo: 'Treino' }).expect(201);
+    expect(resposta.body.usuarioId).toBe('1');
+    expect(mocks.dbPublicacaoCreate).toHaveBeenCalledWith(expect.objectContaining({ usuarioId: 1n }));
+  });
+
+  it('aceita usuarioId correspondente com Bearer', async () => {
+    await request(app).post('/publicacoes').set('Authorization', 'Bearer ' + tokenValido()).send({ usuarioId: 1, conteudo: 'Treino' }).expect(201);
+  });
+
+  it('mantém a validação das coordenadas', async () => {
+    await request(app).post('/publicacoes').set('Authorization', 'Bearer ' + tokenValido()).send({ conteudo: 'Treino', latitude: 10 }).expect(400);
+    expect(mocks.dbPublicacaoCreate).not.toHaveBeenCalled();
+  });
+});
+
+describe('Comentários em publicações', () => {
+  it('permite que outro usuário logado comente após a publicação', async () => {
+    const autor = request.agent(app);
+    await autor.post('/login').send({ email: usuario.email, password: 'Senha123' }).expect(200);
+    const publicacao = await autor.post('/publicacoes')
+      .set('Origin', env.API_ORIGIN)
+      .send({ conteudo: 'Meu treino' }).expect(201);
+
+    const outroUsuario = { ...usuario, id: 2n, email: 'outro@example.com' };
+    const token = jwt.sign({ id: '2' }, env.JWT_SECRET, {
+      algorithm: 'HS256', expiresIn: '15m', issuer: 'sportmap-api', audience: 'sportmap',
+    });
+    mocks.login.mockResolvedValue({ token, usuario: { id: '2' } });
+    mocks.dbUsuarioFirst.mockResolvedValue(outroUsuario);
+    mocks.dbPublicacaoFirst.mockResolvedValue({ ...publicacao.body, id: 1n, usuarioId: 1n });
+    mocks.dbComentarioCreate.mockImplementation(async (dados) => ({
+      id: 10n, ...dados, createdAt: usuario.createdAt,
+    }));
+
+    const leitor = request.agent(app);
+    await leitor.post('/login').send({ email: outroUsuario.email, password: 'Senha123' }).expect(200);
+    const comentario = await leitor.post(`/publicacoes/${publicacao.body.id}/comentarios`)
+      .set('Origin', env.API_ORIGIN)
+      .send({ conteudo: '  Bom treino!  ' }).expect(201);
+
+    expect(comentario.body).toMatchObject({ publicacaoId: '1', usuarioId: '2', conteudo: 'Bom treino!' });
+    expect(mocks.dbComentarioCreate).toHaveBeenCalledWith({
+      publicacaoId: 1n, usuarioId: 2n, conteudo: 'Bom treino!',
+    });
+  });
+
+  it('exige login para comentar', async () => {
+    await request(app).post('/publicacoes/1/comentarios').send({ conteudo: 'Bom treino!' }).expect(401);
+    expect(mocks.dbComentarioCreate).not.toHaveBeenCalled();
+  });
+
+  it('rejeita comentários em publicação inexistente', async () => {
+    mocks.dbPublicacaoFirst.mockResolvedValue(null);
+    await request(app).post('/publicacoes/999/comentarios')
+      .set('Authorization', 'Bearer ' + tokenValido())
+      .send({ conteudo: 'Bom treino!' }).expect(404);
+    expect(mocks.dbComentarioCreate).not.toHaveBeenCalled();
   });
 });

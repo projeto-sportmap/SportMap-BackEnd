@@ -5,11 +5,6 @@ const idNumerico = (campo: string) =>
 
 const idParams = z.object({ id: idNumerico('O ID') });
 
-// usuarioId pode chegar como número ou string; vira string para o service converter em BigInt
-const usuarioIdBody = z
-  .union([z.number().int().positive(), idNumerico('O usuarioId')], { error: 'usuarioId inválido.' })
-  .transform((v) => String(v));
-
 const esporteIdBody = z
   .number('esporteId deve ser um número.')
   .int('esporteId deve ser inteiro.')
@@ -33,7 +28,6 @@ const msgCoordenadas = { message: 'Informe latitude e longitude juntas.', path: 
 export const createPublicacaoSchema = z.object({
   body: z
     .object({
-      usuarioId: usuarioIdBody,
       esporteId: esporteIdBody.nullish(),
       conteudo: conteudo.nullish(),
       latitude: latitude.nullish(),
@@ -42,7 +36,6 @@ export const createPublicacaoSchema = z.object({
     .refine(coordenadasJuntas, msgCoordenadas),
 });
 
-// usuarioId não pode ser alterado depois de criada
 export const updatePublicacaoSchema = z.object({
   body: z
     .object({
@@ -60,7 +53,6 @@ export const publicacaoIdSchema = z.object({
   params: idParams,
 });
 
-// GET /publicacoes?usuarioId=1&esporteId=2
 export const listPublicacoesSchema = z.object({
   query: z.object({
     usuarioId: idNumerico('usuarioId').optional(),

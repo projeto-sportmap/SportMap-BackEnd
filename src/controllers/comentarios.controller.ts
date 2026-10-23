@@ -14,9 +14,9 @@ const readId = (req: Request, name: 'id' | 'publicacaoId' = 'id'): string => {
   return value;
 };
 
-// Ajuste conforme o que seu middleware de autenticação coloca no req
-const readUsuarioId = (req: Request): string => {
-  const usuarioId = (req as Request & { user?: { id: string | number | bigint } }).user?.id;
+// O authMiddleware coloca o id do usuário em res.locals.userId
+const readUsuarioId = (res: Response): string => {
+  const usuarioId = res.locals.userId;
   if (usuarioId === undefined || usuarioId === null) {
     throw new HttpError(401, 'Usuário não autenticado.');
   }
@@ -25,7 +25,7 @@ const readUsuarioId = (req: Request): string => {
 
 export async function createComentario(req: Request, res: Response) {
   const publicacaoId = readId(req, 'publicacaoId');
-  const usuarioId = readUsuarioId(req);
+  const usuarioId = readUsuarioId(res);
   const comentario = await ComentariosService.createComentario(
     publicacaoId,
     usuarioId,
@@ -48,14 +48,14 @@ export async function getComentarioById(req: Request, res: Response) {
 
 export async function updateComentario(req: Request, res: Response) {
   const id = readId(req);
-  const usuarioId = readUsuarioId(req);
+  const usuarioId = readUsuarioId(res);
   const comentario = await ComentariosService.updateComentario(id, usuarioId, req.body);
   res.status(200).json(comentario);
 }
 
 export async function deleteComentario(req: Request, res: Response) {
   const id = readId(req);
-  const usuarioId = readUsuarioId(req);
+  const usuarioId = readUsuarioId(res);
   await ComentariosService.deleteComentario(id, usuarioId);
   res.status(204).send();
 }

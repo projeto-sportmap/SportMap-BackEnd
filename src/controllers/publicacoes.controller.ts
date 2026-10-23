@@ -11,9 +11,9 @@ const readId = (req: Request) => {
   return id;
 };
 
-// Os dados já chegam validados e limpos pelo middleware validate (Zod)
 export const createPublicacao = async (req: Request, res: Response) => {
-  const publicacao = await PublicacoesService.createPublicacao(req.body);
+  const usuarioId = String(res.locals.userId);
+  const publicacao = await PublicacoesService.createPublicacao({ ...req.body, usuarioId });
   res.status(201).json(PublicacoesService.toPublicPublicacao(publicacao));
 };
 
