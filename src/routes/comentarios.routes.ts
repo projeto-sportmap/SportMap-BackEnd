@@ -1,4 +1,3 @@
-
 // Arquivo: src/routes/comentarios.routes.ts
 
 import { Router } from 'express';
@@ -21,22 +20,55 @@ const router = Router();
 
 /**
  * @swagger
+ * components:
+ *   schemas:
+ *     CreateComentario:
+ *       type: object
+ *       additionalProperties: false
+ *       required:
+ *         - conteudo
+ *       properties:
+ *         conteudo:
+ *           type: string
+ *           minLength: 1
+ *           maxLength: 300
+ *           description: Texto do comentário. Espaços no início e no fim são removidos.
+ *           example: Excelente publicação!
+ *     UpdateComentario:
+ *       type: object
+ *       additionalProperties: false
+ *       required:
+ *         - conteudo
+ *       properties:
+ *         conteudo:
+ *           type: string
+ *           minLength: 1
+ *           maxLength: 300
+ *           description: Novo texto do comentário. Espaços no início e no fim são removidos.
+ *           example: Comentário atualizado!
+ */
+
+/**
+ * @swagger
  * /publicacoes/{publicacaoId}/comentarios:
  *   get:
  *     summary: Listar comentários de uma publicação
  *     tags: [Comentários]
+ *     description: Se a publicação não existir ou não tiver comentários, retorna uma lista vazia.
  *     parameters:
  *       - in: path
  *         name: publicacaoId
  *         required: true
  *         schema:
  *           type: integer
+ *           format: int64
+ *           minimum: 1
  *         description: ID da publicação
  *     responses:
  *       200:
  *         description: Comentários listados com sucesso
- *       404:
- *         description: Publicação não encontrada
+ *       400:
+ *         description: ID inválido
  */
 router.get(
   '/publicacoes/:publicacaoId/comentarios',
@@ -49,6 +81,7 @@ router.get(
  *   post:
  *     summary: Criar um comentário em uma publicação
  *     tags: [Comentários]
+ *     description: O autor do comentário é o usuário autenticado (vem do token).
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -57,17 +90,15 @@ router.get(
  *         required: true
  *         schema:
  *           type: integer
+ *           format: int64
+ *           minimum: 1
  *         description: ID da publicação
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               conteudo:
- *                 type: string
- *                 example: Excelente publicação!
+ *             $ref: '#/components/schemas/CreateComentario'
  *     responses:
  *       201:
  *         description: Comentário criado com sucesso
@@ -75,6 +106,8 @@ router.get(
  *         description: Dados inválidos
  *       401:
  *         description: Usuário não autenticado
+ *       404:
+ *         description: Publicação não encontrada
  */
 router.post(
   '/publicacoes/:publicacaoId/comentarios',
@@ -95,10 +128,14 @@ router.post(
  *         required: true
  *         schema:
  *           type: integer
+ *           format: int64
+ *           minimum: 1
  *         description: ID do comentário
  *     responses:
  *       200:
  *         description: Comentário encontrado
+ *       400:
+ *         description: ID inválido
  *       404:
  *         description: Comentário não encontrado
  */
@@ -110,6 +147,7 @@ router.get('/comentarios/:id', ComentariosController.getComentarioById);
  *   patch:
  *     summary: Atualizar parcialmente um comentário
  *     tags: [Comentários]
+ *     description: Somente o autor do comentário pode editá-lo.
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -118,17 +156,15 @@ router.get('/comentarios/:id', ComentariosController.getComentarioById);
  *         required: true
  *         schema:
  *           type: integer
+ *           format: int64
+ *           minimum: 1
  *         description: ID do comentário
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               conteudo:
- *                 type: string
- *                 example: Comentário atualizado!
+ *             $ref: '#/components/schemas/UpdateComentario'
  *     responses:
  *       200:
  *         description: Comentário atualizado com sucesso
@@ -136,6 +172,8 @@ router.get('/comentarios/:id', ComentariosController.getComentarioById);
  *         description: Dados inválidos
  *       401:
  *         description: Usuário não autenticado
+ *       403:
+ *         description: Você não pode editar este comentário (não é o autor)
  *       404:
  *         description: Comentário não encontrado
  */
@@ -152,6 +190,7 @@ router.patch(
  *   delete:
  *     summary: Excluir um comentário
  *     tags: [Comentários]
+ *     description: Somente o autor do comentário pode excluí-lo.
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -160,12 +199,18 @@ router.patch(
  *         required: true
  *         schema:
  *           type: integer
+ *           format: int64
+ *           minimum: 1
  *         description: ID do comentário
  *     responses:
- *       200:
- *         description: Comentário excluído com sucesso
+ *       204:
+ *         description: Comentário excluído com sucesso (sem conteúdo na resposta)
+ *       400:
+ *         description: ID inválido
  *       401:
  *         description: Usuário não autenticado
+ *       403:
+ *         description: Você não pode apagar este comentário (não é o autor)
  *       404:
  *         description: Comentário não encontrado
  */
