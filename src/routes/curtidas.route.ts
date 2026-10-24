@@ -1,4 +1,3 @@
-
 import { Router } from 'express';
 import * as CurtidasController from '../controllers/curtidas.controller.js';
 import { validate } from '../middlewares/validate.middlewares.js';
@@ -19,6 +18,28 @@ const router = Router();
 
 /**
  * @swagger
+ * components:
+ *   schemas:
+ *     CreateCurtida:
+ *       type: object
+ *       required:
+ *         - publicacaoId
+ *         - usuarioId
+ *       properties:
+ *         publicacaoId:
+ *           type: integer
+ *           minimum: 1
+ *           description: ID da publicação curtida (também aceita número em formato de texto, ex. "1").
+ *           example: 1
+ *         usuarioId:
+ *           type: integer
+ *           minimum: 1
+ *           description: ID do usuário que curtiu (também aceita número em formato de texto, ex. "10").
+ *           example: 10
+ */
+
+/**
+ * @swagger
  * /curtidas:
  *   post:
  *     summary: Criar uma curtida
@@ -28,27 +49,16 @@ const router = Router();
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required:
- *               - publicacaoId
- *               - usuarioId
- *             properties:
- *               publicacaoId:
- *                 type: string
- *                 example: "1"
- *                 description: ID da publicação curtida
- *               usuarioId:
- *                 type: string
- *                 example: "10"
- *                 description: ID do usuário que curtiu
- *           example:
- *             publicacaoId: "1"
- *             usuarioId: "10"
+ *             $ref: '#/components/schemas/CreateCurtida'
  *     responses:
  *       201:
  *         description: Curtida criada com sucesso
  *       400:
  *         description: Dados inválidos
+ *       404:
+ *         description: Usuário ou publicação não encontrado
+ *       409:
+ *         description: Usuário já curtiu esta publicação
  */
 router.post(
   '/curtidas',
@@ -62,6 +72,20 @@ router.post(
  *   get:
  *     summary: Listar curtidas
  *     tags: [Curtidas]
+ *     description: Ordenadas da mais recente para a mais antiga.
+ *     parameters:
+ *       - in: query
+ *         name: publicacaoId
+ *         required: false
+ *         schema:
+ *           type: integer
+ *         description: Filtrar pelas curtidas de uma publicação
+ *       - in: query
+ *         name: usuarioId
+ *         required: false
+ *         schema:
+ *           type: integer
+ *         description: Filtrar pelas curtidas de um usuário
  *     responses:
  *       200:
  *         description: Lista de curtidas retornada com sucesso
@@ -86,6 +110,8 @@ router.get(
  *         required: true
  *         schema:
  *           type: integer
+ *           minimum: 1
+ *           maximum: 2147483647
  *         description: ID da curtida
  *     responses:
  *       200:
@@ -113,10 +139,12 @@ router.get(
  *         required: true
  *         schema:
  *           type: integer
+ *           minimum: 1
+ *           maximum: 2147483647
  *         description: ID da curtida
  *     responses:
- *       200:
- *         description: Curtida excluída com sucesso
+ *       204:
+ *         description: Curtida excluída com sucesso (sem conteúdo na resposta)
  *       400:
  *         description: ID inválido
  *       404:
