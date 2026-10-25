@@ -89,12 +89,13 @@ const lerCoordenadas = (body: Record<string, unknown>) => {
   return { latitude, longitude };
 };
 
-// Id do usuário logado, preenchido pelo middleware authenticate em req.user.id
-// (provisório, via header x-user-id — ver src/middlewares/authenticate.ts).
-const readUsuarioLogado = (req: Request) => {
-  const user = (req as Request & { user?: { id: string } }).user;
-  if (!user) throw new HttpError(401, 'Não autenticado.');
-  return readBigInt(user.id, 'usuarioId');
+// O authMiddleware coloca o id do usuário logado em res.locals.userId
+const readUsuarioLogado = (res: Response) => {
+  const usuarioId = res.locals.userId;
+  if (usuarioId === undefined || usuarioId === null) {
+    throw new HttpError(401, 'Não autenticado.');
+  }
+  return readBigInt(usuarioId, 'usuarioId');
 };
 
 export const createAnuncios = async (req: Request, res: Response) => {
@@ -102,7 +103,7 @@ export const createAnuncios = async (req: Request, res: Response) => {
   const { latitude, longitude } = lerCoordenadas(body);
 
   const anuncios = await AnunciosService.createAnuncios({
-    usuarioId: readUsuarioLogado(req),
+    usuarioId: readUsuarioLogado(res),
     titulo: readString(body.titulo, 'Título', 150),
     descricao: body.descricao === undefined || body.descricao === null ? null : String(body.descricao),
     preco: readPreco(body.preco),
@@ -163,7 +164,7 @@ export const updateAnuncios = async (req: Request, res: Response) => {
 
   const anuncios = await AnunciosService.updateAnuncios(
     readBigInt(req.params.id, 'id'),
-    readUsuarioLogado(req),
+    readUsuarioLogado(res),
     changes
   );
   res.json(AnunciosService.toPublicAnuncios(anuncios));
@@ -171,6 +172,6 @@ export const updateAnuncios = async (req: Request, res: Response) => {
 
 // Exclusão lógica (status = 'removido'), só pelo dono do anúncio.
 export const removerAnuncios = async (req: Request, res: Response) => {
-  await AnunciosService.removerAnuncios(readBigInt(req.params.id, 'id'), readUsuarioLogado(req));
+  await AnunciosService.removerAnuncios(readBigInt(req.params.id, 'id'), readUsuarioLogado(res));
   res.status(204).send();
 };
