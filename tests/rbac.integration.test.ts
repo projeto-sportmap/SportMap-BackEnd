@@ -63,8 +63,8 @@ it('RBAC: padrão seguro, permissão atual e proteção contra promoção públi
   const adminId = BigInt(second.body.id);
   expect((await db.orm.public.Usuarios.first({ id: BigInt(id) }))?.tipoUsuarioId).toBe(1);
 
-  const login = await request(app).post('/login').send({ email: data.email, password: data.senha });
-  const otherLogin = await request(app).post('/login').send({ email: other.email, password: other.senha });
+  const login = await request(app).post('/login').send({ email: data.email, senha: data.senha });
+  const otherLogin = await request(app).post('/login').send({ email: other.email, senha: other.senha });
   expect(login.status).toBe(200);
   expect(otherLogin.status).toBe(200);
   const auth = `Bearer ${login.body.token}`;

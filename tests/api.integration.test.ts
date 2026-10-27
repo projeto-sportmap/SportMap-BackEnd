@@ -33,7 +33,7 @@ function novoUsuario() {
     username: `it_${sufixo}`,
     nome: 'Pessoa',
     sobrenome: 'Integração',
-    // O cadastro recebe "senha"; o login recebe "password".
+    // O cadastro recebe "senha"; o login recebe "senha".
     senha: 'Integracao123!',
   };
 }
@@ -48,7 +48,7 @@ it('cadastro → banco → login → autorização → atualização → exclus�
   expect(criado.status).toBe(201);
   expect(criado.body).not.toHaveProperty('senha');
   expect(criado.body).not.toHaveProperty('senhaHash');
-  expect(criado.body).not.toHaveProperty('password');
+  expect(criado.body).not.toHaveProperty('senha');
 
   // O id é BigInt no banco; na resposta JSON costuma chegar como string ou número.
   const id = criado.body.id;
@@ -67,10 +67,10 @@ it('cadastro → banco → login → autorização → atualização → exclus�
   const segundo = await request(app).post(ROTA_USUARIOS).send(outro);
   expect(segundo.status).toBe(201);
 
-  // Login (a API espera "password")
+  // Login (a API espera "senha")
   const login = await request(app)
     .post(ROTA_LOGIN)
-    .send({ email: dados.email, password: dados.senha });
+    .send({ email: dados.email, senha: dados.senha });
   expect(login.status).toBe(200);
   const auth = `Bearer ${login.body.token}`;
 
@@ -100,7 +100,7 @@ it('cadastro → banco → login → autorização → atualização → exclus�
   expect(atualizado.status).toBe(200);
   expect(atualizado.body.nome).toBe('Nome Atualizado');
   expect(atualizado.body).not.toHaveProperty('senhaHash');
-  expect(atualizado.body).not.toHaveProperty('password');
+  expect(atualizado.body).not.toHaveProperty('senha');
 
   // Exclusão
   const exclusao = await request(app).delete(`${ROTA_USUARIOS}/${id}`).set('Authorization', auth);

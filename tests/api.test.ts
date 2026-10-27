@@ -324,21 +324,21 @@ describe('Testes automatizados da API SportMap', () => {
     it('POST /login deve aceitar credenciais válidas e definir cookie HttpOnly', async () => {
       const resposta = await request(app)
         .post('/login')
-        .send({ email: 'pessoa@example.com', password: 'Senha123' });
+        .send({ email: 'pessoa@example.com', senha: 'Senha123' });
 
       expect(resposta.status).toBe(200);
       expect(resposta.body).toHaveProperty('token');
       expect(resposta.headers['set-cookie']?.[0]).toContain('HttpOnly');
       expect(mocks.login).toHaveBeenCalledWith({
         email: 'pessoa@example.com',
-        password: 'Senha123',
+        senha: 'Senha123',
       });
     });
 
     it('POST /login deve rejeitar e-mail inválido', async () => {
       const resposta = await request(app)
         .post('/login')
-        .send({ email: 'invalido', password: 'Senha123' });
+        .send({ email: 'invalido', senha: 'Senha123' });
 
       expect(resposta.status).toBe(400);
       expect(mocks.login).not.toHaveBeenCalled();
@@ -357,7 +357,7 @@ describe('Testes automatizados da API SportMap', () => {
 describe('Publicação autenticada', () => {
   it('publica após login usando cookie e sem usuarioId', async () => {
     const cliente = request.agent(app);
-    await cliente.post('/login').send({ email: 'pessoa@example.com', password: 'Senha123' }).expect(200);
+    await cliente.post('/login').send({ email: 'pessoa@example.com', senha: 'Senha123' }).expect(200);
     const resposta = await cliente.post('/publicacoes').set('Origin', env.FRONTEND_ORIGIN).send({ conteudo: '  Meu treino  ' });
     expect(resposta.status).toBe(201);
     expect(resposta.body).toMatchObject({ id: '1', usuarioId: '1', conteudo: 'Meu treino' });
@@ -388,7 +388,7 @@ describe('Publicação autenticada', () => {
 describe('Comentários em publicações', () => {
   it('permite que outro usuário logado comente após a publicação', async () => {
     const autor = request.agent(app);
-    await autor.post('/login').send({ email: usuario.email, password: 'Senha123' }).expect(200);
+    await autor.post('/login').send({ email: usuario.email, senha: 'Senha123' }).expect(200);
     const publicacao = await autor.post('/publicacoes')
       .set('Origin', env.API_ORIGIN)
       .send({ conteudo: 'Meu treino' }).expect(201);
@@ -405,7 +405,7 @@ describe('Comentários em publicações', () => {
     }));
 
     const leitor = request.agent(app);
-    await leitor.post('/login').send({ email: outroUsuario.email, password: 'Senha123' }).expect(200);
+    await leitor.post('/login').send({ email: outroUsuario.email, senha: 'Senha123' }).expect(200);
     const comentario = await leitor.post(`/publicacoes/${publicacao.body.id}/comentarios`)
       .set('Origin', env.API_ORIGIN)
       .send({ conteudo: '  Bom treino!  ' }).expect(201);

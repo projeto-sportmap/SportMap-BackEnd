@@ -17,11 +17,8 @@ import anuncio_midiasRoutes from './anuncio_midias.route.js';
 import anunciosRoutes from './anuncios.route.js';
 import avaliacoesRoutes from './avaliacoes.route.js';
 import compartilhamentosRoutes from './compartilhamentos.route.js';
-import loginRoutes from './auth.route.js';
+import loginRoutes from './auth.route.js';    // auth.route = login - NÃO MUDAR
 import adminRoutes from './admin.route.js';   // junto dos outros imports
-
-
-import authRoutes from './auth.route.js';
  
 const routes = Router();
  
@@ -51,6 +48,5 @@ routes.use(loginRoutes);
  * POST /login
  * POST /logout
  */
-routes.use(authRoutes);
  
 export default routes;
