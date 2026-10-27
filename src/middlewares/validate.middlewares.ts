@@ -1,22 +1,25 @@
-
 import type { Request, Response, NextFunction } from 'express';
 import type { ZodType } from 'zod';
 import { HttpError } from '../lib/http-error.js';
 
 export const validate =
-  (schema: ZodType) => (req: Request, _res: Response, next: NextFunction) => {
+  (schema: ZodType) =>
+  (req: Request, _res: Response, next: NextFunction) => {
     const result = schema.safeParse({
       params: req.params,
-      query: req.query, // Adicionado para validar os filtros do GET
+      query: req.query,
       body: req.body,
     });
 
     if (!result.success) {
-      const message = result.error.issues
-        .map((issue) => issue.message)
-        .join(' ');
+      const errors = result.error.issues.map((issue) => ({
+        path: issue.path.join('.'),
+        message: issue.message,
+      }));
 
-      throw new HttpError(400, message);
+      return next(
+        new HttpError(400, 'Erro de validação', errors),
+      );
     }
 
     // Guarda o body validado
@@ -28,5 +31,5 @@ export const validate =
       req.body = result.data.body;
     }
 
-    next();
+    return next();
   };

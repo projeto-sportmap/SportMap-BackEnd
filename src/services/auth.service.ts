@@ -16,7 +16,7 @@ type UsuarioRow =
 export class AuthService {
   static async login(data: {
     email: string;
-    password: string;
+    senha: string;
   }) {
     const email = data.email
       .trim()
@@ -30,7 +30,7 @@ export class AuthService {
     if (
       !usuario ||
       !(await bcrypt.compare(
-        data.password,
+        data.senha,
         usuario.senhaHash,
       ))
     ) {
