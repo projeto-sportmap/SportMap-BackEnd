@@ -1,4 +1,4 @@
-import { Temporal } from '@js-temporal/polyfill';
+import { Temporal } from 'temporal-polyfill';
 import { db } from '../prisma/db.js';
 import { HttpError } from '../lib/http-error.js';
 
