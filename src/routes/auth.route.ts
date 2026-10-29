@@ -1,4 +1,3 @@
-
 import { Router } from 'express';
 import * as AuthController from '../controllers/auth.controller.js';
 import { validate } from '../middlewares/validate.middlewares.js';
@@ -58,8 +57,8 @@ router.post(
  *     summary: Realizar logout
  *     tags: [Autenticação]
  *     responses:
- *       200:
- *         description: Logout realizado com sucesso
+ *       204:
+ *         description: Logout realizado com sucesso (sem conteúdo no corpo da resposta)
  *       401:
  *         description: Usuário não autenticado
  */
