@@ -32,6 +32,7 @@ const router = Router();
  *       properties:
  *         nome:
  *           type: string
+ *           minLength: 1
  *           maxLength: 50
  *           example: Futsal
  */
