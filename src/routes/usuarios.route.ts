@@ -419,8 +419,8 @@ router.patch(
  *           type: integer
  *         description: ID do usuário
  *     responses:
- *       200:
- *         description: Conta excluída com sucesso
+ *       204:
+ *         description: Conta excluída com sucesso (sem conteúdo no corpo da resposta)
  *       401:
  *         description: Não autenticado
  *       403:

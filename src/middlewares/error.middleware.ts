@@ -49,6 +49,8 @@ export const errorHandler: ErrorRequestHandler = (
     return;
   }
 
+  console.error(err); // temporário
+  
   logger.error('Erro interno na API.', {
     errorType:
       error instanceof Error ? error.name : 'unknown',
