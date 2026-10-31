@@ -16,10 +16,6 @@
       "model": "Anuncios",
       "namespace": "public"
     },
-    "atividades": {
-      "model": "Atividades",
-      "namespace": "public"
-    },
     "avaliacoes": {
       "model": "Avaliacoes",
       "namespace": "public"
@@ -48,6 +44,10 @@
       "model": "Esportes",
       "namespace": "public"
     },
+    "eventos": {
+      "model": "Eventos",
+      "namespace": "public"
+    },
     "mensagens": {
       "model": "Mensagens",
       "namespace": "public"
@@ -62,10 +62,6 @@
     },
     "seguidores": {
       "model": "Seguidores",
-      "namespace": "public"
-    },
-    "tipo_usuario": {
-      "model": "TipoUsuario",
       "namespace": "public"
     },
     "usuario_esportes": {
@@ -191,11 +187,8 @@
               "url": {
                 "nullable": false,
                 "type": {
-                  "codecId": "sql/varchar@1",
-                  "kind": "scalar",
-                  "typeParams": {
-                    "length": 500
-                  }
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
                 }
               }
             },
@@ -241,21 +234,15 @@
               "cidade": {
                 "nullable": true,
                 "type": {
-                  "codecId": "sql/varchar@1",
-                  "kind": "scalar",
-                  "typeParams": {
-                    "length": 100
-                  }
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
                 }
               },
               "condicao": {
                 "nullable": false,
                 "type": {
-                  "codecId": "sql/varchar@1",
-                  "kind": "scalar",
-                  "typeParams": {
-                    "length": 15
-                  }
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
                 }
               },
               "createdAt": {
@@ -322,21 +309,15 @@
               "status": {
                 "nullable": false,
                 "type": {
-                  "codecId": "sql/varchar@1",
-                  "kind": "scalar",
-                  "typeParams": {
-                    "length": 15
-                  }
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
                 }
               },
               "titulo": {
                 "nullable": false,
                 "type": {
-                  "codecId": "sql/varchar@1",
-                  "kind": "scalar",
-                  "typeParams": {
-                    "length": 150
-                  }
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
                 }
               },
               "usuarioId": {
@@ -467,154 +448,6 @@
               },
               "namespaceId": "public",
               "table": "anuncios"
-            }
-          },
-          "Atividades": {
-            "fields": {
-              "createdAt": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/timestamptz-temporal@1",
-                  "kind": "scalar"
-                }
-              },
-              "descricao": {
-                "nullable": true,
-                "type": {
-                  "codecId": "sql/varchar@1",
-                  "kind": "scalar",
-                  "typeParams": {
-                    "length": 500
-                  }
-                }
-              },
-              "esporteId": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/int4@1",
-                  "kind": "scalar"
-                }
-              },
-              "expiraEm": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/timestamptz-temporal@1",
-                  "kind": "scalar"
-                }
-              },
-              "id": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/int8@1",
-                  "kind": "scalar"
-                }
-              },
-              "latitude": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/numeric@1",
-                  "kind": "scalar",
-                  "typeParams": {
-                    "precision": 9,
-                    "scale": 6
-                  }
-                }
-              },
-              "longitude": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/numeric@1",
-                  "kind": "scalar",
-                  "typeParams": {
-                    "precision": 9,
-                    "scale": 6
-                  }
-                }
-              },
-              "status": {
-                "nullable": false,
-                "type": {
-                  "codecId": "sql/varchar@1",
-                  "kind": "scalar",
-                  "typeParams": {
-                    "length": 20
-                  }
-                }
-              },
-              "usuarioId": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/int8@1",
-                  "kind": "scalar"
-                }
-              }
-            },
-            "relations": {
-              "esporte": {
-                "cardinality": "N:1",
-                "nullable": false,
-                "on": {
-                  "localFields": [
-                    "esporteId"
-                  ],
-                  "targetFields": [
-                    "id"
-                  ]
-                },
-                "to": {
-                  "model": "Esportes",
-                  "namespace": "public"
-                }
-              },
-              "usuario": {
-                "cardinality": "N:1",
-                "nullable": false,
-                "on": {
-                  "localFields": [
-                    "usuarioId"
-                  ],
-                  "targetFields": [
-                    "id"
-                  ]
-                },
-                "to": {
-                  "model": "Usuarios",
-                  "namespace": "public"
-                }
-              }
-            },
-            "storage": {
-              "fields": {
-                "createdAt": {
-                  "column": "created_at"
-                },
-                "descricao": {
-                  "column": "descricao"
-                },
-                "esporteId": {
-                  "column": "esporte_id"
-                },
-                "expiraEm": {
-                  "column": "expira_em"
-                },
-                "id": {
-                  "column": "id"
-                },
-                "latitude": {
-                  "column": "latitude"
-                },
-                "longitude": {
-                  "column": "longitude"
-                },
-                "status": {
-                  "column": "status"
-                },
-                "usuarioId": {
-                  "column": "usuario_id"
-                }
-              },
-              "namespaceId": "public",
-              "table": "atividades"
             }
           },
           "Avaliacoes": {
@@ -1152,7 +985,7 @@
                   "namespace": "public"
                 }
               },
-              "atividades": {
+              "eventos": {
                 "cardinality": "1:N",
                 "on": {
                   "localFields": [
@@ -1163,7 +996,7 @@
                   ]
                 },
                 "to": {
-                  "model": "Atividades",
+                  "model": "Eventos",
                   "namespace": "public"
                 }
               },
@@ -1209,6 +1042,207 @@
               },
               "namespaceId": "public",
               "table": "esportes"
+            }
+          },
+          "Eventos": {
+            "fields": {
+              "cidade": {
+                "nullable": true,
+                "type": {
+                  "codecId": "sql/varchar@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 100
+                  }
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "dataFim": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "descricao": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "esporteId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "expiraEm": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int8@1",
+                  "kind": "scalar"
+                }
+              },
+              "latitude": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/numeric@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 9,
+                    "scale": 6
+                  }
+                }
+              },
+              "localNome": {
+                "nullable": true,
+                "type": {
+                  "codecId": "sql/varchar@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 150
+                  }
+                }
+              },
+              "longitude": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/numeric@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 9,
+                    "scale": 6
+                  }
+                }
+              },
+              "maxParticipantes": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "nivel": {
+                "nullable": true,
+                "type": {
+                  "codecId": "sql/varchar@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 20
+                  }
+                }
+              },
+              "status": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "usuarioId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int8@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "esporte": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "esporteId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Esportes",
+                  "namespace": "public"
+                }
+              },
+              "usuario": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "usuarioId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Usuarios",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "cidade": {
+                  "column": "cidade"
+                },
+                "createdAt": {
+                  "column": "created_at"
+                },
+                "dataFim": {
+                  "column": "data_fim"
+                },
+                "descricao": {
+                  "column": "descricao"
+                },
+                "esporteId": {
+                  "column": "esporte_id"
+                },
+                "expiraEm": {
+                  "column": "expira_em"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "latitude": {
+                  "column": "latitude"
+                },
+                "localNome": {
+                  "column": "local_nome"
+                },
+                "longitude": {
+                  "column": "longitude"
+                },
+                "maxParticipantes": {
+                  "column": "max_participantes"
+                },
+                "nivel": {
+                  "column": "nivel"
+                },
+                "status": {
+                  "column": "status"
+                },
+                "usuarioId": {
+                  "column": "usuario_id"
+                }
+              },
+              "namespaceId": "public",
+              "table": "eventos"
             }
           },
           "Mensagens": {
@@ -1341,21 +1375,15 @@
               "tipo": {
                 "nullable": false,
                 "type": {
-                  "codecId": "sql/varchar@1",
-                  "kind": "scalar",
-                  "typeParams": {
-                    "length": 10
-                  }
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
                 }
               },
               "url": {
                 "nullable": false,
                 "type": {
-                  "codecId": "sql/varchar@1",
-                  "kind": "scalar",
-                  "typeParams": {
-                    "length": 500
-                  }
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
                 }
               }
             },
@@ -1665,69 +1693,6 @@
               "table": "seguidores"
             }
           },
-          "TipoUsuario": {
-            "fields": {
-              "code": {
-                "nullable": false,
-                "type": {
-                  "codecId": "sql/varchar@1",
-                  "kind": "scalar",
-                  "typeParams": {
-                    "length": 20
-                  }
-                }
-              },
-              "id": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/int4@1",
-                  "kind": "scalar"
-                }
-              },
-              "name": {
-                "nullable": false,
-                "type": {
-                  "codecId": "sql/varchar@1",
-                  "kind": "scalar",
-                  "typeParams": {
-                    "length": 50
-                  }
-                }
-              }
-            },
-            "relations": {
-              "usuarios": {
-                "cardinality": "1:N",
-                "on": {
-                  "localFields": [
-                    "id"
-                  ],
-                  "targetFields": [
-                    "tipoUsuarioId"
-                  ]
-                },
-                "to": {
-                  "model": "Usuarios",
-                  "namespace": "public"
-                }
-              }
-            },
-            "storage": {
-              "fields": {
-                "code": {
-                  "column": "code"
-                },
-                "id": {
-                  "column": "id"
-                },
-                "name": {
-                  "column": "name"
-                }
-              },
-              "namespaceId": "public",
-              "table": "tipo_usuario"
-            }
-          },
           "UsuarioEsportes": {
             "fields": {
               "esporteId": {
@@ -1747,11 +1712,8 @@
               "nivel": {
                 "nullable": false,
                 "type": {
-                  "codecId": "sql/varchar@1",
-                  "kind": "scalar",
-                  "typeParams": {
-                    "length": 20
-                  }
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
                 }
               },
               "usuarioId": {
@@ -1827,11 +1789,8 @@
               "cidade": {
                 "nullable": true,
                 "type": {
-                  "codecId": "sql/varchar@1",
-                  "kind": "scalar",
-                  "typeParams": {
-                    "length": 100
-                  }
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
                 }
               },
               "createdAt": {
@@ -1844,21 +1803,15 @@
               "email": {
                 "nullable": false,
                 "type": {
-                  "codecId": "sql/varchar@1",
-                  "kind": "scalar",
-                  "typeParams": {
-                    "length": 255
-                  }
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
                 }
               },
               "fotoPerfilUrl": {
                 "nullable": true,
                 "type": {
-                  "codecId": "sql/varchar@1",
-                  "kind": "scalar",
-                  "typeParams": {
-                    "length": 500
-                  }
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
                 }
               },
               "id": {
@@ -1893,37 +1846,28 @@
               "nome": {
                 "nullable": false,
                 "type": {
-                  "codecId": "sql/varchar@1",
-                  "kind": "scalar",
-                  "typeParams": {
-                    "length": 100
-                  }
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "role": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
                 }
               },
               "senhaHash": {
                 "nullable": false,
                 "type": {
-                  "codecId": "sql/varchar@1",
-                  "kind": "scalar",
-                  "typeParams": {
-                    "length": 255
-                  }
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
                 }
               },
               "sobrenome": {
                 "nullable": false,
                 "type": {
-                  "codecId": "sql/varchar@1",
-                  "kind": "scalar",
-                  "typeParams": {
-                    "length": 100
-                  }
-                }
-              },
-              "tipoUsuarioId": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/int4@1",
+                  "codecId": "pg/text@1",
                   "kind": "scalar"
                 }
               },
@@ -1937,11 +1881,8 @@
               "username": {
                 "nullable": false,
                 "type": {
-                  "codecId": "sql/varchar@1",
-                  "kind": "scalar",
-                  "typeParams": {
-                    "length": 30
-                  }
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
                 }
               }
             },
@@ -1973,21 +1914,6 @@
                 },
                 "to": {
                   "model": "Anuncios",
-                  "namespace": "public"
-                }
-              },
-              "atividades": {
-                "cardinality": "1:N",
-                "on": {
-                  "localFields": [
-                    "id"
-                  ],
-                  "targetFields": [
-                    "usuarioId"
-                  ]
-                },
-                "to": {
-                  "model": "Atividades",
                   "namespace": "public"
                 }
               },
@@ -2066,6 +1992,21 @@
                   "namespace": "public"
                 }
               },
+              "eventos": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "usuarioId"
+                  ]
+                },
+                "to": {
+                  "model": "Eventos",
+                  "namespace": "public"
+                }
+              },
               "mensagens": {
                 "cardinality": "1:N",
                 "on": {
@@ -2126,22 +2067,6 @@
                   "namespace": "public"
                 }
               },
-              "tipoUsuario": {
-                "cardinality": "N:1",
-                "nullable": false,
-                "on": {
-                  "localFields": [
-                    "tipoUsuarioId"
-                  ],
-                  "targetFields": [
-                    "id"
-                  ]
-                },
-                "to": {
-                  "model": "TipoUsuario",
-                  "namespace": "public"
-                }
-              },
               "usuarioEsportes": {
                 "cardinality": "1:N",
                 "on": {
@@ -2187,14 +2112,14 @@
                 "nome": {
                   "column": "nome"
                 },
+                "role": {
+                  "column": "role"
+                },
                 "senhaHash": {
                   "column": "senha_hash"
                 },
                 "sobrenome": {
                   "column": "sobrenome"
-                },
-                "tipoUsuarioId": {
-                  "column": "tipo_usuario_id"
                 },
                 "updatedAt": {
                   "column": "updated_at"
@@ -2342,12 +2267,9 @@
                   "nullable": false
                 },
                 "url": {
-                  "codecId": "sql/varchar@1",
-                  "nativeType": "character varying",
-                  "nullable": false,
-                  "typeParams": {
-                    "length": 500
-                  }
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
                 }
               },
               "foreignKeys": [
@@ -2390,7 +2312,7 @@
             "anuncios": {
               "checks": [
                 {
-                  "expression": "((condicao)::text = ANY ((ARRAY['novo'::character varying, 'seminovo'::character varying, 'usado'::character varying])::text[]))",
+                  "expression": "(condicao = ANY (ARRAY[('novo'::character varying)::text, ('seminovo'::character varying)::text, ('usado'::character varying)::text]))",
                   "name": "ck_anuncios_condicao"
                 },
                 {
@@ -2410,26 +2332,20 @@
                   "name": "ck_anuncios_preco"
                 },
                 {
-                  "expression": "((status)::text = ANY ((ARRAY['ativo'::character varying, 'pausado'::character varying, 'vendido'::character varying, 'removido'::character varying])::text[]))",
+                  "expression": "(status = ANY (ARRAY[('ativo'::character varying)::text, ('pausado'::character varying)::text, ('vendido'::character varying)::text, ('removido'::character varying)::text]))",
                   "name": "ck_anuncios_status"
                 }
               ],
               "columns": {
                 "cidade": {
-                  "codecId": "sql/varchar@1",
-                  "nativeType": "character varying",
-                  "nullable": true,
-                  "typeParams": {
-                    "length": 100
-                  }
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
                 },
                 "condicao": {
-                  "codecId": "sql/varchar@1",
-                  "nativeType": "character varying",
-                  "nullable": false,
-                  "typeParams": {
-                    "length": 15
-                  }
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
                 },
                 "created_at": {
                   "codecId": "pg/timestamptz-temporal@1",
@@ -2487,24 +2403,18 @@
                   }
                 },
                 "status": {
-                  "codecId": "sql/varchar@1",
+                  "codecId": "pg/text@1",
                   "default": {
                     "kind": "literal",
                     "value": "ativo"
                   },
-                  "nativeType": "character varying",
-                  "nullable": false,
-                  "typeParams": {
-                    "length": 15
-                  }
+                  "nativeType": "text",
+                  "nullable": false
                 },
                 "titulo": {
-                  "codecId": "sql/varchar@1",
-                  "nativeType": "character varying",
-                  "nullable": false,
-                  "typeParams": {
-                    "length": 150
-                  }
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
                 },
                 "usuario_id": {
                   "codecId": "pg/int8@1",
@@ -2581,170 +2491,6 @@
                   "id"
                 ],
                 "name": "anuncios_pkey"
-              },
-              "uniques": []
-            },
-            "atividades": {
-              "checks": [
-                {
-                  "expression": "(expira_em > created_at)",
-                  "name": "ck_atividades_expira"
-                },
-                {
-                  "expression": "((latitude >= ('-90'::integer)::numeric) AND (latitude <= (90)::numeric))",
-                  "name": "ck_atividades_lat"
-                },
-                {
-                  "expression": "((longitude >= ('-180'::integer)::numeric) AND (longitude <= (180)::numeric))",
-                  "name": "ck_atividades_lng"
-                },
-                {
-                  "expression": "((status)::text = ANY ((ARRAY['aberta'::character varying, 'em_andamento'::character varying, 'concluida'::character varying, 'cancelada'::character varying, 'expirada'::character varying])::text[]))",
-                  "name": "ck_atividades_status"
-                }
-              ],
-              "columns": {
-                "created_at": {
-                  "codecId": "pg/timestamptz-temporal@1",
-                  "default": {
-                    "expression": "now()",
-                    "kind": "function"
-                  },
-                  "nativeType": "timestamptz",
-                  "nullable": false
-                },
-                "descricao": {
-                  "codecId": "sql/varchar@1",
-                  "nativeType": "character varying",
-                  "nullable": true,
-                  "typeParams": {
-                    "length": 500
-                  }
-                },
-                "esporte_id": {
-                  "codecId": "pg/int4@1",
-                  "nativeType": "int4",
-                  "nullable": false
-                },
-                "expira_em": {
-                  "codecId": "pg/timestamptz-temporal@1",
-                  "nativeType": "timestamptz",
-                  "nullable": false
-                },
-                "id": {
-                  "codecId": "pg/int8@1",
-                  "default": {
-                    "expression": "autoincrement()",
-                    "kind": "function"
-                  },
-                  "nativeType": "int8",
-                  "nullable": false
-                },
-                "latitude": {
-                  "codecId": "pg/numeric@1",
-                  "nativeType": "numeric",
-                  "nullable": false,
-                  "typeParams": {
-                    "precision": 9,
-                    "scale": 6
-                  }
-                },
-                "longitude": {
-                  "codecId": "pg/numeric@1",
-                  "nativeType": "numeric",
-                  "nullable": false,
-                  "typeParams": {
-                    "precision": 9,
-                    "scale": 6
-                  }
-                },
-                "status": {
-                  "codecId": "sql/varchar@1",
-                  "default": {
-                    "kind": "literal",
-                    "value": "aberta"
-                  },
-                  "nativeType": "character varying",
-                  "nullable": false,
-                  "typeParams": {
-                    "length": 20
-                  }
-                },
-                "usuario_id": {
-                  "codecId": "pg/int8@1",
-                  "nativeType": "int8",
-                  "nullable": false
-                }
-              },
-              "foreignKeys": [
-                {
-                  "name": "fk_atividades_esporte",
-                  "onDelete": "restrict",
-                  "source": {
-                    "columns": [
-                      "esporte_id"
-                    ],
-                    "namespaceId": "public",
-                    "tableName": "atividades"
-                  },
-                  "target": {
-                    "columns": [
-                      "id"
-                    ],
-                    "namespaceId": "public",
-                    "tableName": "esportes"
-                  }
-                },
-                {
-                  "name": "fk_atividades_usuario",
-                  "onDelete": "cascade",
-                  "source": {
-                    "columns": [
-                      "usuario_id"
-                    ],
-                    "namespaceId": "public",
-                    "tableName": "atividades"
-                  },
-                  "target": {
-                    "columns": [
-                      "id"
-                    ],
-                    "namespaceId": "public",
-                    "tableName": "usuarios"
-                  }
-                }
-              ],
-              "indexes": [
-                {
-                  "columns": [
-                    "esporte_id"
-                  ],
-                  "name": "ix_atividades_esporte",
-                  "unique": false
-                },
-                {
-                  "columns": [
-                    "status",
-                    "expira_em",
-                    "latitude",
-                    "longitude"
-                  ],
-                  "name": "ix_atividades_mapa",
-                  "unique": false
-                },
-                {
-                  "columns": [
-                    "usuario_id"
-                  ],
-                  "name": "ix_atividades_usuario",
-                  "unique": false
-                }
-              ],
-              "primaryKey": {
-                "columns": [
-                  "id"
-                ],
-                "name": "atividades_pkey"
               },
               "uniques": []
             },
@@ -3300,6 +3046,219 @@
                 }
               ]
             },
+            "eventos": {
+              "checks": [
+                {
+                  "expression": "((data_fim IS NULL) OR (data_fim > created_at))",
+                  "name": "ck_eventos_data_fim"
+                },
+                {
+                  "expression": "(expira_em > created_at)",
+                  "name": "ck_eventos_expira"
+                },
+                {
+                  "expression": "((latitude >= ('-90'::integer)::numeric) AND (latitude <= (90)::numeric))",
+                  "name": "ck_eventos_lat"
+                },
+                {
+                  "expression": "((longitude >= ('-180'::integer)::numeric) AND (longitude <= (180)::numeric))",
+                  "name": "ck_eventos_lng"
+                },
+                {
+                  "expression": "((max_participantes IS NULL) OR (max_participantes > 0))",
+                  "name": "ck_eventos_max_participantes"
+                },
+                {
+                  "expression": "((nivel)::text = ANY ((ARRAY['iniciante'::character varying, 'intermediario'::character varying, 'avancado'::character varying, 'profissional'::character varying])::text[]))",
+                  "name": "ck_eventos_nivel"
+                },
+                {
+                  "expression": "(status = ANY (ARRAY[('aberta'::character varying)::text, ('em_andamento'::character varying)::text, ('concluida'::character varying)::text, ('cancelada'::character varying)::text, ('expirada'::character varying)::text]))",
+                  "name": "ck_eventos_status"
+                }
+              ],
+              "columns": {
+                "cidade": {
+                  "codecId": "sql/varchar@1",
+                  "nativeType": "character varying",
+                  "nullable": true,
+                  "typeParams": {
+                    "length": 100
+                  }
+                },
+                "created_at": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "data_fim": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "nativeType": "timestamptz",
+                  "nullable": true
+                },
+                "descricao": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "esporte_id": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "expira_em": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/int8@1",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nativeType": "int8",
+                  "nullable": false
+                },
+                "latitude": {
+                  "codecId": "pg/numeric@1",
+                  "nativeType": "numeric",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 9,
+                    "scale": 6
+                  }
+                },
+                "local_nome": {
+                  "codecId": "sql/varchar@1",
+                  "nativeType": "character varying",
+                  "nullable": true,
+                  "typeParams": {
+                    "length": 150
+                  }
+                },
+                "longitude": {
+                  "codecId": "pg/numeric@1",
+                  "nativeType": "numeric",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 9,
+                    "scale": 6
+                  }
+                },
+                "max_participantes": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
+                "nivel": {
+                  "codecId": "sql/varchar@1",
+                  "nativeType": "character varying",
+                  "nullable": true,
+                  "typeParams": {
+                    "length": 20
+                  }
+                },
+                "status": {
+                  "codecId": "pg/text@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "aberta"
+                  },
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "usuario_id": {
+                  "codecId": "pg/int8@1",
+                  "nativeType": "int8",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "name": "fk_eventos_esporte",
+                  "onDelete": "restrict",
+                  "source": {
+                    "columns": [
+                      "esporte_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "eventos"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "esportes"
+                  }
+                },
+                {
+                  "name": "fk_eventos_usuario",
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "usuario_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "eventos"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "usuarios"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "status",
+                    "cidade",
+                    "esporte_id"
+                  ],
+                  "name": "ix_eventos_busca",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "esporte_id"
+                  ],
+                  "name": "ix_eventos_esporte",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "status",
+                    "expira_em",
+                    "latitude",
+                    "longitude"
+                  ],
+                  "name": "ix_eventos_mapa",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "usuario_id"
+                  ],
+                  "name": "ix_eventos_usuario",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ],
+                "name": "eventos_pkey"
+              },
+              "uniques": []
+            },
             "mensagens": {
               "checks": [
                 {
@@ -3421,7 +3380,7 @@
                   "name": "ck_publicacao_midias_ordem"
                 },
                 {
-                  "expression": "((tipo)::text = ANY ((ARRAY['imagem'::character varying, 'video'::character varying])::text[]))",
+                  "expression": "(tipo = ANY (ARRAY[('imagem'::character varying)::text, ('video'::character varying)::text]))",
                   "name": "ck_publicacao_midias_tipo"
                 }
               ],
@@ -3450,20 +3409,14 @@
                   "nullable": false
                 },
                 "tipo": {
-                  "codecId": "sql/varchar@1",
-                  "nativeType": "character varying",
-                  "nullable": false,
-                  "typeParams": {
-                    "length": 10
-                  }
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
                 },
                 "url": {
-                  "codecId": "sql/varchar@1",
-                  "nativeType": "character varying",
-                  "nullable": false,
-                  "typeParams": {
-                    "length": 500
-                  }
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
                 }
               },
               "foreignKeys": [
@@ -3734,51 +3687,10 @@
                 }
               ]
             },
-            "tipo_usuario": {
-              "columns": {
-                "code": {
-                  "codecId": "sql/varchar@1",
-                  "nativeType": "character varying",
-                  "nullable": false,
-                  "typeParams": {
-                    "length": 20
-                  }
-                },
-                "id": {
-                  "codecId": "pg/int4@1",
-                  "nativeType": "int4",
-                  "nullable": false
-                },
-                "name": {
-                  "codecId": "sql/varchar@1",
-                  "nativeType": "character varying",
-                  "nullable": false,
-                  "typeParams": {
-                    "length": 50
-                  }
-                }
-              },
-              "foreignKeys": [],
-              "indexes": [],
-              "primaryKey": {
-                "columns": [
-                  "id"
-                ],
-                "name": "tipo_usuario_pkey"
-              },
-              "uniques": [
-                {
-                  "columns": [
-                    "code"
-                  ],
-                  "name": "tipo_usuario_code_key"
-                }
-              ]
-            },
             "usuario_esportes": {
               "checks": [
                 {
-                  "expression": "((nivel)::text = ANY ((ARRAY['iniciante'::character varying, 'intermediario'::character varying, 'avancado'::character varying, 'profissional'::character varying])::text[]))",
+                  "expression": "(nivel = ANY (ARRAY[('iniciante'::character varying)::text, ('intermediario'::character varying)::text, ('avancado'::character varying)::text, ('profissional'::character varying)::text]))",
                   "name": "ck_usuario_esportes_nivel"
                 }
               ],
@@ -3798,16 +3710,13 @@
                   "nullable": false
                 },
                 "nivel": {
-                  "codecId": "sql/varchar@1",
+                  "codecId": "pg/text@1",
                   "default": {
                     "kind": "literal",
                     "value": "iniciante"
                   },
-                  "nativeType": "character varying",
-                  "nullable": false,
-                  "typeParams": {
-                    "length": 20
-                  }
+                  "nativeType": "text",
+                  "nullable": false
                 },
                 "usuario_id": {
                   "codecId": "pg/int8@1",
@@ -3891,6 +3800,10 @@
                 {
                   "expression": "((longitude >= ('-180'::integer)::numeric) AND (longitude <= (180)::numeric))",
                   "name": "ck_usuarios_lng"
+                },
+                {
+                  "expression": "(role = ANY (ARRAY[('USER'::character varying)::text, ('MODERATOR'::character varying)::text, ('ADMIN'::character varying)::text]))",
+                  "name": "ck_usuarios_role"
                 }
               ],
               "columns": {
@@ -3900,12 +3813,9 @@
                   "nullable": true
                 },
                 "cidade": {
-                  "codecId": "sql/varchar@1",
-                  "nativeType": "character varying",
-                  "nullable": true,
-                  "typeParams": {
-                    "length": 100
-                  }
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
                 },
                 "created_at": {
                   "codecId": "pg/timestamptz-temporal@1",
@@ -3917,20 +3827,14 @@
                   "nullable": false
                 },
                 "email": {
-                  "codecId": "sql/varchar@1",
-                  "nativeType": "character varying",
-                  "nullable": false,
-                  "typeParams": {
-                    "length": 255
-                  }
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
                 },
                 "foto_perfil_url": {
-                  "codecId": "sql/varchar@1",
-                  "nativeType": "character varying",
-                  "nullable": true,
-                  "typeParams": {
-                    "length": 500
-                  }
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
                 },
                 "id": {
                   "codecId": "pg/int8@1",
@@ -3960,36 +3864,27 @@
                   }
                 },
                 "nome": {
-                  "codecId": "sql/varchar@1",
-                  "nativeType": "character varying",
-                  "nullable": false,
-                  "typeParams": {
-                    "length": 100
-                  }
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
                 },
-                "senha_hash": {
-                  "codecId": "sql/varchar@1",
-                  "nativeType": "character varying",
-                  "nullable": false,
-                  "typeParams": {
-                    "length": 255
-                  }
-                },
-                "sobrenome": {
-                  "codecId": "sql/varchar@1",
-                  "nativeType": "character varying",
-                  "nullable": false,
-                  "typeParams": {
-                    "length": 100
-                  }
-                },
-                "tipo_usuario_id": {
-                  "codecId": "pg/int4@1",
+                "role": {
+                  "codecId": "pg/text@1",
                   "default": {
                     "kind": "literal",
-                    "value": 1
+                    "value": "USER"
                   },
-                  "nativeType": "int4",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "senha_hash": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "sobrenome": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
                   "nullable": false
                 },
                 "updated_at": {
@@ -4002,48 +3897,26 @@
                   "nullable": false
                 },
                 "username": {
-                  "codecId": "sql/varchar@1",
-                  "nativeType": "character varying",
-                  "nullable": false,
-                  "typeParams": {
-                    "length": 30
-                  }
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
                 }
               },
-              "foreignKeys": [
-                {
-                  "name": "fk_usuarios_tipo_usuario",
-                  "onDelete": "restrict",
-                  "source": {
-                    "columns": [
-                      "tipo_usuario_id"
-                    ],
-                    "namespaceId": "public",
-                    "tableName": "usuarios"
-                  },
-                  "target": {
-                    "columns": [
-                      "id"
-                    ],
-                    "namespaceId": "public",
-                    "tableName": "tipo_usuario"
-                  }
-                }
-              ],
+              "foreignKeys": [],
               "indexes": [
+                {
+                  "columns": [
+                    "role"
+                  ],
+                  "name": "idx_usuarios_role",
+                  "unique": false
+                },
                 {
                   "columns": [
                     "latitude",
                     "longitude"
                   ],
                   "name": "ix_usuarios_coord",
-                  "unique": false
-                },
-                {
-                  "columns": [
-                    "tipo_usuario_id"
-                  ],
-                  "name": "ix_usuarios_tipo_usuario",
                   "unique": false
                 }
               ],
@@ -4074,7 +3947,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "35bdcd7b8f08b249aab336ad8e11d2318fd4e5002817b2dc48f471d2f1ae99fb"
+    "storageHash": "ed7a9b4e6758c4f2602c61426409c01640ed050dbb667fe265796f7d9cb2cbea"
   },
   "capabilities": {
     "postgres": {
