@@ -34,7 +34,7 @@ export interface FiltrosAtividades {
   offset?: number;
 }
 
-type AtividadesRow = Awaited<ReturnType<typeof db.orm.public.Atividades.create>>;
+type AtividadesRow = Awaited<ReturnType<typeof db.orm.public.Eventos.create>>;
 
 const toInstant = (date: Date) => Temporal.Instant.fromEpochMilliseconds(date.getTime());
 
@@ -62,7 +62,7 @@ export async function createAtividades(data: CreateAtividadesInput) {
   if (!usuario) throw new HttpError(404, 'Usuário não encontrado.');
   if (!esporte) throw new HttpError(404, 'Esporte não encontrado.');
 
-  return db.orm.public.Atividades.create({
+  return db.orm.public.Eventos.create({
     usuarioId: data.usuarioId,
     esporteId: data.esporteId,
     descricao: data.descricao ?? null,
@@ -85,7 +85,7 @@ export async function getAllAtividades(filtros: FiltrosAtividades = {}) {
   const resultado: AtividadesRow[] = [];
   let indice = 0;
 
-  for await (const atividade of db.orm.public.Atividades.where(where as never).all()) {
+  for await (const atividade of db.orm.public.Eventos.where(where as never).all()) {
     if (indice >= skip + take) break;
     if (indice >= skip) resultado.push(atividade);
     indice++;
@@ -95,7 +95,7 @@ export async function getAllAtividades(filtros: FiltrosAtividades = {}) {
 }
 
 export async function getAtividadesById(id: bigint) {
-  const atividades = await db.orm.public.Atividades.first({ id });
+  const atividades = await db.orm.public.Eventos.first({ id });
   if (!atividades) throw new HttpError(404, 'Atividade não encontrada.');
   return atividades;
 }
@@ -115,7 +115,7 @@ export async function updateAtividades(id: bigint, data: UpdateAtividadesInput) 
 
   await getAtividadesById(id);
 
-  const atividades = await db.orm.public.Atividades.where({ id }).update(changes as never);
+  const atividades = await db.orm.public.Eventos.where({ id }).update(changes as never);
   if (!atividades) throw new HttpError(404, 'Atividade não encontrada.');
   return atividades;
 }
@@ -123,13 +123,13 @@ export async function updateAtividades(id: bigint, data: UpdateAtividadesInput) 
 // Cancelamento lógico: preserva o histórico da atividade.
 export async function cancelarAtividades(id: bigint) {
   await getAtividadesById(id);
-  const atividades = await db.orm.public.Atividades.where({ id }).update({ status: 'cancelada' } as never);
+  const atividades = await db.orm.public.Eventos.where({ id }).update({ status: 'cancelada' } as never);
   if (!atividades) throw new HttpError(404, 'Atividade não encontrada.');
   return atividades;
 }
 
 // Exclusão física: use apenas em rotas administrativas.
 export async function deleteAtividades(id: bigint) {
-  const atividades = await db.orm.public.Atividades.where({ id }).delete();
+  const atividades = await db.orm.public.Eventos.where({ id }).delete();
   if (!atividades) throw new HttpError(404, 'Atividade não encontrada.');
 }

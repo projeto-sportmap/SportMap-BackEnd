@@ -34,7 +34,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'ed7a9b4e6758c4f2602c61426409c01640ed050dbb667fe265796f7d9cb2cbea'>;
+  StorageHashBase<'5ea72536edb1e09819e578b137066fd8a0960ccb424a949451bf4027622f3111'>;
 export type ExecutionHash = ExecutionHashBase<string>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
@@ -353,6 +353,11 @@ export type FieldOutputTypes = {
       readonly seguidoId: CodecTypes['pg/int8@1']['output'];
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
     };
+    readonly TipoUsuario: {
+      readonly id: CodecTypes['pg/int4@1']['output'];
+      readonly code: CodecTypes['pg/text@1']['output'];
+      readonly name: CodecTypes['pg/text@1']['output'];
+    };
     readonly UsuarioEsportes: {
       readonly id: CodecTypes['pg/int8@1']['output'];
       readonly usuarioId: CodecTypes['pg/int8@1']['output'];
@@ -374,6 +379,7 @@ export type FieldOutputTypes = {
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
       readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
       readonly role: CodecTypes['pg/text@1']['output'];
+      readonly tipoUsuarioId: CodecTypes['pg/int4@1']['output'] | null;
     };
   };
 };
@@ -491,6 +497,11 @@ export type FieldInputTypes = {
       readonly seguidoId: CodecTypes['pg/int8@1']['input'];
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
     };
+    readonly TipoUsuario: {
+      readonly id: CodecTypes['pg/int4@1']['input'];
+      readonly code: CodecTypes['pg/text@1']['input'];
+      readonly name: CodecTypes['pg/text@1']['input'];
+    };
     readonly UsuarioEsportes: {
       readonly id: CodecTypes['pg/int8@1']['input'];
       readonly usuarioId: CodecTypes['pg/int8@1']['input'];
@@ -512,6 +523,7 @@ export type FieldInputTypes = {
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
       readonly role: CodecTypes['pg/text@1']['input'];
+      readonly tipoUsuarioId: CodecTypes['pg/int4@1']['input'] | null;
     };
   };
 };
@@ -629,6 +641,11 @@ export type StorageColumnTypes = {
       readonly seguido_id: CodecTypes['pg/int8@1']['output'];
       readonly seguidor_id: CodecTypes['pg/int8@1']['output'];
     };
+    readonly tipo_usuario: {
+      readonly code: CodecTypes['pg/text@1']['output'];
+      readonly id: CodecTypes['pg/int4@1']['output'];
+      readonly name: CodecTypes['pg/text@1']['output'];
+    };
     readonly usuario_esportes: {
       readonly esporte_id: CodecTypes['pg/int4@1']['output'];
       readonly id: CodecTypes['pg/int8@1']['output'];
@@ -648,6 +665,7 @@ export type StorageColumnTypes = {
       readonly role: CodecTypes['pg/text@1']['output'];
       readonly senha_hash: CodecTypes['pg/text@1']['output'];
       readonly sobrenome: CodecTypes['pg/text@1']['output'];
+      readonly tipo_usuario_id: CodecTypes['pg/int4@1']['output'] | null;
       readonly updated_at: CodecTypes['pg/timestamptz-temporal@1']['output'];
       readonly username: CodecTypes['pg/text@1']['output'];
     };
@@ -767,6 +785,11 @@ export type StorageColumnInputTypes = {
       readonly seguido_id: CodecTypes['pg/int8@1']['input'];
       readonly seguidor_id: CodecTypes['pg/int8@1']['input'];
     };
+    readonly tipo_usuario: {
+      readonly code: CodecTypes['pg/text@1']['input'];
+      readonly id: CodecTypes['pg/int4@1']['input'];
+      readonly name: CodecTypes['pg/text@1']['input'];
+    };
     readonly usuario_esportes: {
       readonly esporte_id: CodecTypes['pg/int4@1']['input'];
       readonly id: CodecTypes['pg/int8@1']['input'];
@@ -786,6 +809,7 @@ export type StorageColumnInputTypes = {
       readonly role: CodecTypes['pg/text@1']['input'];
       readonly senha_hash: CodecTypes['pg/text@1']['input'];
       readonly sobrenome: CodecTypes['pg/text@1']['input'];
+      readonly tipo_usuario_id: CodecTypes['pg/int4@1']['input'] | null;
       readonly updated_at: CodecTypes['pg/timestamptz-temporal@1']['input'];
       readonly username: CodecTypes['pg/text@1']['input'];
     };
@@ -817,6 +841,7 @@ export namespace Models {
     createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
     updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
     role: CodecTypes['pg/text@1']['output'];
+    tipoUsuarioId: CodecTypes['pg/int4@1']['output'] | null;
     anuncioFavoritos: public_AnuncioFavoritos[];
     anuncios: public_Anuncios[];
     avaliacoes: public_Avaliacoes[];
@@ -829,6 +854,7 @@ export namespace Models {
     publicacoes: public_Publicacoes[];
     seguidores: public_Seguidores[];
     seguidoresSeguidores: public_Seguidores[];
+    tipoUsuario: public_TipoUsuario | null;
     usuarioEsportes: public_UsuarioEsportes[];
     readonly [RelationKeys]?:
       | 'anuncioFavoritos'
@@ -843,6 +869,7 @@ export namespace Models {
       | 'publicacoes'
       | 'seguidores'
       | 'seguidoresSeguidores'
+      | 'tipoUsuario'
       | 'usuarioEsportes';
   };
   export type public_Anuncios = {
@@ -1011,6 +1038,13 @@ export namespace Models {
     usuario: public_Usuarios;
     readonly [RelationKeys]?: 'esporte' | 'usuario';
   };
+  export type public_TipoUsuario = {
+    id: CodecTypes['pg/int4@1']['output'];
+    code: CodecTypes['pg/text@1']['output'];
+    name: CodecTypes['pg/text@1']['output'];
+    usuarios: public_Usuarios[];
+    readonly [RelationKeys]?: 'usuarios';
+  };
 }
 
 export declare const models: {
@@ -1032,6 +1066,7 @@ export declare const models: {
     PublicacaoMidias: Models.public_PublicacaoMidias;
     Seguidores: Models.public_Seguidores;
     UsuarioEsportes: Models.public_UsuarioEsportes;
+    TipoUsuario: Models.public_TipoUsuario;
   };
 };
 
@@ -2172,6 +2207,29 @@ type ContractBase = Omit<
                 },
               ];
             };
+            readonly tipo_usuario: {
+              columns: {
+                readonly id: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                };
+                readonly code: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                };
+                readonly name: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [{ readonly columns: readonly ['code'] }];
+              indexes: readonly [];
+              foreignKeys: readonly [];
+            };
             readonly usuario_esportes: {
               columns: {
                 readonly id: {
@@ -2333,6 +2391,15 @@ type ContractBase = Omit<
                     readonly value: DefaultLiteralValue<'pg/text@1', 'USER'>;
                   };
                 };
+                readonly tipo_usuario_id: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: true;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/int4@1', 1>;
+                  };
+                };
               };
               primaryKey: { readonly columns: readonly ['id']; readonly name: 'usuarios_pkey' };
               uniques: readonly [
@@ -2350,8 +2417,27 @@ type ContractBase = Omit<
                   readonly columns: readonly ['latitude', 'longitude'];
                   readonly unique: false;
                 },
+                {
+                  readonly name: 'usuarios_tipo_usuario_id_idx_c55ae311';
+                  readonly prefix: 'usuarios_tipo_usuario_id_idx';
+                  readonly columns: readonly ['tipo_usuario_id'];
+                  readonly unique: false;
+                },
               ];
-              foreignKeys: readonly [];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'usuarios';
+                    readonly columns: readonly ['tipo_usuario_id'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'tipo_usuario';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
             };
           };
         };
@@ -2410,6 +2496,10 @@ type ContractBase = Omit<
     readonly usuario_esportes: {
       readonly namespace: 'public' & NamespaceId;
       readonly model: 'UsuarioEsportes';
+    };
+    readonly tipo_usuario: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'TipoUsuario';
     };
   };
   readonly domain: {
@@ -3516,6 +3606,44 @@ type ContractBase = Omit<
               };
             };
           };
+          readonly TipoUsuario: {
+            readonly fields: {
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly code: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly name: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+            };
+            readonly relations: {
+              readonly usuarios: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Usuarios';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['tipoUsuarioId'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'tipo_usuario';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly id: { readonly column: 'id' };
+                readonly code: { readonly column: 'code' };
+                readonly name: { readonly column: 'name' };
+              };
+            };
+          };
           readonly UsuarioEsportes: {
             readonly fields: {
               readonly id: {
@@ -3643,6 +3771,10 @@ type ContractBase = Omit<
               readonly role: {
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly tipoUsuarioId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
               };
             };
             readonly relations: {
@@ -3778,6 +3910,18 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['seguidorId'];
                 };
               };
+              readonly tipoUsuario: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'TipoUsuario';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: true;
+                readonly on: {
+                  readonly localFields: readonly ['tipoUsuarioId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
               readonly usuarioEsportes: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
@@ -3808,6 +3952,7 @@ type ContractBase = Omit<
                 readonly createdAt: { readonly column: 'created_at' };
                 readonly updatedAt: { readonly column: 'updated_at' };
                 readonly role: { readonly column: 'role' };
+                readonly tipoUsuarioId: { readonly column: 'tipo_usuario_id' };
               };
             };
           };

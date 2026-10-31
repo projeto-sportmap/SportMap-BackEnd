@@ -64,6 +64,10 @@
       "model": "Seguidores",
       "namespace": "public"
     },
+    "tipo_usuario": {
+      "model": "TipoUsuario",
+      "namespace": "public"
+    },
     "usuario_esportes": {
       "model": "UsuarioEsportes",
       "namespace": "public"
@@ -1693,6 +1697,63 @@
               "table": "seguidores"
             }
           },
+          "TipoUsuario": {
+            "fields": {
+              "code": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "name": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "usuarios": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "tipoUsuarioId"
+                  ]
+                },
+                "to": {
+                  "model": "Usuarios",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "code": {
+                  "column": "code"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "name": {
+                  "column": "name"
+                }
+              },
+              "namespaceId": "public",
+              "table": "tipo_usuario"
+            }
+          },
           "UsuarioEsportes": {
             "fields": {
               "esporteId": {
@@ -1868,6 +1929,13 @@
                 "nullable": false,
                 "type": {
                   "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "tipoUsuarioId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
                   "kind": "scalar"
                 }
               },
@@ -2067,6 +2135,22 @@
                   "namespace": "public"
                 }
               },
+              "tipoUsuario": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "tipoUsuarioId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "TipoUsuario",
+                  "namespace": "public"
+                }
+              },
               "usuarioEsportes": {
                 "cardinality": "1:N",
                 "on": {
@@ -2120,6 +2204,9 @@
                 },
                 "sobrenome": {
                   "column": "sobrenome"
+                },
+                "tipoUsuarioId": {
+                  "column": "tipo_usuario_id"
                 },
                 "updatedAt": {
                   "column": "updated_at"
@@ -3687,6 +3774,39 @@
                 }
               ]
             },
+            "tipo_usuario": {
+              "columns": {
+                "code": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "name": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "code"
+                  ]
+                }
+              ]
+            },
             "usuario_esportes": {
               "checks": [
                 {
@@ -3887,6 +4007,15 @@
                   "nativeType": "text",
                   "nullable": false
                 },
+                "tipo_usuario_id": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": 1
+                  },
+                  "nativeType": "int4",
+                  "nullable": true
+                },
                 "updated_at": {
                   "codecId": "pg/timestamptz-temporal@1",
                   "default": {
@@ -3902,7 +4031,25 @@
                   "nullable": false
                 }
               },
-              "foreignKeys": [],
+              "foreignKeys": [
+                {
+                  "onDelete": "restrict",
+                  "source": {
+                    "columns": [
+                      "tipo_usuario_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "usuarios"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "tipo_usuario"
+                  }
+                }
+              ],
               "indexes": [
                 {
                   "columns": [
@@ -3917,6 +4064,14 @@
                     "longitude"
                   ],
                   "name": "ix_usuarios_coord",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "tipo_usuario_id"
+                  ],
+                  "name": "usuarios_tipo_usuario_id_idx_c55ae311",
+                  "prefix": "usuarios_tipo_usuario_id_idx",
                   "unique": false
                 }
               ],
@@ -3947,7 +4102,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "ed7a9b4e6758c4f2602c61426409c01640ed050dbb667fe265796f7d9cb2cbea"
+    "storageHash": "5ea72536edb1e09819e578b137066fd8a0960ccb424a949451bf4027622f3111"
   },
   "capabilities": {
     "postgres": {

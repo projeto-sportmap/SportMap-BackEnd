@@ -47,6 +47,9 @@ model Usuarios {
   @@check(expression: "((latitude >= ('-90'::integer)::numeric) AND (latitude <= (90)::numeric))", map: "ck_usuarios_lat")
   @@check(expression: "((longitude >= ('-180'::integer)::numeric) AND (longitude <= (180)::numeric))", map: "ck_usuarios_lng")
   @@check(expression: "(role = ANY (ARRAY[('USER'::character varying)::text, ('MODERATOR'::character varying)::text, ('ADMIN'::character varying)::text]))", map: "ck_usuarios_role")
+  tipoUsuarioId Int?         @default(1) @map("tipo_usuario_id")
+  tipoUsuario   TipoUsuario? @relation(fields: [tipoUsuarioId], references: [id], onDelete: Restrict)
+  @@index([tipoUsuarioId])
   @@map("usuarios")
 }
 
@@ -295,4 +298,13 @@ model UsuarioEsportes {
   @@index([esporteId], map: "ix_usuario_esportes_esporte")
   @@check(expression: "(nivel = ANY (ARRAY[('iniciante'::character varying)::text, ('intermediario'::character varying)::text, ('avancado'::character varying)::text, ('profissional'::character varying)::text]))", map: "ck_usuario_esportes_nivel")
   @@map("usuario_esportes")
+}
+
+model TipoUsuario {
+  id       Int        @id
+  code     String     @unique
+  name     String
+  usuarios Usuarios[]
+
+  @@map("tipo_usuario")
 }
