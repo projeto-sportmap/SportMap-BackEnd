@@ -34,7 +34,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'5ea72536edb1e09819e578b137066fd8a0960ccb424a949451bf4027622f3111'>;
+  StorageHashBase<'f317db506e83b0da51037d646e51718816ed5cd3b978b12cd706e02d48a8bb22'>;
 export type ExecutionHash = ExecutionHashBase<string>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
@@ -317,11 +317,6 @@ export type FieldOutputTypes = {
       readonly status: CodecTypes['pg/text@1']['output'];
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
       readonly expiraEm: CodecTypes['pg/timestamptz-temporal@1']['output'];
-      readonly maxParticipantes: CodecTypes['pg/int4@1']['output'] | null;
-      readonly localNome: Varchar<150> | null;
-      readonly cidade: Varchar<100> | null;
-      readonly nivel: Varchar<20> | null;
-      readonly dataFim: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
     };
     readonly Mensagens: {
       readonly id: CodecTypes['pg/int8@1']['output'];
@@ -461,11 +456,6 @@ export type FieldInputTypes = {
       readonly status: CodecTypes['pg/text@1']['input'];
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
       readonly expiraEm: CodecTypes['pg/timestamptz-temporal@1']['input'];
-      readonly maxParticipantes: CodecTypes['pg/int4@1']['input'] | null;
-      readonly localNome: CodecTypes['sql/varchar@1']['input'] | null;
-      readonly cidade: CodecTypes['sql/varchar@1']['input'] | null;
-      readonly nivel: CodecTypes['sql/varchar@1']['input'] | null;
-      readonly dataFim: CodecTypes['pg/timestamptz-temporal@1']['input'] | null;
     };
     readonly Mensagens: {
       readonly id: CodecTypes['pg/int8@1']['input'];
@@ -555,6 +545,17 @@ export type StorageColumnTypes = {
       readonly titulo: CodecTypes['pg/text@1']['output'];
       readonly usuario_id: CodecTypes['pg/int8@1']['output'];
     };
+    readonly atividades: {
+      readonly created_at: CodecTypes['pg/timestamptz-temporal@1']['output'];
+      readonly descricao: CodecTypes['pg/text@1']['output'] | null;
+      readonly esporte_id: CodecTypes['pg/int4@1']['output'];
+      readonly expira_em: CodecTypes['pg/timestamptz-temporal@1']['output'];
+      readonly id: CodecTypes['pg/int8@1']['output'];
+      readonly latitude: Numeric<9, 6>;
+      readonly longitude: Numeric<9, 6>;
+      readonly status: CodecTypes['pg/text@1']['output'];
+      readonly usuario_id: CodecTypes['pg/int8@1']['output'];
+    };
     readonly avaliacoes: {
       readonly anuncio_id: CodecTypes['pg/int8@1']['output'];
       readonly avaliador_id: CodecTypes['pg/int8@1']['output'];
@@ -594,22 +595,6 @@ export type StorageColumnTypes = {
     readonly esportes: {
       readonly id: CodecTypes['pg/int4@1']['output'];
       readonly nome: CodecTypes['pg/text@1']['output'];
-    };
-    readonly eventos: {
-      readonly cidade: Varchar<100> | null;
-      readonly created_at: CodecTypes['pg/timestamptz-temporal@1']['output'];
-      readonly data_fim: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
-      readonly descricao: CodecTypes['pg/text@1']['output'] | null;
-      readonly esporte_id: CodecTypes['pg/int4@1']['output'];
-      readonly expira_em: CodecTypes['pg/timestamptz-temporal@1']['output'];
-      readonly id: CodecTypes['pg/int8@1']['output'];
-      readonly latitude: Numeric<9, 6>;
-      readonly local_nome: Varchar<150> | null;
-      readonly longitude: Numeric<9, 6>;
-      readonly max_participantes: CodecTypes['pg/int4@1']['output'] | null;
-      readonly nivel: Varchar<20> | null;
-      readonly status: CodecTypes['pg/text@1']['output'];
-      readonly usuario_id: CodecTypes['pg/int8@1']['output'];
     };
     readonly mensagens: {
       readonly conteudo: CodecTypes['pg/text@1']['output'];
@@ -699,6 +684,17 @@ export type StorageColumnInputTypes = {
       readonly titulo: CodecTypes['pg/text@1']['input'];
       readonly usuario_id: CodecTypes['pg/int8@1']['input'];
     };
+    readonly atividades: {
+      readonly created_at: CodecTypes['pg/timestamptz-temporal@1']['input'];
+      readonly descricao: CodecTypes['pg/text@1']['input'] | null;
+      readonly esporte_id: CodecTypes['pg/int4@1']['input'];
+      readonly expira_em: CodecTypes['pg/timestamptz-temporal@1']['input'];
+      readonly id: CodecTypes['pg/int8@1']['input'];
+      readonly latitude: CodecTypes['pg/numeric@1']['input'];
+      readonly longitude: CodecTypes['pg/numeric@1']['input'];
+      readonly status: CodecTypes['pg/text@1']['input'];
+      readonly usuario_id: CodecTypes['pg/int8@1']['input'];
+    };
     readonly avaliacoes: {
       readonly anuncio_id: CodecTypes['pg/int8@1']['input'];
       readonly avaliador_id: CodecTypes['pg/int8@1']['input'];
@@ -738,22 +734,6 @@ export type StorageColumnInputTypes = {
     readonly esportes: {
       readonly id: CodecTypes['pg/int4@1']['input'];
       readonly nome: CodecTypes['pg/text@1']['input'];
-    };
-    readonly eventos: {
-      readonly cidade: CodecTypes['sql/varchar@1']['input'] | null;
-      readonly created_at: CodecTypes['pg/timestamptz-temporal@1']['input'];
-      readonly data_fim: CodecTypes['pg/timestamptz-temporal@1']['input'] | null;
-      readonly descricao: CodecTypes['pg/text@1']['input'] | null;
-      readonly esporte_id: CodecTypes['pg/int4@1']['input'];
-      readonly expira_em: CodecTypes['pg/timestamptz-temporal@1']['input'];
-      readonly id: CodecTypes['pg/int8@1']['input'];
-      readonly latitude: CodecTypes['pg/numeric@1']['input'];
-      readonly local_nome: CodecTypes['sql/varchar@1']['input'] | null;
-      readonly longitude: CodecTypes['pg/numeric@1']['input'];
-      readonly max_participantes: CodecTypes['pg/int4@1']['input'] | null;
-      readonly nivel: CodecTypes['sql/varchar@1']['input'] | null;
-      readonly status: CodecTypes['pg/text@1']['input'];
-      readonly usuario_id: CodecTypes['pg/int8@1']['input'];
     };
     readonly mensagens: {
       readonly conteudo: CodecTypes['pg/text@1']['input'];
@@ -991,11 +971,6 @@ export namespace Models {
     status: CodecTypes['pg/text@1']['output'];
     createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
     expiraEm: CodecTypes['pg/timestamptz-temporal@1']['output'];
-    maxParticipantes: CodecTypes['pg/int4@1']['output'] | null;
-    localNome: Varchar<150> | null;
-    cidade: Varchar<100> | null;
-    nivel: Varchar<20> | null;
-    dataFim: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
     esporte: public_Esportes;
     usuario: public_Usuarios;
     readonly [RelationKeys]?: 'esporte' | 'usuario';
@@ -1340,6 +1315,110 @@ type ContractBase = Omit<
                     readonly columns: readonly ['id'];
                   };
                   readonly name: 'fk_anuncios_usuario';
+                },
+              ];
+            };
+            readonly atividades: {
+              columns: {
+                readonly id: {
+                  readonly nativeType: 'int8';
+                  readonly codecId: 'pg/int8@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'function';
+                    readonly expression: 'autoincrement()';
+                  };
+                };
+                readonly usuario_id: {
+                  readonly nativeType: 'int8';
+                  readonly codecId: 'pg/int8@1';
+                  readonly nullable: false;
+                };
+                readonly esporte_id: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                };
+                readonly descricao: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                };
+                readonly latitude: {
+                  readonly nativeType: 'numeric';
+                  readonly codecId: 'pg/numeric@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 9; readonly scale: 6 };
+                };
+                readonly longitude: {
+                  readonly nativeType: 'numeric';
+                  readonly codecId: 'pg/numeric@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 9; readonly scale: 6 };
+                };
+                readonly status: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/text@1', 'aberta'>;
+                  };
+                };
+                readonly created_at: {
+                  readonly nativeType: 'timestamptz';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                };
+                readonly expira_em: {
+                  readonly nativeType: 'timestamptz';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                  readonly nullable: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id']; readonly name: 'atividades_pkey' };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'atividades_esporte_id_idx_7759dc20';
+                  readonly prefix: 'atividades_esporte_id_idx';
+                  readonly columns: readonly ['esporte_id'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'atividades_usuario_id_idx_65b6616a';
+                  readonly prefix: 'atividades_usuario_id_idx';
+                  readonly columns: readonly ['usuario_id'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'atividades';
+                    readonly columns: readonly ['esporte_id'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'esportes';
+                    readonly columns: readonly ['id'];
+                  };
+                  readonly name: 'fk_eventos_esporte';
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'atividades';
+                    readonly columns: readonly ['usuario_id'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'usuarios';
+                    readonly columns: readonly ['id'];
+                  };
+                  readonly name: 'fk_eventos_usuario';
                 },
               ];
             };
@@ -1759,146 +1838,6 @@ type ContractBase = Omit<
               ];
               indexes: readonly [];
               foreignKeys: readonly [];
-            };
-            readonly eventos: {
-              columns: {
-                readonly id: {
-                  readonly nativeType: 'int8';
-                  readonly codecId: 'pg/int8@1';
-                  readonly nullable: false;
-                  readonly default: {
-                    readonly kind: 'function';
-                    readonly expression: 'autoincrement()';
-                  };
-                };
-                readonly usuario_id: {
-                  readonly nativeType: 'int8';
-                  readonly codecId: 'pg/int8@1';
-                  readonly nullable: false;
-                };
-                readonly esporte_id: {
-                  readonly nativeType: 'int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: false;
-                };
-                readonly descricao: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: true;
-                };
-                readonly latitude: {
-                  readonly nativeType: 'numeric';
-                  readonly codecId: 'pg/numeric@1';
-                  readonly nullable: false;
-                  readonly typeParams: { readonly precision: 9; readonly scale: 6 };
-                };
-                readonly longitude: {
-                  readonly nativeType: 'numeric';
-                  readonly codecId: 'pg/numeric@1';
-                  readonly nullable: false;
-                  readonly typeParams: { readonly precision: 9; readonly scale: 6 };
-                };
-                readonly status: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                  readonly default: {
-                    readonly kind: 'literal';
-                    readonly value: DefaultLiteralValue<'pg/text@1', 'aberta'>;
-                  };
-                };
-                readonly created_at: {
-                  readonly nativeType: 'timestamptz';
-                  readonly codecId: 'pg/timestamptz-temporal@1';
-                  readonly nullable: false;
-                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
-                };
-                readonly expira_em: {
-                  readonly nativeType: 'timestamptz';
-                  readonly codecId: 'pg/timestamptz-temporal@1';
-                  readonly nullable: false;
-                };
-                readonly max_participantes: {
-                  readonly nativeType: 'int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: true;
-                };
-                readonly local_nome: {
-                  readonly nativeType: 'character varying';
-                  readonly codecId: 'sql/varchar@1';
-                  readonly nullable: true;
-                  readonly typeParams: { readonly length: 150 };
-                };
-                readonly cidade: {
-                  readonly nativeType: 'character varying';
-                  readonly codecId: 'sql/varchar@1';
-                  readonly nullable: true;
-                  readonly typeParams: { readonly length: 100 };
-                };
-                readonly nivel: {
-                  readonly nativeType: 'character varying';
-                  readonly codecId: 'sql/varchar@1';
-                  readonly nullable: true;
-                  readonly typeParams: { readonly length: 20 };
-                };
-                readonly data_fim: {
-                  readonly nativeType: 'timestamptz';
-                  readonly codecId: 'pg/timestamptz-temporal@1';
-                  readonly nullable: true;
-                };
-              };
-              primaryKey: { readonly columns: readonly ['id']; readonly name: 'eventos_pkey' };
-              uniques: readonly [];
-              indexes: readonly [
-                {
-                  readonly name: 'ix_eventos_busca';
-                  readonly columns: readonly ['status', 'cidade', 'esporte_id'];
-                  readonly unique: false;
-                },
-                {
-                  readonly name: 'ix_eventos_esporte';
-                  readonly columns: readonly ['esporte_id'];
-                  readonly unique: false;
-                },
-                {
-                  readonly name: 'ix_eventos_mapa';
-                  readonly columns: readonly ['status', 'expira_em', 'latitude', 'longitude'];
-                  readonly unique: false;
-                },
-                {
-                  readonly name: 'ix_eventos_usuario';
-                  readonly columns: readonly ['usuario_id'];
-                  readonly unique: false;
-                },
-              ];
-              foreignKeys: readonly [
-                {
-                  readonly source: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'eventos';
-                    readonly columns: readonly ['esporte_id'];
-                  };
-                  readonly target: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'esportes';
-                    readonly columns: readonly ['id'];
-                  };
-                  readonly name: 'fk_eventos_esporte';
-                },
-                {
-                  readonly source: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'eventos';
-                    readonly columns: readonly ['usuario_id'];
-                  };
-                  readonly target: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'usuarios';
-                    readonly columns: readonly ['id'];
-                  };
-                  readonly name: 'fk_eventos_usuario';
-                },
-              ];
             };
             readonly mensagens: {
               columns: {
@@ -2483,7 +2422,7 @@ type ContractBase = Omit<
       readonly model: 'ConversaParticipantes';
     };
     readonly curtidas: { readonly namespace: 'public' & NamespaceId; readonly model: 'Curtidas' };
-    readonly eventos: { readonly namespace: 'public' & NamespaceId; readonly model: 'Eventos' };
+    readonly atividades: { readonly namespace: 'public' & NamespaceId; readonly model: 'Eventos' };
     readonly mensagens: { readonly namespace: 'public' & NamespaceId; readonly model: 'Mensagens' };
     readonly publicacao_midias: {
       readonly namespace: 'public' & NamespaceId;
@@ -3220,41 +3159,6 @@ type ContractBase = Omit<
                   readonly codecId: 'pg/timestamptz-temporal@1';
                 };
               };
-              readonly maxParticipantes: {
-                readonly nullable: true;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
-              };
-              readonly localNome: {
-                readonly nullable: true;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'sql/varchar@1';
-                  readonly typeParams: { readonly length: 150 };
-                };
-              };
-              readonly cidade: {
-                readonly nullable: true;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'sql/varchar@1';
-                  readonly typeParams: { readonly length: 100 };
-                };
-              };
-              readonly nivel: {
-                readonly nullable: true;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'sql/varchar@1';
-                  readonly typeParams: { readonly length: 20 };
-                };
-              };
-              readonly dataFim: {
-                readonly nullable: true;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'pg/timestamptz-temporal@1';
-                };
-              };
             };
             readonly relations: {
               readonly esporte: {
@@ -3283,7 +3187,7 @@ type ContractBase = Omit<
               };
             };
             readonly storage: {
-              readonly table: 'eventos';
+              readonly table: 'atividades';
               readonly namespaceId: 'public';
               readonly fields: {
                 readonly id: { readonly column: 'id' };
@@ -3295,11 +3199,6 @@ type ContractBase = Omit<
                 readonly status: { readonly column: 'status' };
                 readonly createdAt: { readonly column: 'created_at' };
                 readonly expiraEm: { readonly column: 'expira_em' };
-                readonly maxParticipantes: { readonly column: 'max_participantes' };
-                readonly localNome: { readonly column: 'local_nome' };
-                readonly cidade: { readonly column: 'cidade' };
-                readonly nivel: { readonly column: 'nivel' };
-                readonly dataFim: { readonly column: 'data_fim' };
               };
             };
           };

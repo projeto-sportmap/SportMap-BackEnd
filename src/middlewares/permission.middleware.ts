@@ -21,14 +21,12 @@ export const requirePermission =
       return;
     }
 
-    // Negação por padrão: sem tipo definido, sem permissão.
     if (usuario.tipoUsuarioId === null || usuario.tipoUsuarioId === undefined) {
       res.status(403).json({ error: 'Você não tem permissão para esta operação.' });
       return;
     }
 
     const tipo = await db.orm.public.TipoUsuario.first({ id: usuario.tipoUsuarioId });
-
     if (!tipo || !hasPermission(tipo.code, permission)) {
       res.status(403).json({ error: 'Você não tem permissão para esta operação.' });
       return;

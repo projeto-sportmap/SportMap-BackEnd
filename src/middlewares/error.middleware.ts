@@ -49,11 +49,12 @@ export const errorHandler: ErrorRequestHandler = (
     return;
   }
 
-  console.error(err); // temporário
-  
   logger.error('Erro interno na API.', {
     errorType:
       error instanceof Error ? error.name : 'unknown',
+    message: error instanceof Error ? error.message : String(error),
+    stack: error instanceof Error ? error.stack : undefined,
+    sqlState: err?.sqlState,
   });
 
   res.status(500).json({

@@ -33,6 +33,19 @@ Com a API em execução:
 A porta e o endereço seguem as variáveis `PORT` e `API_ORIGIN` do `.env`.
 O JSON pode ser importado no Postman, Insomnia ou em geradores de cliente.
 
+### Endpoints principais
+
+- `POST /login` e `POST /logout`
+- `POST /usuarios`, `GET /usuarios`, `PUT /usuarios/:id` e `PATCH /usuarios/:id/foto`
+- `GET /publicacoes` e `POST /publicacoes` (a criação exige Bearer token)
+- `GET/POST /atividades` com `usuarioId`, `esporteId`, `descricao`, `latitude`, `longitude` e `expiraEm`
+- `GET /esportes`
+- `/curtidas`, `/comentarios`, `/mensagens`, `/seguidores` e `/anuncios`
+
+Atividades usam a tabela `atividades` da migration atual. Ambientes que ainda
+possuem o contrato legado `eventos` ou o RBAC sem as colunas correspondentes
+precisam aplicar as migrations antes do deploy.
+
 ### Como a documentação é gerada
 
 - **Configuração:** `src/config/swagger.ts` (versão do OpenAPI, servidores, esquemas de segurança e schemas reutilizáveis).

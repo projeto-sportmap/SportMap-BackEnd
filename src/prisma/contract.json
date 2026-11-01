@@ -16,6 +16,10 @@
       "model": "Anuncios",
       "namespace": "public"
     },
+    "atividades": {
+      "model": "Eventos",
+      "namespace": "public"
+    },
     "avaliacoes": {
       "model": "Avaliacoes",
       "namespace": "public"
@@ -42,10 +46,6 @@
     },
     "esportes": {
       "model": "Esportes",
-      "namespace": "public"
-    },
-    "eventos": {
-      "model": "Eventos",
       "namespace": "public"
     },
     "mensagens": {
@@ -1050,25 +1050,8 @@
           },
           "Eventos": {
             "fields": {
-              "cidade": {
-                "nullable": true,
-                "type": {
-                  "codecId": "sql/varchar@1",
-                  "kind": "scalar",
-                  "typeParams": {
-                    "length": 100
-                  }
-                }
-              },
               "createdAt": {
                 "nullable": false,
-                "type": {
-                  "codecId": "pg/timestamptz-temporal@1",
-                  "kind": "scalar"
-                }
-              },
-              "dataFim": {
-                "nullable": true,
                 "type": {
                   "codecId": "pg/timestamptz-temporal@1",
                   "kind": "scalar"
@@ -1113,16 +1096,6 @@
                   }
                 }
               },
-              "localNome": {
-                "nullable": true,
-                "type": {
-                  "codecId": "sql/varchar@1",
-                  "kind": "scalar",
-                  "typeParams": {
-                    "length": 150
-                  }
-                }
-              },
               "longitude": {
                 "nullable": false,
                 "type": {
@@ -1131,23 +1104,6 @@
                   "typeParams": {
                     "precision": 9,
                     "scale": 6
-                  }
-                }
-              },
-              "maxParticipantes": {
-                "nullable": true,
-                "type": {
-                  "codecId": "pg/int4@1",
-                  "kind": "scalar"
-                }
-              },
-              "nivel": {
-                "nullable": true,
-                "type": {
-                  "codecId": "sql/varchar@1",
-                  "kind": "scalar",
-                  "typeParams": {
-                    "length": 20
                   }
                 }
               },
@@ -1202,14 +1158,8 @@
             },
             "storage": {
               "fields": {
-                "cidade": {
-                  "column": "cidade"
-                },
                 "createdAt": {
                   "column": "created_at"
-                },
-                "dataFim": {
-                  "column": "data_fim"
                 },
                 "descricao": {
                   "column": "descricao"
@@ -1226,17 +1176,8 @@
                 "latitude": {
                   "column": "latitude"
                 },
-                "localNome": {
-                  "column": "local_nome"
-                },
                 "longitude": {
                   "column": "longitude"
-                },
-                "maxParticipantes": {
-                  "column": "max_participantes"
-                },
-                "nivel": {
-                  "column": "nivel"
                 },
                 "status": {
                   "column": "status"
@@ -1246,7 +1187,7 @@
                 }
               },
               "namespaceId": "public",
-              "table": "eventos"
+              "table": "atividades"
             }
           },
           "Mensagens": {
@@ -2581,6 +2522,144 @@
               },
               "uniques": []
             },
+            "atividades": {
+              "checks": [
+                {
+                  "expression": "(status = ANY (ARRAY[('aberta'::character varying)::text, ('em_andamento'::character varying)::text, ('concluida'::character varying)::text, ('cancelada'::character varying)::text, ('expirada'::character varying)::text]))",
+                  "name": "ck_eventos_status"
+                }
+              ],
+              "columns": {
+                "created_at": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "descricao": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "esporte_id": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "expira_em": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/int8@1",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nativeType": "int8",
+                  "nullable": false
+                },
+                "latitude": {
+                  "codecId": "pg/numeric@1",
+                  "nativeType": "numeric",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 9,
+                    "scale": 6
+                  }
+                },
+                "longitude": {
+                  "codecId": "pg/numeric@1",
+                  "nativeType": "numeric",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 9,
+                    "scale": 6
+                  }
+                },
+                "status": {
+                  "codecId": "pg/text@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "aberta"
+                  },
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "usuario_id": {
+                  "codecId": "pg/int8@1",
+                  "nativeType": "int8",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "name": "fk_eventos_esporte",
+                  "onDelete": "restrict",
+                  "source": {
+                    "columns": [
+                      "esporte_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "atividades"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "esportes"
+                  }
+                },
+                {
+                  "name": "fk_eventos_usuario",
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "usuario_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "atividades"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "usuarios"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "esporte_id"
+                  ],
+                  "name": "atividades_esporte_id_idx_7759dc20",
+                  "prefix": "atividades_esporte_id_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "usuario_id"
+                  ],
+                  "name": "atividades_usuario_id_idx_65b6616a",
+                  "prefix": "atividades_usuario_id_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ],
+                "name": "atividades_pkey"
+              },
+              "uniques": []
+            },
             "avaliacoes": {
               "checks": [
                 {
@@ -3132,219 +3211,6 @@
                   "name": "esportes_nome_key"
                 }
               ]
-            },
-            "eventos": {
-              "checks": [
-                {
-                  "expression": "((data_fim IS NULL) OR (data_fim > created_at))",
-                  "name": "ck_eventos_data_fim"
-                },
-                {
-                  "expression": "(expira_em > created_at)",
-                  "name": "ck_eventos_expira"
-                },
-                {
-                  "expression": "((latitude >= ('-90'::integer)::numeric) AND (latitude <= (90)::numeric))",
-                  "name": "ck_eventos_lat"
-                },
-                {
-                  "expression": "((longitude >= ('-180'::integer)::numeric) AND (longitude <= (180)::numeric))",
-                  "name": "ck_eventos_lng"
-                },
-                {
-                  "expression": "((max_participantes IS NULL) OR (max_participantes > 0))",
-                  "name": "ck_eventos_max_participantes"
-                },
-                {
-                  "expression": "((nivel)::text = ANY ((ARRAY['iniciante'::character varying, 'intermediario'::character varying, 'avancado'::character varying, 'profissional'::character varying])::text[]))",
-                  "name": "ck_eventos_nivel"
-                },
-                {
-                  "expression": "(status = ANY (ARRAY[('aberta'::character varying)::text, ('em_andamento'::character varying)::text, ('concluida'::character varying)::text, ('cancelada'::character varying)::text, ('expirada'::character varying)::text]))",
-                  "name": "ck_eventos_status"
-                }
-              ],
-              "columns": {
-                "cidade": {
-                  "codecId": "sql/varchar@1",
-                  "nativeType": "character varying",
-                  "nullable": true,
-                  "typeParams": {
-                    "length": 100
-                  }
-                },
-                "created_at": {
-                  "codecId": "pg/timestamptz-temporal@1",
-                  "default": {
-                    "expression": "now()",
-                    "kind": "function"
-                  },
-                  "nativeType": "timestamptz",
-                  "nullable": false
-                },
-                "data_fim": {
-                  "codecId": "pg/timestamptz-temporal@1",
-                  "nativeType": "timestamptz",
-                  "nullable": true
-                },
-                "descricao": {
-                  "codecId": "pg/text@1",
-                  "nativeType": "text",
-                  "nullable": true
-                },
-                "esporte_id": {
-                  "codecId": "pg/int4@1",
-                  "nativeType": "int4",
-                  "nullable": false
-                },
-                "expira_em": {
-                  "codecId": "pg/timestamptz-temporal@1",
-                  "nativeType": "timestamptz",
-                  "nullable": false
-                },
-                "id": {
-                  "codecId": "pg/int8@1",
-                  "default": {
-                    "expression": "autoincrement()",
-                    "kind": "function"
-                  },
-                  "nativeType": "int8",
-                  "nullable": false
-                },
-                "latitude": {
-                  "codecId": "pg/numeric@1",
-                  "nativeType": "numeric",
-                  "nullable": false,
-                  "typeParams": {
-                    "precision": 9,
-                    "scale": 6
-                  }
-                },
-                "local_nome": {
-                  "codecId": "sql/varchar@1",
-                  "nativeType": "character varying",
-                  "nullable": true,
-                  "typeParams": {
-                    "length": 150
-                  }
-                },
-                "longitude": {
-                  "codecId": "pg/numeric@1",
-                  "nativeType": "numeric",
-                  "nullable": false,
-                  "typeParams": {
-                    "precision": 9,
-                    "scale": 6
-                  }
-                },
-                "max_participantes": {
-                  "codecId": "pg/int4@1",
-                  "nativeType": "int4",
-                  "nullable": true
-                },
-                "nivel": {
-                  "codecId": "sql/varchar@1",
-                  "nativeType": "character varying",
-                  "nullable": true,
-                  "typeParams": {
-                    "length": 20
-                  }
-                },
-                "status": {
-                  "codecId": "pg/text@1",
-                  "default": {
-                    "kind": "literal",
-                    "value": "aberta"
-                  },
-                  "nativeType": "text",
-                  "nullable": false
-                },
-                "usuario_id": {
-                  "codecId": "pg/int8@1",
-                  "nativeType": "int8",
-                  "nullable": false
-                }
-              },
-              "foreignKeys": [
-                {
-                  "name": "fk_eventos_esporte",
-                  "onDelete": "restrict",
-                  "source": {
-                    "columns": [
-                      "esporte_id"
-                    ],
-                    "namespaceId": "public",
-                    "tableName": "eventos"
-                  },
-                  "target": {
-                    "columns": [
-                      "id"
-                    ],
-                    "namespaceId": "public",
-                    "tableName": "esportes"
-                  }
-                },
-                {
-                  "name": "fk_eventos_usuario",
-                  "onDelete": "cascade",
-                  "source": {
-                    "columns": [
-                      "usuario_id"
-                    ],
-                    "namespaceId": "public",
-                    "tableName": "eventos"
-                  },
-                  "target": {
-                    "columns": [
-                      "id"
-                    ],
-                    "namespaceId": "public",
-                    "tableName": "usuarios"
-                  }
-                }
-              ],
-              "indexes": [
-                {
-                  "columns": [
-                    "status",
-                    "cidade",
-                    "esporte_id"
-                  ],
-                  "name": "ix_eventos_busca",
-                  "unique": false
-                },
-                {
-                  "columns": [
-                    "esporte_id"
-                  ],
-                  "name": "ix_eventos_esporte",
-                  "unique": false
-                },
-                {
-                  "columns": [
-                    "status",
-                    "expira_em",
-                    "latitude",
-                    "longitude"
-                  ],
-                  "name": "ix_eventos_mapa",
-                  "unique": false
-                },
-                {
-                  "columns": [
-                    "usuario_id"
-                  ],
-                  "name": "ix_eventos_usuario",
-                  "unique": false
-                }
-              ],
-              "primaryKey": {
-                "columns": [
-                  "id"
-                ],
-                "name": "eventos_pkey"
-              },
-              "uniques": []
             },
             "mensagens": {
               "checks": [
@@ -4102,7 +3968,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "5ea72536edb1e09819e578b137066fd8a0960ccb424a949451bf4027622f3111"
+    "storageHash": "f317db506e83b0da51037d646e51718816ed5cd3b978b12cd706e02d48a8bb22"
   },
   "capabilities": {
     "postgres": {

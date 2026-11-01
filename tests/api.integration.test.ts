@@ -2,7 +2,7 @@
 import { afterAll, expect, it } from 'vitest';
 import request from 'supertest';
 import { randomUUID } from 'node:crypto';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { app } from '../src/app.js';
 import { db } from '../src/prisma/db.js';
 

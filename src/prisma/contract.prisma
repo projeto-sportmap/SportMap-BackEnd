@@ -211,7 +211,7 @@ model Curtidas {
 }
 
 model Eventos {
-  id               BigInt        @id(map: "eventos_pkey") @default(autoincrement())
+  id               BigInt        @id(map: "atividades_pkey") @default(autoincrement())
   usuarioId        BigInt        @map("usuario_id")
   esporteId        Int           @map("esporte_id")
   descricao        String?
@@ -220,26 +220,11 @@ model Eventos {
   status           String        @default("aberta")
   createdAt        Timestamptz   @default(now()) @map("created_at")
   expiraEm         Timestamptz   @map("expira_em")
-  maxParticipantes Int?          @map("max_participantes")
-  localNome        VarChar(150)? @map("local_nome")
-  cidade           VarChar(100)?
-  nivel            VarChar(20)?
-  dataFim          Timestamptz?  @map("data_fim")
   esporte          Esportes      @relation(fields: [esporteId], references: [id], onDelete: Restrict, map: "fk_eventos_esporte")
   usuario          Usuarios      @relation(fields: [usuarioId], references: [id], onDelete: Cascade, map: "fk_eventos_usuario")
 
-  @@index([status, cidade, esporteId], map: "ix_eventos_busca")
-  @@index([esporteId], map: "ix_eventos_esporte")
-  @@index([status, expiraEm, latitude, longitude], map: "ix_eventos_mapa")
-  @@index([usuarioId], map: "ix_eventos_usuario")
-  @@check(expression: "((data_fim IS NULL) OR (data_fim > created_at))", map: "ck_eventos_data_fim")
-  @@check(expression: "(expira_em > created_at)", map: "ck_eventos_expira")
-  @@check(expression: "((latitude >= ('-90'::integer)::numeric) AND (latitude <= (90)::numeric))", map: "ck_eventos_lat")
-  @@check(expression: "((longitude >= ('-180'::integer)::numeric) AND (longitude <= (180)::numeric))", map: "ck_eventos_lng")
-  @@check(expression: "((max_participantes IS NULL) OR (max_participantes > 0))", map: "ck_eventos_max_participantes")
-  @@check(expression: "((nivel)::text = ANY ((ARRAY['iniciante'::character varying, 'intermediario'::character varying, 'avancado'::character varying, 'profissional'::character varying])::text[]))", map: "ck_eventos_nivel")
   @@check(expression: "(status = ANY (ARRAY[('aberta'::character varying)::text, ('em_andamento'::character varying)::text, ('concluida'::character varying)::text, ('cancelada'::character varying)::text, ('expirada'::character varying)::text]))", map: "ck_eventos_status")
-  @@map("eventos")
+  @@map("atividades")
 }
 
 model Mensagens {

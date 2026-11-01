@@ -1,4 +1,3 @@
-// Arquivo: src/scripts/init-rbac.ts
 import { db } from '../prisma/db.js';
 
 type TipoRow = Awaited<ReturnType<typeof db.orm.public.TipoUsuario.create>>;
