@@ -26,7 +26,6 @@ model Usuarios {
   bio                   String?
   createdAt             Timestamptz             @default(now()) @map("created_at")
   updatedAt             Timestamptz             @default(now()) @map("updated_at")
-  role                  String                  @default("USER")
   anuncioFavoritos      AnuncioFavoritos[]
   anuncios              Anuncios[]
   avaliacoes            Avaliacoes[]
@@ -41,12 +40,10 @@ model Usuarios {
   seguidores            Seguidores[]            @relation(name: "fk_seguidores_seguido")
   seguidoresSeguidores  Seguidores[]            @relation(name: "fk_seguidores_seguidor")
 
-  @@index([role], map: "idx_usuarios_role")
   @@index([latitude, longitude], map: "ix_usuarios_coord")
   @@check(expression: "((latitude IS NULL) = (longitude IS NULL))", map: "ck_usuarios_coord")
   @@check(expression: "((latitude >= ('-90'::integer)::numeric) AND (latitude <= (90)::numeric))", map: "ck_usuarios_lat")
   @@check(expression: "((longitude >= ('-180'::integer)::numeric) AND (longitude <= (180)::numeric))", map: "ck_usuarios_lng")
-  @@check(expression: "(role = ANY (ARRAY[('USER'::character varying)::text, ('MODERATOR'::character varying)::text, ('ADMIN'::character varying)::text]))", map: "ck_usuarios_role")
   tipoUsuarioId Int?         @default(1) @map("tipo_usuario_id")
   tipoUsuario   TipoUsuario? @relation(fields: [tipoUsuarioId], references: [id], onDelete: Restrict)
   @@index([tipoUsuarioId])

@@ -1852,13 +1852,6 @@
                   "kind": "scalar"
                 }
               },
-              "role": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/text@1",
-                  "kind": "scalar"
-                }
-              },
               "senhaHash": {
                 "nullable": false,
                 "type": {
@@ -2136,9 +2129,6 @@
                 },
                 "nome": {
                   "column": "nome"
-                },
-                "role": {
-                  "column": "role"
                 },
                 "senhaHash": {
                   "column": "senha_hash"
@@ -3786,10 +3776,6 @@
                 {
                   "expression": "((longitude >= ('-180'::integer)::numeric) AND (longitude <= (180)::numeric))",
                   "name": "ck_usuarios_lng"
-                },
-                {
-                  "expression": "(role = ANY (ARRAY[('USER'::character varying)::text, ('MODERATOR'::character varying)::text, ('ADMIN'::character varying)::text]))",
-                  "name": "ck_usuarios_role"
                 }
               ],
               "columns": {
@@ -3854,15 +3840,6 @@
                   "nativeType": "text",
                   "nullable": false
                 },
-                "role": {
-                  "codecId": "pg/text@1",
-                  "default": {
-                    "kind": "literal",
-                    "value": "USER"
-                  },
-                  "nativeType": "text",
-                  "nullable": false
-                },
                 "senha_hash": {
                   "codecId": "pg/text@1",
                   "nativeType": "text",
@@ -3919,13 +3896,6 @@
               "indexes": [
                 {
                   "columns": [
-                    "role"
-                  ],
-                  "name": "idx_usuarios_role",
-                  "unique": false
-                },
-                {
-                  "columns": [
                     "latitude",
                     "longitude"
                   ],
@@ -3968,7 +3938,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "f317db506e83b0da51037d646e51718816ed5cd3b978b12cd706e02d48a8bb22"
+    "storageHash": "0b3c984a08d5fe0b4d6a8c57c7f0404d14eee16e1a921f0826acceedcae0b29b"
   },
   "capabilities": {
     "postgres": {
