@@ -14,6 +14,7 @@ type PublicacaoRow = Awaited<ReturnType<typeof db.orm.public.Publicacoes.create>
 type PublicacaoChanges = Partial<Omit<PublicacaoRow, 'id' | 'usuarioId' | 'createdAt'>>;
 
 const num = (valor: unknown) => (valor === null || valor === undefined ? null : Number(valor));
+const timestamp = (valor: unknown) => Date.parse(String(valor));
 
 // bigint não serializa em JSON, então ids vão como string
 export const toPublicPublicacao = (p: PublicacaoRow) => ({
@@ -55,7 +56,7 @@ export async function getAllPublicacoes(filtros: { usuarioId?: string; esporteId
   let lista = await db.orm.public.Publicacoes.all();
   if (filtros.usuarioId) lista = lista.filter((p) => String(p.usuarioId) === filtros.usuarioId);
   if (filtros.esporteId) lista = lista.filter((p) => String(p.esporteId) === filtros.esporteId);
-  return lista.sort((a, b) => new Date(b.createdAt as any).getTime() - new Date(a.createdAt as any).getTime());
+  return lista.sort((a, b) => timestamp(b.createdAt) - timestamp(a.createdAt));
 }
 
 export async function getPublicacaoById(id: number) {
