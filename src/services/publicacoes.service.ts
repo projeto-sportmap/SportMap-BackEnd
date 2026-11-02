@@ -12,12 +12,21 @@ export interface CreatePublicacaoInput {
 export type UpdatePublicacaoInput = Partial<Omit<CreatePublicacaoInput, 'usuarioId'>>;
 type PublicacaoRow = Awaited<ReturnType<typeof db.orm.public.Publicacoes.create>>;
 type PublicacaoChanges = Partial<Omit<PublicacaoRow, 'id' | 'usuarioId' | 'createdAt'>>;
+type PublicacaoWithUsuario = PublicacaoRow & {
+  usuario?: {
+    id: bigint;
+    nome: string;
+    sobrenome: string;
+    username: string;
+    fotoPerfilUrl: string | null;
+  } | null;
+};
 
 const num = (valor: unknown) => (valor === null || valor === undefined ? null : Number(valor));
 const timestamp = (valor: unknown) => Date.parse(String(valor));
 
 // bigint não serializa em JSON, então ids vão como string
-export const toPublicPublicacao = (p: PublicacaoRow) => ({
+export const toPublicPublicacao = (p: PublicacaoWithUsuario) => ({
   id: String(p.id),
   usuarioId: String(p.usuarioId),
   esporteId: p.esporteId,
@@ -25,6 +34,14 @@ export const toPublicPublicacao = (p: PublicacaoRow) => ({
   latitude: num(p.latitude),
   longitude: num(p.longitude),
   createdAt: p.createdAt,
+  usuario: p.usuario
+    ? {
+        id: String(p.usuario.id),
+        nome: `${p.usuario.nome} ${p.usuario.sobrenome}`.trim(),
+        username: p.usuario.username,
+        fotoPerfilUrl: p.usuario.fotoPerfilUrl,
+      }
+    : null,
 });
 
 async function garantirUsuario(usuarioId: bigint) {
@@ -53,14 +70,22 @@ export async function createPublicacao(data: CreatePublicacaoInput) {
 
 // Filtros opcionais; mais recentes primeiro
 export async function getAllPublicacoes(filtros: { usuarioId?: string; esporteId?: string } = {}) {
-  let lista = await db.orm.public.Publicacoes.all();
+  let lista = await db.orm.public.Publicacoes
+    .include('usuario', (usuario) =>
+      usuario.select('id', 'nome', 'sobrenome', 'username', 'fotoPerfilUrl'),
+    )
+    .all();
   if (filtros.usuarioId) lista = lista.filter((p) => String(p.usuarioId) === filtros.usuarioId);
   if (filtros.esporteId) lista = lista.filter((p) => String(p.esporteId) === filtros.esporteId);
   return lista.sort((a, b) => timestamp(b.createdAt) - timestamp(a.createdAt));
 }
 
 export async function getPublicacaoById(id: number) {
-  const publicacao = await db.orm.public.Publicacoes.first({ id: BigInt(id) });
+  const publicacao = await db.orm.public.Publicacoes
+    .include('usuario', (usuario) =>
+      usuario.select('id', 'nome', 'sobrenome', 'username', 'fotoPerfilUrl'),
+    )
+    .first({ id: BigInt(id) });
   if (!publicacao) throw new HttpError(404, 'Publicação não encontrada.');
   return publicacao;
 }

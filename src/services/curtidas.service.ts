@@ -7,6 +7,7 @@ export interface CreateCurtidaInput {
 }
 
 type CurtidaRow = Awaited<ReturnType<typeof db.orm.public.Curtidas.create>>;
+const timestamp = (valor: unknown) => Date.parse(String(valor));
 
 // bigint não serializa em JSON, então ids vão como string
 export const toPublicCurtida = (c: CurtidaRow) => ({
@@ -45,7 +46,7 @@ export async function getAllCurtidas(filtros: { publicacaoId?: string; usuarioId
   let lista = await db.orm.public.Curtidas.all();
   if (filtros.publicacaoId) lista = lista.filter((c) => String(c.publicacaoId) === filtros.publicacaoId);
   if (filtros.usuarioId) lista = lista.filter((c) => String(c.usuarioId) === filtros.usuarioId);
-  return lista.sort((a, b) => new Date(b.createdAt as any).getTime() - new Date(a.createdAt as any).getTime());
+  return lista.sort((a, b) => timestamp(b.createdAt) - timestamp(a.createdAt));
 }
 
 export async function getCurtidaById(id: number) {
@@ -54,7 +55,11 @@ export async function getCurtidaById(id: number) {
   return curtida;
 }
 
-export async function deleteCurtida(id: number) {
-  const curtida = await db.orm.public.Curtidas.where({ id: BigInt(id) }).delete();
+export async function deleteCurtida(id: number, usuarioId?: bigint) {
+  const curtida = await db.orm.public.Curtidas.first({ id: BigInt(id) });
   if (!curtida) throw new HttpError(404, 'Curtida não encontrada.');
+  if (usuarioId !== undefined && curtida.usuarioId !== usuarioId) {
+    throw new HttpError(403, 'Você só pode remover suas próprias curtidas.');
+  }
+  await db.orm.public.Curtidas.where({ id: BigInt(id) }).delete();
 }

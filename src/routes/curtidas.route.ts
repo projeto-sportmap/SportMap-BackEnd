@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import * as CurtidasController from '../controllers/curtidas.controller.js';
 import { validate } from '../middlewares/validate.middlewares.js';
+import { authMiddleware } from '../middlewares/auth.middleware.js';
 import {
   createCurtidaSchema,
   curtidaIdSchema,
@@ -44,6 +45,8 @@ const router = Router();
  *   post:
  *     summary: Criar uma curtida
  *     tags: [Curtidas]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -62,6 +65,7 @@ const router = Router();
  */
 router.post(
   '/curtidas',
+  authMiddleware,
   validate(createCurtidaSchema),
   CurtidasController.createCurtida,
 );
@@ -72,6 +76,8 @@ router.post(
  *   get:
  *     summary: Listar curtidas
  *     tags: [Curtidas]
+ *     security:
+ *       - bearerAuth: []
  *     description: Ordenadas da mais recente para a mais antiga.
  *     parameters:
  *       - in: query
@@ -94,6 +100,7 @@ router.post(
  */
 router.get(
   '/curtidas',
+  authMiddleware,
   validate(listCurtidasSchema),
   CurtidasController.getAllCurtidas,
 );
@@ -104,6 +111,8 @@ router.get(
  *   get:
  *     summary: Buscar curtida por ID
  *     tags: [Curtidas]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -123,6 +132,7 @@ router.get(
  */
 router.get(
   '/curtidas/:id',
+  authMiddleware,
   validate(curtidaIdSchema),
   CurtidasController.getCurtidaById,
 );
@@ -133,6 +143,8 @@ router.get(
  *   delete:
  *     summary: Excluir uma curtida
  *     tags: [Curtidas]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -152,6 +164,7 @@ router.get(
  */
 router.delete(
   '/curtidas/:id',
+  authMiddleware,
   validate(curtidaIdSchema),
   CurtidasController.deleteCurtida,
 );

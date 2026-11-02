@@ -133,7 +133,7 @@ router.post('/publicacoes', authMiddleware, validate(createPublicacaoSchema), Pu
  *         description: Filtrar pelo ID do esporte
  *     responses:
  *       200:
- *         description: Lista de publicações retornada com sucesso
+ *         description: Lista de publicações retornada com sucesso, incluindo usuario.id, usuario.nome, usuario.username e usuario.fotoPerfilUrl
  *       400:
  *         description: Parâmetros de consulta inválidos
  */

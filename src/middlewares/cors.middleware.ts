@@ -1,11 +1,8 @@
 import cors from 'cors';
-import { env } from '../config/env.js';
+import { allowedOrigins } from '../config/env.js';
 
 export const corsMiddleware = cors({
-  origin: [
-    env.FRONTEND_ORIGIN,
-    env.API_ORIGIN,
-  ],
+  origin: allowedOrigins,
 
   credentials: true,
 

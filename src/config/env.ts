@@ -21,3 +21,10 @@ if (!result.success) {
   throw new Error(`Ambiente inválido: ${result.error.issues.map(i => `${i.path.join('.')}: ${i.message}`).join('; ')}`);
 }
 export const env = result.data;
+
+export const allowedOrigins = [
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+];

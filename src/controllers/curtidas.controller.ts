@@ -12,7 +12,14 @@ const readId = (req: Request) => {
 };
 
 export const createCurtida = async (req: Request, res: Response) => {
-  const curtida = await CurtidasService.createCurtida(req.body);
+  const usuarioId = String(res.locals.userId);
+  if (req.body.usuarioId !== usuarioId) {
+    throw new HttpError(403, 'A curtida deve usar o usuário autenticado.');
+  }
+  const curtida = await CurtidasService.createCurtida({
+    ...req.body,
+    usuarioId,
+  });
   res.status(201).json(CurtidasService.toPublicCurtida(curtida));
 };
 
@@ -27,6 +34,6 @@ export const getCurtidaById = async (req: Request, res: Response) => {
 };
 
 export const deleteCurtida = async (req: Request, res: Response) => {
-  await CurtidasService.deleteCurtida(readId(req));
+  await CurtidasService.deleteCurtida(readId(req), BigInt(res.locals.userId));
   res.status(204).send();
 };

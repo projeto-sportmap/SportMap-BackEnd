@@ -31,6 +31,16 @@ const mocks = vi.hoisted(() => ({
   dbPublicacaoCreate: vi.fn(),
   dbPublicacaoFirst: vi.fn(),
   dbComentarioCreate: vi.fn(),
+  createCurtida: vi.fn(),
+  getAllCurtidas: vi.fn(),
+  getCurtidaById: vi.fn(),
+  deleteCurtida: vi.fn(),
+  toPublicCurtida: vi.fn((curtida: any) => ({
+    id: String(curtida.id),
+    publicacaoId: String(curtida.publicacaoId),
+    usuarioId: String(curtida.usuarioId),
+    createdAt: curtida.createdAt,
+  })),
 }));
 
 vi.mock('../src/services/esportes.service.js', () => ({
@@ -52,6 +62,14 @@ vi.mock('../src/services/usuarios.service.js', () => ({
 
 vi.mock('../src/services/auth.service.js', () => ({
   AuthService: { login: mocks.login },
+}));
+
+vi.mock('../src/services/curtidas.service.js', () => ({
+  createCurtida: mocks.createCurtida,
+  getAllCurtidas: mocks.getAllCurtidas,
+  getCurtidaById: mocks.getCurtidaById,
+  deleteCurtida: mocks.deleteCurtida,
+  toPublicCurtida: mocks.toPublicCurtida,
 }));
 
 vi.mock('../src/prisma/db.js', () => ({
@@ -130,6 +148,20 @@ beforeEach(() => {
   mocks.getUsuarioById.mockResolvedValue(usuario);
   mocks.updateUsuario.mockResolvedValue(usuario);
   mocks.deleteUsuario.mockResolvedValue(undefined);
+  mocks.createCurtida.mockImplementation(async (dados) => ({
+    id: 10n,
+    publicacaoId: BigInt(dados.publicacaoId),
+    usuarioId: BigInt(dados.usuarioId),
+    createdAt: usuario.createdAt,
+  }));
+  mocks.getAllCurtidas.mockResolvedValue([]);
+  mocks.getCurtidaById.mockResolvedValue({
+    id: 10n,
+    publicacaoId: 1n,
+    usuarioId: 1n,
+    createdAt: usuario.createdAt,
+  });
+  mocks.deleteCurtida.mockResolvedValue(undefined);
 
   mocks.login.mockResolvedValue({
     token: tokenValido(),
@@ -385,6 +417,77 @@ describe('Publicação autenticada', () => {
   });
 });
 
+describe('Curtidas autenticadas', () => {
+  it('cria, lista e remove curtida usando o usuário do JWT', async () => {
+    const token = tokenValido();
+    const headers = { Authorization: `Bearer ${token}` };
+
+    const criada = await request(app)
+      .post('/curtidas')
+      .set(headers)
+      .send({ publicacaoId: 27, usuarioId: 1 });
+    expect(criada.status).toBe(201);
+    expect(criada.body).toMatchObject({
+      id: '10',
+      publicacaoId: '27',
+      usuarioId: '1',
+    });
+
+    mocks.getAllCurtidas.mockResolvedValue([{
+      id: 10n,
+      publicacaoId: 27n,
+      usuarioId: 1n,
+      createdAt: usuario.createdAt,
+    }]);
+    const lista = await request(app)
+      .get('/curtidas?publicacaoId=27&usuarioId=1')
+      .set(headers)
+      .expect(200);
+    expect(lista.body).toMatchObject([{ id: '10', publicacaoId: '27', usuarioId: '1' }]);
+
+    await request(app)
+      .delete('/curtidas/10')
+      .set(headers)
+      .expect(204);
+    expect(mocks.deleteCurtida).toHaveBeenCalledWith(10, 1n);
+  });
+
+  it('rejeita curtida com usuário diferente do JWT', async () => {
+    await request(app)
+      .post('/curtidas')
+      .set('Authorization', `Bearer ${tokenValido()}`)
+      .send({ publicacaoId: 27, usuarioId: 2 })
+      .expect(403);
+    expect(mocks.createCurtida).not.toHaveBeenCalled();
+  });
+
+  it('exige autenticação para operações de curtida', async () => {
+    await request(app).get('/curtidas').expect(401);
+    await request(app).post('/curtidas').send({ publicacaoId: 27, usuarioId: 1 }).expect(401);
+    await request(app).delete('/curtidas/10').expect(401);
+  });
+});
+
+describe('CORS de desenvolvimento', () => {
+  for (const origin of [
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+  ]) {
+    it(`aceita preflight de ${origin}`, async () => {
+      const resposta = await request(app)
+        .options('/curtidas')
+        .set('Origin', origin)
+        .set('Access-Control-Request-Method', 'POST')
+        .set('Access-Control-Request-Headers', 'authorization,content-type')
+        .expect(204);
+      expect(resposta.headers['access-control-allow-origin']).toBe(origin);
+      expect(resposta.headers['access-control-allow-credentials']).toBe('true');
+    });
+  }
+});
+
 describe('Comentários em publicações', () => {
   it('permite que outro usuário logado comente após a publicação', async () => {
     const autor = request.agent(app);
@@ -403,7 +506,6 @@ describe('Comentários em publicações', () => {
     mocks.dbComentarioCreate.mockImplementation(async (dados) => ({
       id: 10n, ...dados, createdAt: usuario.createdAt,
     }));
-
     const leitor = request.agent(app);
     await leitor.post('/login').send({ email: outroUsuario.email, senha: 'Senha123' }).expect(200);
     const comentario = await leitor.post(`/publicacoes/${publicacao.body.id}/comentarios`)
