@@ -1,6 +1,7 @@
 import { db } from '../prisma/db.js';
 import { HttpError } from '../lib/http-error.js';
 
+
 export interface CreatePublicacaoInput {
   usuarioId: string; // vem como string (bigint)
   esporteId?: number | null;

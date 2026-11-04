@@ -3,6 +3,16 @@ import { env } from './config/env.js';
 import { logger } from './config/logger.js';
 import { db } from './prisma/db.js';
 
+declare global {
+  interface BigInt {
+    toJSON(): string;
+  }
+}
+
+BigInt.prototype.toJSON = function () {
+  return this.toString();
+};
+
 const server = app.listen(env.PORT, () => {
   logger.info(
     `API disponível em http://localhost:${env.PORT}`,
