@@ -41,3 +41,6 @@ app.use((_req, res) => { logger.warn('Rota não encontrada.'); res.status(404).j
 
 // Tratamento centralizado de erros. 
 app.use(errorHandler);
+
+import feedRouter from './routes/feed.route.js';
+app.use(feedRouter);
