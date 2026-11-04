@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { db } from '../prisma/db.js';
-// AJUSTA só o nome do arquivo: é o arquivo que você me mandou (veja no explorer do VS Code)
+// AJUSTA o nome do arquivo para o service de publicações que você me mandou
 import { getAllPublicacoes, toPublicPublicacao } from '../services/publicacoes.service.js';
 
 const router = Router();
@@ -45,6 +45,30 @@ router.get('/feed', async (_req, res, next) => {
     }
 
     res.json(feed.slice(0, 20));
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get('/eventos', async (_req, res, next) => {
+  try {
+    const [eventos, esportes] = await Promise.all([
+      db.orm.public.Eventos.all(),
+      db.orm.public.Esportes.all(),
+    ]);
+    const nomeEsporte = new Map(esportes.map((e: any) => [String(e.id), e.nome]));
+    const agora = Date.now();
+
+    const lista = eventos
+      .filter((e: any) => e.status === 'aberta' && Date.parse(String(e.expiraEm)) > agora)
+      .map((e: any) => ({
+        id: String(e.id),
+        esporteNome: nomeEsporte.get(String(e.esporteId)) ?? null,
+        descricao: e.descricao,
+        expiraEm: String(e.expiraEm),
+      }));
+
+    res.json(lista);
   } catch (err) {
     next(err);
   }
