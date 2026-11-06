@@ -65,10 +65,10 @@ const readCoordenada = (value: unknown, campo: string, limite: number) => {
 };
 
 const readData = (value: unknown, campo: string) => {
-  if (typeof value !== 'string' && typeof value !== 'number') {
+  if (!(value instanceof Date) && typeof value !== 'string' && typeof value !== 'number') {
     throw new HttpError(400, `${campo} deve ser uma data válida.`);
   }
-  const data = new Date(value);
+  const data = value instanceof Date ? value : new Date(value);
   if (Number.isNaN(data.getTime())) {
     throw new HttpError(400, `${campo} deve ser uma data válida.`);
   }
@@ -77,10 +77,10 @@ const readData = (value: unknown, campo: string) => {
 
 export const createAtividades = async (req: Request, res: Response) => {
   const body = req.body ?? {};
+  const usuarioId = readBigInt(res.locals.userId, 'usuarioId');
 
   const atividades = await AtividadesService.createAtividades({
-    // Provisório: quando houver middleware, trocar pelo id do token.
-    usuarioId: readBigInt(body.usuarioId, 'usuarioId'),
+    usuarioId,
     esporteId: readInt(body.esporteId, 'esporteId'),
     descricao: readDescricao(body.descricao) ?? null,
     latitude: readCoordenada(body.latitude, 'Latitude', 90),

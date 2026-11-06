@@ -1,5 +1,8 @@
 import { Router } from 'express';
 import * as AtividadesController from '../controllers/atividades.controller.js';
+import { authMiddleware } from '../middlewares/auth.middleware.js';
+import { validate } from '../middlewares/validate.middlewares.js';
+import { createAtividadesSchema } from '../schemas/atividades.schema.js';
 
 const router = Router();
 
@@ -17,18 +20,11 @@ const router = Router();
  *     CreateAtividade:
  *       type: object
  *       required:
- *         - usuarioId
  *         - esporteId
  *         - latitude
  *         - longitude
  *         - expiraEm
  *       properties:
- *         usuarioId:
- *           type: integer
- *           format: int64
- *           minimum: 1
- *           description: ID do usuário que cria a atividade (também aceita número em formato de texto, ex. "1").
- *           example: 1
  *         esporteId:
  *           type: integer
  *           minimum: 1
@@ -85,6 +81,8 @@ const router = Router();
  *   post:
  *     summary: Criar uma atividade
  *     tags: [Atividades]
+ *     security:
+ *       - bearerAuth: []
  *     description: A atividade é criada com o status "aberta".
  *     requestBody:
  *       required: true
@@ -100,7 +98,12 @@ const router = Router();
  *       404:
  *         description: Usuário ou esporte não encontrado
  */
-router.post('/atividades', AtividadesController.createAtividades);
+router.post(
+  '/atividades',
+  authMiddleware,
+  validate(createAtividadesSchema),
+  AtividadesController.createAtividades,
+);
 
 /**
  * @swagger
