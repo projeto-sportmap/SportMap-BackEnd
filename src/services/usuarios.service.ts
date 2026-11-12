@@ -5,7 +5,7 @@ import { HttpError } from '../lib/http-error.js';
 export interface CreateUsuarioInput {
   nome: string;
   sobrenome: string;
-  username: string;
+  usuario: string;
   email: string;
   senha: string; // texto puro que chega na API; vira senhaHash no banco
   fotoPerfilUrl?: string | null;
@@ -53,12 +53,12 @@ async function garantirUnicos(data: { email?: string; username?: string }, idAtu
 }
 
 export async function createUsuario(data: CreateUsuarioInput) {
-  await garantirUnicos({ email: data.email, username: data.username });
+  await garantirUnicos({ email: data.email, username: data.usuario });
 
   return db.orm.public.Usuarios.create({
     nome: data.nome as UsuarioRow['nome'],
     sobrenome: data.sobrenome as UsuarioRow['sobrenome'],
-    username: data.username as UsuarioRow['username'],
+    username: data.usuario as UsuarioRow['username'],
     email: data.email as UsuarioRow['email'],
     senhaHash: (await bcrypt.hash(data.senha, 10)) as UsuarioRow['senhaHash'],
     fotoPerfilUrl: (data.fotoPerfilUrl ?? null) as UsuarioRow['fotoPerfilUrl'],
@@ -80,12 +80,12 @@ export async function getUsuarioById(id: number) {
 }
 
 export async function updateUsuario(id: number, data: UpdateUsuarioInput) {
-  await garantirUnicos({ email: data.email, username: data.username }, id);
+  await garantirUnicos({ email: data.email, username: data.usuario }, id);
 
   const changes: UsuarioChanges = {};
   if (data.nome !== undefined) changes.nome = data.nome as UsuarioRow['nome'];
   if (data.sobrenome !== undefined) changes.sobrenome = data.sobrenome as UsuarioRow['sobrenome'];
-  if (data.username !== undefined) changes.username = data.username as UsuarioRow['username'];
+  if (data.usuario !== undefined) changes.username = data.usuario as UsuarioRow['username'];
   if (data.email !== undefined) changes.email = data.email as UsuarioRow['email'];
   if (data.senha !== undefined) changes.senhaHash = (await bcrypt.hash(data.senha, 10)) as UsuarioRow['senhaHash'];
   if (data.fotoPerfilUrl !== undefined) changes.fotoPerfilUrl = data.fotoPerfilUrl as UsuarioRow['fotoPerfilUrl'];
