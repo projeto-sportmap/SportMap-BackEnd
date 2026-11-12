@@ -20,9 +20,6 @@ const bigintId = (campo: string) =>
       return id >= 1n && id <= MAX_BIGINT;
     }, `${campo} fora do intervalo permitido.`);
 
-const bigintIdFlex = (campo: string) =>
-  z.union([z.string(), z.number()]).transform(String).pipe(bigintId(campo));
-
 const esporteId = z.coerce
   .number()
   .int('esporteId deve ser um inteiro.')
@@ -59,9 +56,6 @@ export const listagemQuery = z.object({
 
 export const createAtividadesBody = z
   .object({
-    // Provisório: enquanto não houver middleware de autenticação, vem do body.
-    // Depois, remova este campo e use o id do token.
-    usuarioId: bigintIdFlex('usuarioId'),
     esporteId,
     descricao: descricao.nullable().optional(),
     latitude: coordenada('Latitude', 90),
