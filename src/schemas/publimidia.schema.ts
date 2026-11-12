@@ -38,6 +38,12 @@ export const createPublicacaoMidiaSchema = z.object({
   }),
 });
 
+export const uploadPublicacaoMidiaSchema = z.object({
+  body: z.object({
+    publicacaoId: publicacaoIdBody,
+  }),
+});
+
 // publicacaoId não pode ser alterado depois de criada
 export const updatePublicacaoMidiaSchema = z.object({
   body: z

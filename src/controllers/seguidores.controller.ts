@@ -26,10 +26,10 @@ const readPositiveInt = (value: unknown, padrao: number) => {
 };
 
 export const createSeguidores = async (req: Request, res: Response) => {
-  const { seguidorId, seguidoId } = req.body ?? {};
+  const { seguidoId } = req.body ?? {};
 
   const seguidores = await SeguidoresService.createSeguidores({
-    seguidorId: readBigInt(seguidorId, 'seguidorId'),
+    seguidorId: readBigInt(res.locals.userId, 'seguidorId'),
     seguidoId: readBigInt(seguidoId, 'seguidoId')
   });
 
@@ -40,7 +40,14 @@ export const getAllSeguidores = async (req: Request, res: Response) => {
   const limit = readPositiveInt(req.query.limit, 20);
   const offset = readPositiveInt(req.query.offset, 0);
 
-  const lista = await SeguidoresService.getAllSeguidores(limit, offset);
+  const lista = await SeguidoresService.getAllSeguidores(limit, offset, {
+    seguidorId: req.query.seguidorId === undefined
+      ? undefined
+      : readBigInt(req.query.seguidorId, 'seguidorId'),
+    seguidoId: req.query.seguidoId === undefined
+      ? undefined
+      : readBigInt(req.query.seguidoId, 'seguidoId'),
+  });
   res.json(lista.map(SeguidoresService.toPublicSeguidores));
 };
 
@@ -54,8 +61,14 @@ export const getSeguidor = async (req: Request, res: Response) => {
 };
 
 export const deleteSeguidores = async (req: Request, res: Response) => {
+  const seguidorId = readBigInt(req.params.seguidorId, 'seguidorId');
+  const usuarioLogado = readBigInt(res.locals.userId, 'seguidorId');
+  if (seguidorId !== usuarioLogado) {
+    throw new HttpError(403, 'VocÃª sÃ³ pode alterar os seus prÃ³prios relacionamentos.');
+  }
+
   await SeguidoresService.deleteSeguidores(
-    readBigInt(req.params.seguidorId, 'seguidorId'),
+    seguidorId,
     readBigInt(req.params.seguidoId, 'seguidoId')
   );
 

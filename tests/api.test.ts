@@ -35,6 +35,14 @@ const mocks = vi.hoisted(() => ({
   getAllCurtidas: vi.fn(),
   getCurtidaById: vi.fn(),
   deleteCurtida: vi.fn(),
+  createSeguidores: vi.fn(),
+  getAllSeguidores: vi.fn(),
+  getSeguidor: vi.fn(),
+  deleteSeguidores: vi.fn(),
+  toPublicSeguidores: vi.fn((relacao: any) => ({
+    seguidorId: String(relacao.seguidorId),
+    seguidoId: String(relacao.seguidoId),
+  })),
   toPublicCurtida: vi.fn((curtida: any) => ({
     id: String(curtida.id),
     publicacaoId: String(curtida.publicacaoId),
@@ -70,6 +78,14 @@ vi.mock('../src/services/curtidas.service.js', () => ({
   getCurtidaById: mocks.getCurtidaById,
   deleteCurtida: mocks.deleteCurtida,
   toPublicCurtida: mocks.toPublicCurtida,
+}));
+
+vi.mock('../src/services/seguidores.service.js', () => ({
+  createSeguidores: mocks.createSeguidores,
+  getAllSeguidores: mocks.getAllSeguidores,
+  getSeguidor: mocks.getSeguidor,
+  deleteSeguidores: mocks.deleteSeguidores,
+  toPublicSeguidores: mocks.toPublicSeguidores,
 }));
 
 vi.mock('../src/prisma/db.js', () => ({
@@ -162,6 +178,10 @@ beforeEach(() => {
     createdAt: usuario.createdAt,
   });
   mocks.deleteCurtida.mockResolvedValue(undefined);
+  mocks.createSeguidores.mockImplementation(async (relacao) => relacao);
+  mocks.getAllSeguidores.mockResolvedValue([]);
+  mocks.getSeguidor.mockResolvedValue({ seguidorId: 1n, seguidoId: 2n });
+  mocks.deleteSeguidores.mockResolvedValue(undefined);
 
   mocks.login.mockResolvedValue({
     token: tokenValido(),
@@ -465,6 +485,54 @@ describe('Curtidas autenticadas', () => {
     await request(app).get('/curtidas').expect(401);
     await request(app).post('/curtidas').send({ publicacaoId: 27, usuarioId: 1 }).expect(401);
     await request(app).delete('/curtidas/10').expect(401);
+  });
+});
+
+describe('Relacionamentos de seguimento', () => {
+  const headers = () => ({ Authorization: `Bearer ${tokenValido()}` });
+
+  it('cria o relacionamento usando a conta autenticada', async () => {
+    const resposta = await request(app)
+      .post('/seguidores')
+      .set(headers())
+      .send({ seguidoId: '2' })
+      .expect(201);
+
+    expect(resposta.body).toEqual({ seguidorId: '1', seguidoId: '2' });
+    expect(mocks.createSeguidores).toHaveBeenCalledWith({ seguidorId: 1n, seguidoId: 2n });
+  });
+
+  it('lista os relacionamentos filtrados pela conta seguidora', async () => {
+    mocks.getAllSeguidores.mockResolvedValue([{ seguidorId: 1n, seguidoId: 2n }]);
+
+    await request(app)
+      .get('/seguidores?seguidorId=1&limit=100&offset=0')
+      .expect(200);
+
+    expect(mocks.getAllSeguidores).toHaveBeenCalledWith(100, 0, {
+      seguidorId: 1n,
+      seguidoId: undefined,
+    });
+  });
+
+  it('remove o relacionamento da conta autenticada', async () => {
+    await request(app)
+      .delete('/seguidores/1/2')
+      .set(headers())
+      .expect(204);
+
+    expect(mocks.deleteSeguidores).toHaveBeenCalledWith(1n, 2n);
+  });
+
+  it('bloqueia remoção em nome de outra conta e exige login para seguir', async () => {
+    await request(app)
+      .delete('/seguidores/2/3')
+      .set(headers())
+      .expect(403);
+    await request(app).post('/seguidores').send({ seguidoId: '2' }).expect(401);
+
+    expect(mocks.deleteSeguidores).not.toHaveBeenCalled();
+    expect(mocks.createSeguidores).not.toHaveBeenCalled();
   });
 });
 
