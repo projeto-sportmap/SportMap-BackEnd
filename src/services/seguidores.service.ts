@@ -53,6 +53,22 @@ export async function getSeguidor(seguidorId: bigint, seguidoId: bigint) {
   return seguidores;
 }
 
+export async function getResumoSeguidores(usuarioId: bigint) {
+  const usuario = await db.orm.public.Usuarios
+    .where({ id: usuarioId })
+    .select('id')
+    .include('seguidores', (seguidores) => seguidores.count())
+    .include('seguidoresSeguidores', (seguindo) => seguindo.count())
+    .first();
+
+  if (!usuario) throw new HttpError(404, 'Usuário não encontrado.');
+
+  return {
+    seguidores: usuario.seguidores,
+    seguindo: usuario.seguidoresSeguidores,
+  };
+}
+
 export async function deleteSeguidores(seguidorId: bigint, seguidoId: bigint) {
   const seguidores = await db.orm.public.Seguidores.where({ seguidorId, seguidoId }).delete();
   if (!seguidores) throw new HttpError(404, 'Seguidor não encontrado.');

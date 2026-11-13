@@ -60,6 +60,13 @@ export const getSeguidor = async (req: Request, res: Response) => {
   res.json(SeguidoresService.toPublicSeguidores(seguidores));
 };
 
+export const getResumoSeguidores = async (req: Request, res: Response) => {
+  const resumo = await SeguidoresService.getResumoSeguidores(
+    readBigInt(req.params.usuarioId, 'usuarioId'),
+  );
+  res.json(resumo);
+};
+
 export const deleteSeguidores = async (req: Request, res: Response) => {
   const seguidorId = readBigInt(req.params.seguidorId, 'seguidorId');
   const usuarioLogado = readBigInt(res.locals.userId, 'seguidorId');

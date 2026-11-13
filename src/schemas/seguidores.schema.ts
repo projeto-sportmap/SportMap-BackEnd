@@ -27,3 +27,9 @@ export const seguidoresParamsSchema = z.object({
     seguidoId: idNumerico('seguidoId'),
   }),
 });
+
+export const resumoSeguidoresParamsSchema = z.object({
+  params: z.object({
+    usuarioId: idNumerico('usuarioId'),
+  }),
+});

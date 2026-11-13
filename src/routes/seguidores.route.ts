@@ -5,6 +5,7 @@ import { validate } from '../middlewares/validate.middlewares.js';
 import {
   createSeguidorSchema,
   listSeguidoresSchema,
+  resumoSeguidoresParamsSchema,
   seguidoresParamsSchema,
 } from '../schemas/seguidores.schema.js';
 
@@ -92,6 +93,12 @@ router.post(
  *         description: Parâmetros de consulta inválidos
  */
 router.get('/seguidores', validate(listSeguidoresSchema), SeguidoresController.getAllSeguidores);
+
+router.get(
+  '/seguidores/resumo/:usuarioId',
+  validate(resumoSeguidoresParamsSchema),
+  SeguidoresController.getResumoSeguidores,
+);
 
 /**
  * @swagger
