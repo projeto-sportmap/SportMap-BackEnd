@@ -1,35 +1,35 @@
 import { z } from 'zod';
 
-const MAX_BIGINT = 9223372036854775807n;
-const bigintId = (campo: string) => z
-    .string({ error: `${campo} é obrigatório.` })
-    .regex(/^\d+$/, `${campo} deve ser numérico.`)
-    .refine(value => {
-      const id = BigInt(value);
-      return id >= 1n && id <= MAX_BIGINT;
-    }, `${campo} fora do intervalo permitido.`);
+const idNumerico = (campo: string) =>
+  z.string().regex(/^\d+$/, `${campo} deve ser numérico.`);
 
-export const seguidoresParams = z.object({
-  seguidorId: bigintId('seguidorId'),
-  seguidoId: bigintId('seguidoId'),
+const idFlexivel = (campo: string) =>
+  z.union([z.string(), z.number().int().positive()])
+    .transform(String)
+    .pipe(idNumerico(campo));
+
+export const createSeguidorSchema = z.object({
+  body: z.object({ seguidoId: idFlexivel('seguidoId') }).strict(),
 });
 
-export const paginacaoQuery = z.object({
-  limit: z.coerce.number().int().min(1).max(100).default(20),
-  offset: z.coerce.number().int().min(0).default(0),
+export const listSeguidoresSchema = z.object({
+  query: z.object({
+    limit: z.coerce.number().int().min(1).max(100).optional(),
+    offset: z.coerce.number().int().min(0).optional(),
+    seguidorId: idNumerico('seguidorId').optional(),
+    seguidoId: idNumerico('seguidoId').optional(),
+  }),
 });
 
-export const createSeguidoresBody = z
-  .object({
-    seguidorId: z.union([z.string(), z.number()]).transform(String).pipe(bigintId('seguidorId')),
-    seguidoId: z.union([z.string(), z.number()]).transform(String).pipe(bigintId('seguidoId')),
-  })
-  .strict()
-  .refine(
-    value => value.seguidorId !== value.seguidoId,
-    { message: 'Um usuário não pode seguir a si mesmo.', path: ['seguidoId'] },
-  );
+export const seguidoresParamsSchema = z.object({
+  params: z.object({
+    seguidorId: idNumerico('seguidorId'),
+    seguidoId: idNumerico('seguidoId'),
+  }),
+});
 
-export const createSeguidoresSchema = z.object({ body: createSeguidoresBody });
-export const getAllSeguidoresSchema = z.object({ query: paginacaoQuery });
-export const seguidoresIdSchema = z.object({ params: seguidoresParams });
+export const resumoSeguidoresParamsSchema = z.object({
+  params: z.object({
+    usuarioId: idNumerico('usuarioId'),
+  }),
+});

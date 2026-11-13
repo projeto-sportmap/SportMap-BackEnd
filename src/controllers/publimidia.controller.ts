@@ -17,6 +17,16 @@ export const createPublicacaoMidia = async (req: Request, res: Response) => {
   res.status(201).json(MidiasService.toPublicMidia(midia));
 };
 
+export const uploadPublicacaoMidia = async (req: Request, res: Response) => {
+  if (!req.file) throw new HttpError(400, 'Envie uma imagem no campo "foto".');
+  const midia = await MidiasService.createPublicacaoMidia({
+    publicacaoId: String(req.body.publicacaoId),
+    tipo: 'imagem',
+    url: `/uploads/${req.file.filename}`,
+  }, BigInt(res.locals.userId));
+  res.status(201).json(MidiasService.toPublicMidia(midia));
+};
+
 export const getAllPublicacaoMidias = async (req: Request, res: Response) => {
   const { publicacaoId } = req.query as { publicacaoId?: string };
   const lista = await MidiasService.getAllPublicacaoMidias({ publicacaoId });

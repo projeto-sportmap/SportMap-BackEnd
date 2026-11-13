@@ -32,8 +32,11 @@ export const toPublicMidia = (m: MidiaRow) => ({
   ordem: m.ordem,
 });
 
-async function garantirPublicacao(publicacaoId: bigint) {
+async function garantirPublicacao(publicacaoId: bigint, usuarioId?: bigint) {
   const publicacao = await db.orm.public.Publicacoes.first({ id: publicacaoId });
+  if (publicacao && usuarioId !== undefined && publicacao.usuarioId !== usuarioId) {
+    throw new HttpError(403, 'Voce so pode enviar midia para sua propria publicacao.');
+  }
   if (!publicacao) throw new HttpError(404, 'Publicação não encontrada.');
 }
 
@@ -51,9 +54,9 @@ async function garantirOrdemLivre(publicacaoId: bigint, ordem: number, ignorarId
   }
 }
 
-export async function createPublicacaoMidia(data: CreatePublicacaoMidiaInput) {
+export async function createPublicacaoMidia(data: CreatePublicacaoMidiaInput, usuarioId?: bigint) {
   const publicacaoId = BigInt(data.publicacaoId);
-  await garantirPublicacao(publicacaoId);
+  await garantirPublicacao(publicacaoId, usuarioId);
 
   const ordem = data.ordem ?? (await proximaOrdem(publicacaoId));
   if (ordem > 32767) throw new HttpError(400, 'Limite de mídias da publicação atingido.');

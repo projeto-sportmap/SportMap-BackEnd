@@ -1,14 +1,25 @@
 import { Router } from 'express';
 import * as MidiasController from '../controllers/publimidia.controller.js';
 import { validate } from '../middlewares/validate.middlewares.js';
+import { authMiddleware } from '../middlewares/auth.middleware.js';
+import { uploadFoto } from '../middlewares/upload.js';
 import {
   createPublicacaoMidiaSchema,
   updatePublicacaoMidiaSchema,
   publicacaoMidiaIdSchema,
   listPublicacaoMidiasSchema,
+  uploadPublicacaoMidiaSchema,
 } from '../schemas/publimidia.schema.js';
 
 const router = Router();
+
+router.post(
+  '/publicacao-midias/upload',
+  authMiddleware,
+  uploadFoto,
+  validate(uploadPublicacaoMidiaSchema),
+  MidiasController.uploadPublicacaoMidia,
+);
 
 /**
  * @swagger

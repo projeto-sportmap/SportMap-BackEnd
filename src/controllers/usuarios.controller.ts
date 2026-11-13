@@ -461,8 +461,7 @@ export const updateFoto = async (
     );
   }
 
-  const url =
-    `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+  const url = `/uploads/${req.file.filename}`;
 
   const usuario =
     await UsuariosService.updateUsuario(

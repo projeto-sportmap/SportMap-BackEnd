@@ -1,5 +1,13 @@
 import { Router } from 'express';
 import * as SeguidoresController from '../controllers/seguidores.controller.js';
+import { authMiddleware } from '../middlewares/auth.middleware.js';
+import { validate } from '../middlewares/validate.middlewares.js';
+import {
+  createSeguidorSchema,
+  listSeguidoresSchema,
+  resumoSeguidoresParamsSchema,
+  seguidoresParamsSchema,
+} from '../schemas/seguidores.schema.js';
 
 const router = Router();
 
@@ -17,15 +25,8 @@ const router = Router();
  *     CreateSeguidor:
  *       type: object
  *       required:
- *         - seguidorId
  *         - seguidoId
  *       properties:
- *         seguidorId:
- *           type: integer
- *           format: int64
- *           minimum: 1
- *           description: ID do usuário que segue (também aceita número em formato de texto, ex. "1").
- *           example: 1
  *         seguidoId:
  *           type: integer
  *           format: int64
@@ -40,6 +41,9 @@ const router = Router();
  *   post:
  *     summary: Criar um relacionamento de seguimento
  *     tags: [Seguidores]
+ *     description: O seguidor é sempre o usuário autenticado.
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -52,7 +56,12 @@ const router = Router();
  *       400:
  *         description: Dados inválidos
  */
-router.post('/seguidores', SeguidoresController.createSeguidores);
+router.post(
+  '/seguidores',
+  authMiddleware,
+  validate(createSeguidorSchema),
+  SeguidoresController.createSeguidores,
+);
 
 /**
  * @swagger
@@ -83,7 +92,13 @@ router.post('/seguidores', SeguidoresController.createSeguidores);
  *       400:
  *         description: Parâmetros de consulta inválidos
  */
-router.get('/seguidores', SeguidoresController.getAllSeguidores);
+router.get('/seguidores', validate(listSeguidoresSchema), SeguidoresController.getAllSeguidores);
+
+router.get(
+  '/seguidores/resumo/:usuarioId',
+  validate(resumoSeguidoresParamsSchema),
+  SeguidoresController.getResumoSeguidores,
+);
 
 /**
  * @swagger
@@ -116,7 +131,11 @@ router.get('/seguidores', SeguidoresController.getAllSeguidores);
  *       404:
  *         description: Relacionamento não encontrado
  */
-router.get('/seguidores/:seguidorId/:seguidoId', SeguidoresController.getSeguidor);
+router.get(
+  '/seguidores/:seguidorId/:seguidoId',
+  validate(seguidoresParamsSchema),
+  SeguidoresController.getSeguidor,
+);
 
 /**
  * @swagger
@@ -124,6 +143,8 @@ router.get('/seguidores/:seguidorId/:seguidoId', SeguidoresController.getSeguido
  *   delete:
  *     summary: Remover relacionamento de seguimento
  *     tags: [Seguidores]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: seguidorId
@@ -149,6 +170,11 @@ router.get('/seguidores/:seguidorId/:seguidoId', SeguidoresController.getSeguido
  *       404:
  *         description: Relacionamento não encontrado
  */
-router.delete('/seguidores/:seguidorId/:seguidoId', SeguidoresController.deleteSeguidores);
+router.delete(
+  '/seguidores/:seguidorId/:seguidoId',
+  authMiddleware,
+  validate(seguidoresParamsSchema),
+  SeguidoresController.deleteSeguidores,
+);
 
 export default router;
