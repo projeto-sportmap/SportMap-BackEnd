@@ -1,3 +1,4 @@
+
 import type { Request, Response } from 'express';
 import * as AnunciosService from '../services/anuncios.service.js';
 import { HttpError } from '../lib/http-error.js';
@@ -100,6 +101,12 @@ const readUsuarioLogado = (res: Response) => {
 
 export const createAnuncios = async (req: Request, res: Response) => {
   const body = req.body ?? {};
+
+  // Caminho da imagem salva pelo Multer
+  const imagemUrl = req.file
+    ? `/uploads/anuncios/${req.file.filename}`
+    : undefined;
+
   const { latitude, longitude } = lerCoordenadas(body);
 
   const anuncios = await AnunciosService.createAnuncios({
@@ -111,7 +118,8 @@ export const createAnuncios = async (req: Request, res: Response) => {
     condicao: readEnum(body.condicao, 'Condição', AnunciosService.CONDICOES),
     latitude: latitude ?? null,
     longitude: longitude ?? null,
-    cidade: readOptionalString(body.cidade, 'Cidade', 100) ?? null
+    cidade: readOptionalString(body.cidade, 'Cidade', 100) ?? null,
+    imagemUrl
   });
 
   res.status(201).json(AnunciosService.toPublicAnuncios(anuncios));
@@ -139,6 +147,11 @@ export const getAnunciosById = async (req: Request, res: Response) => {
 export const updateAnuncios = async (req: Request, res: Response) => {
   const body = req.body ?? {};
   const changes: AnunciosService.UpdateAnunciosInput = {};
+
+  // Se uma nova imagem foi enviada, atualiza a URL da mídia
+  if (req.file) {
+    changes.imagemUrl = `/uploads/anuncios/${req.file.filename}`;
+  }
 
   if (body.titulo !== undefined) changes.titulo = readString(body.titulo, 'Título', 150);
   if (body.descricao !== undefined) {

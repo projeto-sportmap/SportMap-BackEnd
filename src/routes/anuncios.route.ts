@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import * as AnunciosController from '../controllers/anuncios.controller.js';
 import { authMiddleware } from '../middlewares/auth.middleware.js';
+import { uploadAnuncio } from '../middlewares/upload-anuncio.middleware.js';
 
 const router = Router();
 
@@ -146,7 +147,12 @@ const router = Router();
  *       404:
  *         description: Usuário ou esporte não encontrado
  */
-router.post('/anuncios', authMiddleware, AnunciosController.createAnuncios);
+router.post(
+  '/anuncios',
+  authMiddleware,
+  uploadAnuncio.single('imagem'),
+  AnunciosController.createAnuncios
+);
 
 /**
  * @swagger
@@ -265,7 +271,12 @@ router.get('/anuncios/:id', AnunciosController.getAnunciosById);
  *       404:
  *         description: Anúncio ou esporte não encontrado
  */
-router.put('/anuncios/:id', authMiddleware, AnunciosController.updateAnuncios);
+router.put(
+  '/anuncios/:id',
+  authMiddleware,
+  uploadAnuncio.single('imagem'),
+  AnunciosController.updateAnuncios
+);
 
 /**
  * @swagger
