@@ -34,7 +34,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'d4f501c84c7d22c82aa53763701a498d3574eb2faecc574f0e0da80adf7bdc76'>;
+  StorageHashBase<'04e69f3baf0b04be06340a1d7c8c1e6e6e31ee3e85eec8305ed08d71f368f2f0'>;
 export type ExecutionHash = ExecutionHashBase<string>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
@@ -355,6 +355,8 @@ export type FieldOutputTypes = {
       readonly email: CodecTypes['pg/text@1']['output'];
       readonly senhaHash: CodecTypes['pg/text@1']['output'];
       readonly fotoPerfilUrl: CodecTypes['pg/text@1']['output'] | null;
+      readonly fotoPerfilData: CodecTypes['pg/text@1']['output'] | null;
+      readonly fotoCapaData: CodecTypes['pg/text@1']['output'] | null;
       readonly cidade: CodecTypes['pg/text@1']['output'] | null;
       readonly latitude: Numeric<9, 6> | null;
       readonly longitude: Numeric<9, 6> | null;
@@ -482,6 +484,8 @@ export type FieldInputTypes = {
       readonly email: CodecTypes['pg/text@1']['input'];
       readonly senhaHash: CodecTypes['pg/text@1']['input'];
       readonly fotoPerfilUrl: CodecTypes['pg/text@1']['input'] | null;
+      readonly fotoPerfilData: CodecTypes['pg/text@1']['input'] | null;
+      readonly fotoCapaData: CodecTypes['pg/text@1']['input'] | null;
       readonly cidade: CodecTypes['pg/text@1']['input'] | null;
       readonly latitude: CodecTypes['pg/numeric@1']['input'] | null;
       readonly longitude: CodecTypes['pg/numeric@1']['input'] | null;
@@ -606,6 +610,8 @@ export type StorageColumnTypes = {
       readonly cidade: CodecTypes['pg/text@1']['output'] | null;
       readonly created_at: CodecTypes['pg/timestamptz-temporal@1']['output'];
       readonly email: CodecTypes['pg/text@1']['output'];
+      readonly foto_capa_data: CodecTypes['pg/text@1']['output'] | null;
+      readonly foto_perfil_data: CodecTypes['pg/text@1']['output'] | null;
       readonly foto_perfil_url: CodecTypes['pg/text@1']['output'] | null;
       readonly id: CodecTypes['pg/int8@1']['output'];
       readonly latitude: Numeric<9, 6> | null;
@@ -733,6 +739,8 @@ export type StorageColumnInputTypes = {
       readonly cidade: CodecTypes['pg/text@1']['input'] | null;
       readonly created_at: CodecTypes['pg/timestamptz-temporal@1']['input'];
       readonly email: CodecTypes['pg/text@1']['input'];
+      readonly foto_capa_data: CodecTypes['pg/text@1']['input'] | null;
+      readonly foto_perfil_data: CodecTypes['pg/text@1']['input'] | null;
       readonly foto_perfil_url: CodecTypes['pg/text@1']['input'] | null;
       readonly id: CodecTypes['pg/int8@1']['input'];
       readonly latitude: CodecTypes['pg/numeric@1']['input'] | null;
@@ -773,6 +781,8 @@ export namespace Models {
     email: CodecTypes['pg/text@1']['output'];
     senhaHash: CodecTypes['pg/text@1']['output'];
     fotoPerfilUrl: CodecTypes['pg/text@1']['output'] | null;
+    fotoPerfilData: CodecTypes['pg/text@1']['output'] | null;
+    fotoCapaData: CodecTypes['pg/text@1']['output'] | null;
     cidade: CodecTypes['pg/text@1']['output'] | null;
     latitude: Numeric<9, 6> | null;
     longitude: Numeric<9, 6> | null;
@@ -2073,6 +2083,16 @@ type ContractBase = Omit<
                   readonly codecId: 'pg/text@1';
                   readonly nullable: true;
                 };
+                readonly foto_perfil_data: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                };
+                readonly foto_capa_data: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                };
                 readonly cidade: {
                   readonly nativeType: 'text';
                   readonly codecId: 'pg/text@1';
@@ -3283,6 +3303,14 @@ type ContractBase = Omit<
                 readonly nullable: true;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
+              readonly fotoPerfilData: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly fotoCapaData: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
               readonly cidade: {
                 readonly nullable: true;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
@@ -3476,6 +3504,8 @@ type ContractBase = Omit<
                 readonly email: { readonly column: 'email' };
                 readonly senhaHash: { readonly column: 'senha_hash' };
                 readonly fotoPerfilUrl: { readonly column: 'foto_perfil_url' };
+                readonly fotoPerfilData: { readonly column: 'foto_perfil_data' };
+                readonly fotoCapaData: { readonly column: 'foto_capa_data' };
                 readonly cidade: { readonly column: 'cidade' };
                 readonly latitude: { readonly column: 'latitude' };
                 readonly longitude: { readonly column: 'longitude' };

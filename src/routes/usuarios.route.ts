@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import * as UsuariosController from '../controllers/usuarios.controller.js';
 import { validate } from '../middlewares/validate.middlewares.js';
-import { uploadFoto } from '../middlewares/upload.js';
+import { uploadFoto, uploadImagemPerfil } from '../middlewares/upload.js';
 
 import {
   createUsuarioSchema,
@@ -398,9 +398,20 @@ router.patch(
   authMiddleware,
   validate(usuarioIdSchema),
   requireSelf,
-  uploadFoto,
+  uploadImagemPerfil,
   UsuariosController.updateFoto,
 );
+
+router.patch(
+  '/usuarios/:id/capa',
+  authMiddleware,
+  validate(usuarioIdSchema),
+  requireSelf,
+  uploadImagemPerfil,
+  UsuariosController.updateCapa,
+);
+
+router.get('/usuarios/:id/imagem/:tipo', validate(usuarioIdSchema), UsuariosController.getImagemPerfil);
 
 /**
  * @swagger

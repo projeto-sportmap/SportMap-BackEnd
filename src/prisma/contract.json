@@ -1616,6 +1616,20 @@
                   "kind": "scalar"
                 }
               },
+              "fotoCapaData": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "fotoPerfilData": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
               "fotoPerfilUrl": {
                 "nullable": true,
                 "type": {
@@ -1898,6 +1912,12 @@
                 },
                 "email": {
                   "column": "email"
+                },
+                "fotoCapaData": {
+                  "column": "foto_capa_data"
+                },
+                "fotoPerfilData": {
+                  "column": "foto_perfil_data"
                 },
                 "fotoPerfilUrl": {
                   "column": "foto_perfil_url"
@@ -3441,6 +3461,16 @@
                   "nativeType": "text",
                   "nullable": false
                 },
+                "foto_capa_data": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "foto_perfil_data": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
                 "foto_perfil_url": {
                   "codecId": "pg/text@1",
                   "nativeType": "text",
@@ -3593,7 +3623,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "d4f501c84c7d22c82aa53763701a498d3574eb2faecc574f0e0da80adf7bdc76"
+    "storageHash": "04e69f3baf0b04be06340a1d7c8c1e6e6e31ee3e85eec8305ed08d71f368f2f0"
   },
   "capabilities": {
     "postgres": {

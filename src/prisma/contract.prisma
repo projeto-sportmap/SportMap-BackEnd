@@ -29,6 +29,8 @@ model Usuarios {
   email                String              @unique(map: "usuarios_email_key")
   senhaHash            String              @map("senha_hash")
   fotoPerfilUrl        String?             @map("foto_perfil_url")
+  fotoPerfilData       String?             @map("foto_perfil_data")
+  fotoCapaData         String?             @map("foto_capa_data")
   cidade               String?
   latitude             Numeric(9, 6)?
   longitude            Numeric(9, 6)?

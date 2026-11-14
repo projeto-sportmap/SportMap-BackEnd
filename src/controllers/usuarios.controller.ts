@@ -461,13 +461,11 @@ export const updateFoto = async (
     );
   }
 
-  const url = `/uploads/${req.file.filename}`;
-
   const usuario =
     await UsuariosService.updateUsuario(
       readId(req),
       {
-        fotoPerfilUrl: url,
+        fotoPerfilData: `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`,
       },
     );
 
@@ -476,4 +474,25 @@ export const updateFoto = async (
       usuario,
     ),
   );
+};
+
+export const updateCapa = async (req: Request, res: Response) => {
+  if (!req.file) throw new HttpError(400, 'Envie uma foto no campo "foto".');
+  const usuario = await UsuariosService.updateUsuario(readId(req), {
+    fotoCapaData: `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`,
+  });
+  res.json(UsuariosService.toPublicUsuario(usuario));
+};
+
+export const getImagemPerfil = async (req: Request, res: Response) => {
+  const tipo = req.params.tipo;
+  if (tipo !== 'perfil' && tipo !== 'capa') {
+    throw new HttpError(400, 'Tipo de imagem invÃ¡lido.');
+  }
+  const data = await UsuariosService.getImagemPerfil(readId(req), tipo);
+  const match = /^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/]+=*)$/.exec(data);
+  if (!match) throw new HttpError(500, 'Imagem armazenada invÃ¡lida.');
+  res.setHeader('Content-Type', match[1]);
+  res.setHeader('Cache-Control', 'no-store');
+  res.send(Buffer.from(match[2], 'base64'));
 };

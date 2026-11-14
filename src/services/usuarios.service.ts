@@ -5,10 +5,13 @@ import { HttpError } from '../lib/http-error.js';
 export interface CreateUsuarioInput {
   nome: string;
   sobrenome: string;
-  usuario: string;
+  usuario?: string;
+  username?: string;
   email: string;
   senha: string; // texto puro que chega na API; vira senhaHash no banco
   fotoPerfilUrl?: string | null;
+  fotoPerfilData?: string | null;
+  fotoCapaData?: string | null;
   cidade?: string | null;
   latitude?: number | null;
   longitude?: number | null;
@@ -29,7 +32,8 @@ export const toPublicUsuario = (u: UsuarioRow) => ({
   sobrenome: u.sobrenome,
   username: u.username,
   email: u.email,
-  fotoPerfilUrl: u.fotoPerfilUrl,
+  fotoPerfilUrl: u.fotoPerfilData ? `/usuarios/${u.id}/imagem/perfil` : u.fotoPerfilUrl,
+  fotoCapaUrl: u.fotoCapaData ? `/usuarios/${u.id}/imagem/capa` : null,
   cidade: u.cidade,
   latitude: num(u.latitude),
   longitude: num(u.longitude),
@@ -53,12 +57,14 @@ async function garantirUnicos(data: { email?: string; username?: string }, idAtu
 }
 
 export async function createUsuario(data: CreateUsuarioInput) {
-  await garantirUnicos({ email: data.email, username: data.usuario });
+  const username = data.username ?? data.usuario;
+  if (!username) throw new HttpError(400, 'Username obrigatÃ³rio.');
+  await garantirUnicos({ email: data.email, username });
 
   return db.orm.public.Usuarios.create({
     nome: data.nome as UsuarioRow['nome'],
     sobrenome: data.sobrenome as UsuarioRow['sobrenome'],
-    username: data.usuario as UsuarioRow['username'],
+    username: username as UsuarioRow['username'],
     email: data.email as UsuarioRow['email'],
     senhaHash: (await bcrypt.hash(data.senha, 10)) as UsuarioRow['senhaHash'],
     fotoPerfilUrl: (data.fotoPerfilUrl ?? null) as UsuarioRow['fotoPerfilUrl'],
@@ -80,15 +86,18 @@ export async function getUsuarioById(id: number) {
 }
 
 export async function updateUsuario(id: number, data: UpdateUsuarioInput) {
-  await garantirUnicos({ email: data.email, username: data.usuario }, id);
+  const username = data.username ?? data.usuario;
+  await garantirUnicos({ email: data.email, username }, id);
 
   const changes: UsuarioChanges = {};
   if (data.nome !== undefined) changes.nome = data.nome as UsuarioRow['nome'];
   if (data.sobrenome !== undefined) changes.sobrenome = data.sobrenome as UsuarioRow['sobrenome'];
-  if (data.usuario !== undefined) changes.username = data.usuario as UsuarioRow['username'];
+  if (username !== undefined) changes.username = username as UsuarioRow['username'];
   if (data.email !== undefined) changes.email = data.email as UsuarioRow['email'];
   if (data.senha !== undefined) changes.senhaHash = (await bcrypt.hash(data.senha, 10)) as UsuarioRow['senhaHash'];
   if (data.fotoPerfilUrl !== undefined) changes.fotoPerfilUrl = data.fotoPerfilUrl as UsuarioRow['fotoPerfilUrl'];
+  if (data.fotoPerfilData !== undefined) changes.fotoPerfilData = data.fotoPerfilData as UsuarioRow['fotoPerfilData'];
+  if (data.fotoCapaData !== undefined) changes.fotoCapaData = data.fotoCapaData as UsuarioRow['fotoCapaData'];
   if (data.cidade !== undefined) changes.cidade = data.cidade as UsuarioRow['cidade'];
   if (data.latitude !== undefined) changes.latitude = data.latitude as unknown as UsuarioRow['latitude'];
   if (data.longitude !== undefined) changes.longitude = data.longitude as unknown as UsuarioRow['longitude'];
@@ -98,6 +107,14 @@ export async function updateUsuario(id: number, data: UpdateUsuarioInput) {
   const usuario = await db.orm.public.Usuarios.where({ id: toBigInt(id) }).update(changes);
   if (!usuario) throw new HttpError(404, 'Usuário não encontrado.');
   return usuario;
+}
+
+export async function getImagemPerfil(id: number, tipo: 'perfil' | 'capa') {
+  const usuario = await db.orm.public.Usuarios.first({ id: toBigInt(id) });
+  if (!usuario) throw new HttpError(404, 'Usuário não encontrado.');
+  const data = tipo === 'perfil' ? usuario.fotoPerfilData : usuario.fotoCapaData;
+  if (!data) throw new HttpError(404, 'Imagem não encontrada.');
+  return data;
 }
 
 export async function deleteUsuario(id: number) {

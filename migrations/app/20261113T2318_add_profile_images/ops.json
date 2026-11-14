@@ -1,0 +1,86 @@
+[
+  {
+    "id": "column.public.usuarios.foto_perfil_data",
+    "label": "Add column \"foto_perfil_data\" to \"usuarios\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "foto_perfil_data",
+        "table": "usuarios"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"foto_perfil_data\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "usuarios",
+          "foto_perfil_data"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"foto_perfil_data\"",
+        "sql": "ALTER TABLE \"public\".\"usuarios\" ADD COLUMN \"foto_perfil_data\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"foto_perfil_data\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "usuarios",
+          "foto_perfil_data"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.usuarios.foto_capa_data",
+    "label": "Add column \"foto_capa_data\" to \"usuarios\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "foto_capa_data",
+        "table": "usuarios"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"foto_capa_data\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "usuarios",
+          "foto_capa_data"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"foto_capa_data\"",
+        "sql": "ALTER TABLE \"public\".\"usuarios\" ADD COLUMN \"foto_capa_data\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"foto_capa_data\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "usuarios",
+          "foto_capa_data"
+        ]
+      }
+    ]
+  }
+]
