@@ -238,7 +238,7 @@ export const createUsuario = async (
       ),
 
       username: validarUsername(
-        body.username,
+        body.usuario,
       ),
 
       email: validarEmail(
@@ -339,12 +339,10 @@ export const updateUsuario = async (
     );
   }
 
-  if (body.username !== undefined) {
-    changes.username =
-      validarUsername(
-        body.username,
-      );
-  }
+  if (body.usuario !== undefined) {
+  changes.username =
+    validarUsername(body.usuario);
+}
 
   if (body.email !== undefined) {
     changes.email =
