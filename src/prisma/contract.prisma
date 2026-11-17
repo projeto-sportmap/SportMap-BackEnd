@@ -5,6 +5,7 @@ model Esportes {
   id              Int               @id(map: "esportes_pkey") @default(autoincrement())
   nome            String            @unique(map: "esportes_nome_key")
   anuncios        Anuncios[]
+  atividades      Atividades[]
   eventos         Eventos[]
   publicacoes     Publicacoes[]
   usuarioEsportes UsuarioEsportes[]
@@ -22,35 +23,38 @@ model TipoUsuario {
 }
 
 model Usuarios {
-  id                   BigInt              @id(map: "usuarios_pkey") @default(autoincrement())
-  nome                 String
-  sobrenome            String
-  username             String              @unique(map: "usuarios_username_key")
-  email                String              @unique(map: "usuarios_email_key")
-  senhaHash            String              @map("senha_hash")
-  fotoPerfilUrl        String?             @map("foto_perfil_url")
-  fotoPerfilData       String?             @map("foto_perfil_data")
-  fotoCapaData         String?             @map("foto_capa_data")
-  cidade               String?
-  latitude             Numeric(9, 6)?
-  longitude            Numeric(9, 6)?
-  bio                  String?
-  createdAt            Timestamptz         @default(now()) @map("created_at")
-  updatedAt            Timestamptz         @default(now()) @map("updated_at")
-  role                 String              @default("USER")
-  tipoUsuarioId        Int?                @default(1) @map("tipo_usuario_id")
-  anuncioFavoritos     AnuncioFavoritos[]
-  anuncios             Anuncios[]
-  avaliacoes           Avaliacoes[]
-  comentarios          Comentarios[]
-  compartilhamentos    Compartilhamentos[]
-  curtidas             Curtidas[]
-  eventos              Eventos[]
-  publicacoes          Publicacoes[]
-  usuarioEsportes      UsuarioEsportes[]
-  seguidores           Seguidores[]        @relation(name: "fk_seguidores_seguido")
-  seguidoresSeguidores Seguidores[]        @relation(name: "fk_seguidores_seguidor")
-  tipoUsuario          TipoUsuario?        @relation(fields: [tipoUsuarioId], references: [id], onDelete: Restrict, map: "usuarios_tipo_usuario_id_fkey")
+  id                    BigInt                  @id(map: "usuarios_pkey") @default(autoincrement())
+  nome                  String
+  sobrenome             String
+  username              String                  @unique(map: "usuarios_username_key")
+  email                 String                  @unique(map: "usuarios_email_key")
+  senhaHash             String                  @map("senha_hash")
+  fotoPerfilUrl         String?                 @map("foto_perfil_url")
+  cidade                String?
+  latitude              Numeric(9, 6)?
+  longitude             Numeric(9, 6)?
+  bio                   String?
+  createdAt             Timestamptz             @default(now()) @map("created_at")
+  updatedAt             Timestamptz             @default(now()) @map("updated_at")
+  role                  String                  @default("USER")
+  tipoUsuarioId         Int?                    @default(1) @map("tipo_usuario_id")
+  fotoPerfilData        String?                 @map("foto_perfil_data")
+  fotoCapaData          String?                 @map("foto_capa_data")
+  anuncioFavoritos      AnuncioFavoritos[]
+  anuncios              Anuncios[]
+  atividades            Atividades[]
+  avaliacoes            Avaliacoes[]
+  comentarios           Comentarios[]
+  compartilhamentos     Compartilhamentos[]
+  conversaParticipantes ConversaParticipantes[]
+  curtidas              Curtidas[]
+  eventos               Eventos[]
+  mensagens             Mensagens[]
+  publicacoes           Publicacoes[]
+  usuarioEsportes       UsuarioEsportes[]
+  seguidores            Seguidores[]            @relation(name: "fk_seguidores_seguido")
+  seguidoresSeguidores  Seguidores[]            @relation(name: "fk_seguidores_seguidor")
+  tipoUsuario           TipoUsuario?            @relation(fields: [tipoUsuarioId], references: [id], onDelete: Restrict, map: "usuarios_tipo_usuario_id_fkey")
 
   @@index([role], map: "idx_usuarios_role")
   @@index([latitude, longitude], map: "ix_usuarios_coord")
@@ -116,6 +120,25 @@ model AnuncioMidias {
   @@unique([anuncioId, ordem], map: "uq_anuncio_midias_ord")
   @@check(expression: "(ordem >= 0)", map: "ck_anuncio_midias_ordem")
   @@map("anuncio_midias")
+}
+
+model Atividades {
+  id        BigInt        @id(map: "atividades_pkey") @default(autoincrement())
+  createdAt Timestamptz   @default(now()) @map("created_at")
+  descricao String?
+  esporteId Int           @map("esporte_id")
+  expiraEm  Timestamptz   @map("expira_em")
+  latitude  Numeric(9, 6)
+  longitude Numeric(9, 6)
+  status    String        @default("aberta")
+  usuarioId BigInt        @map("usuario_id")
+  esporte   Esportes      @relation(fields: [esporteId], references: [id], onDelete: Restrict, map: "fk_eventos_esporte")
+  usuario   Usuarios      @relation(fields: [usuarioId], references: [id], onDelete: Cascade, map: "fk_eventos_usuario")
+
+  @@index([esporteId], name: "atividades_esporte_id_idx")
+  @@index([usuarioId], name: "atividades_usuario_id_idx")
+  @@check(expression: "(status = ANY (ARRAY['aberta'::text, 'em_andamento'::text, 'concluida'::text, 'cancelada'::text, 'expirada'::text]))", map: "ck_eventos_status")
+  @@map("atividades")
 }
 
 model Avaliacoes {
@@ -185,6 +208,26 @@ model Compartilhamentos {
   @@map("compartilhamentos")
 }
 
+model Conversas {
+  id                    Int                     @id(map: "conversas_pkey") @default(autoincrement())
+  tipo                  VarChar(255)?
+  createdAt             Timestamp?              @default(now()) @map("created_at")
+  conversaParticipantes ConversaParticipantes[]
+  mensagens             Mensagens[]
+
+  @@map("conversas")
+}
+
+model ConversaParticipantes {
+  id         Int       @id(map: "conversa_participantes_pkey") @default(autoincrement())
+  conversaId Int       @map("conversa_id")
+  usuarioId  Int       @map("usuario_id")
+  conversa   Conversas @relation(fields: [conversaId], references: [id], onDelete: Cascade, map: "fk_cp_conversa", index: false)
+  usuario    Usuarios  @relation(fields: [usuarioId], references: [id], onDelete: Cascade, map: "fk_cp_usuario", index: false)
+
+  @@map("conversa_participantes")
+}
+
 model Curtidas {
   id           BigInt      @id(map: "curtidas_pkey") @default(autoincrement())
   publicacaoId BigInt      @map("publicacao_id")
@@ -228,6 +271,19 @@ model Eventos {
   @@check(expression: "((nivel)::text = ANY ((ARRAY['iniciante'::character varying, 'intermediario'::character varying, 'avancado'::character varying, 'profissional'::character varying])::text[]))", map: "ck_eventos_nivel")
   @@check(expression: "(status = ANY (ARRAY[('aberta'::character varying)::text, ('em_andamento'::character varying)::text, ('concluida'::character varying)::text, ('cancelada'::character varying)::text, ('expirada'::character varying)::text]))", map: "ck_eventos_status")
   @@map("eventos")
+}
+
+model Mensagens {
+  id          Int        @id(map: "mensagens_pkey") @default(autoincrement())
+  conversaId  Int        @map("conversa_id")
+  remetenteId Int        @map("remetente_id")
+  conteudo    String?
+  lida        Boolean?   @default(false)
+  createdAt   Timestamp? @default(now()) @map("created_at")
+  conversa    Conversas  @relation(fields: [conversaId], references: [id], onDelete: Cascade, map: "fk_msg_conversa", index: false)
+  remetente   Usuarios   @relation(fields: [remetenteId], references: [id], onDelete: Cascade, map: "fk_msg_remetente", index: false)
+
+  @@map("mensagens")
 }
 
 model PublicacaoMidias {
