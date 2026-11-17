@@ -6,7 +6,7 @@ const textoOpcional = (max: number) =>
 const baseBody = z.object({
   nome: z.string().trim().min(2, 'O nome deve ter pelo menos 2 caracteres.').max(100, 'O nome deve ter no máximo 100 caracteres.'),
   sobrenome: z.string().trim().min(2, 'O sobrenome deve ter pelo menos 2 caracteres.').max(100, 'O sobrenome deve ter no máximo 100 caracteres.'),
-  usuario: z
+  username: z
     .string()
     .trim()
     .toLowerCase()

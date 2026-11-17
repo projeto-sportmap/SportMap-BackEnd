@@ -23,9 +23,10 @@ if (!result.success) {
 export const env = result.data;
 
 export const allowedOrigins = [
+  env.FRONTEND_ORIGIN,
   'http://localhost:5173',
   'http://127.0.0.1:5173',
   'http://localhost:3000',
   'http://127.0.0.1:3000',
-  'http://::1:5173',
+  'http://[::1]:5173',
 ];
