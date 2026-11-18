@@ -21,7 +21,7 @@ export async function createConversaParticipantes(
   data: CreateConversaParticipantesInput
 ) {
   const [conversa, usuario] = await Promise.all([
-    db.orm.public.Conversas.first({ id: data.conversaId }),
+    db.orm.public.Conversas.first({ id: BigInt(data.conversaId) }),
     db.orm.public.Usuarios.first({ id: BigInt(data.usuarioId) }),
   ]);
 
@@ -33,8 +33,8 @@ export async function createConversaParticipantes(
 
   const existente =
     await db.orm.public.ConversaParticipantes.first({
-      conversaId: data.conversaId,
-      usuarioId: data.usuarioId,
+      conversaId: BigInt(data.conversaId),
+      usuarioId: BigInt(data.usuarioId),
     });
 
   if (existente)
@@ -44,8 +44,8 @@ export async function createConversaParticipantes(
     );
 
   return db.orm.public.ConversaParticipantes.create({
-    conversaId: data.conversaId,
-    usuarioId: data.usuarioId,
+    conversaId: BigInt(data.conversaId),
+    usuarioId: BigInt(data.usuarioId),
   });
 }
 
@@ -59,15 +59,15 @@ export async function getAllConversaParticipantes(
   const skip = Math.max(offset, 0);
 
   const where: {
-    conversaId?: number;
-    usuarioId?: number;
+    conversaId?: bigint;
+    usuarioId?: bigint;
   } = {};
 
   if (conversaId !== undefined)
-    where.conversaId = conversaId;
+    where.conversaId = BigInt(conversaId);
 
   if (usuarioId !== undefined)
-    where.usuarioId = usuarioId;
+    where.usuarioId = BigInt(usuarioId);
 
   const colecao = (
     Object.keys(where).length === 0
@@ -97,7 +97,7 @@ export async function getConversaParticipantesById(
 ) {
   const participantes =
     await db.orm.public.ConversaParticipantes.first({
-      id,
+      id: BigInt(id),
     });
 
   if (!participantes)
@@ -114,7 +114,7 @@ export async function deleteConversaParticipantes(
 ) {
   const participantes =
     await db.orm.public.ConversaParticipantes.where({
-      id,
+      id: BigInt(id),
     }).delete();
 
   if (!participantes)

@@ -41,7 +41,7 @@ export async function getAllConversas(
 
 export async function getConversasById(id: number) {
   const conversas = await db.orm.public.Conversas.first({
-    id,
+    id: BigInt(id),
   });
 
   if (!conversas) {
@@ -53,7 +53,7 @@ export async function getConversasById(id: number) {
 
 export async function deleteConversas(id: number) {
   const conversas = await db.orm.public.Conversas.where({
-    id,
+    id: BigInt(id),
   }).delete();
 
   if (!conversas) {

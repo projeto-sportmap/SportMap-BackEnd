@@ -35,7 +35,7 @@ export async function createMensagens(
 
   const [conversa, remetente] = await Promise.all([
     db.orm.public.Conversas.first({
-      id: data.conversaId,
+      id: BigInt(data.conversaId),
     }),
 
     db.orm.public.Usuarios.first({
@@ -58,7 +58,7 @@ export async function createMensagens(
   }
 
   return db.orm.public.Mensagens.create({
-    conversaId: data.conversaId,
+    conversaId: BigInt(data.conversaId),
     remetenteId: data.remetenteId,
     conteudo,
     lida: false,
@@ -77,7 +77,7 @@ export async function getAllMensagens(
     conversaId === undefined
       ? db.orm.public.Mensagens
       : db.orm.public.Mensagens.where({
-          conversaId,
+          conversaId: BigInt(conversaId),
         })
   ) as unknown as typeof db.orm.public.Mensagens;
 
@@ -102,7 +102,7 @@ export async function getMensagensById(
 ) {
   const mensagens =
     await db.orm.public.Mensagens.first({
-      id,
+      id: BigInt(id),
     });
 
   if (!mensagens) {
@@ -122,7 +122,7 @@ export async function marcarComoLida(
 
   const mensagens =
     await db.orm.public.Mensagens.where({
-      id,
+      id: BigInt(id),
     }).update({
       lida: true,
     } as never);
@@ -142,7 +142,7 @@ export async function deleteMensagens(
 ) {
   const mensagens =
     await db.orm.public.Mensagens.where({
-      id,
+      id: BigInt(id),
     }).delete();
 
   if (!mensagens) {
