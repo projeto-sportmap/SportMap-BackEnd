@@ -237,7 +237,7 @@ export const createUsuario = async (
         100,
       ),
 
-      username: validarUsername(
+      usuario: validarUsername(
         body.usuario,
       ),
 
