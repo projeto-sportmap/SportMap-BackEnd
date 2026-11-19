@@ -1,6 +1,8 @@
 import type { Request, Response } from 'express';
 import * as CurtidasService from '../services/curtidas.service.js';
 import { HttpError } from '../lib/http-error.js';
+import { db } from '../prisma/db.js';
+import { publishNotification } from '../services/notificationHub.js';
 
 const readId = (req: Request) => {
   const value = String(req.params.id);
@@ -20,6 +22,20 @@ export const createCurtida = async (req: Request, res: Response) => {
     ...req.body,
     usuarioId,
   });
+  try {
+    const publicacao = await db.orm.public.Publicacoes.first({ id: BigInt(curtida.publicacaoId) });
+    const usuario = res.locals.usuario as { id: bigint; nome: string; sobrenome?: string | null; username?: string };
+    if (publicacao && String(publicacao.usuarioId) !== usuarioId) {
+      publishNotification(String(publicacao.usuarioId), {
+        type: 'like',
+        actorName: [usuario.nome, usuario.sobrenome].filter(Boolean).join(' '),
+        actorUsername: usuario.username,
+        resourceId: String(curtida.publicacaoId),
+      }, `like-${curtida.id}`);
+    }
+  } catch {
+    // A notification failure must not undo a successful like.
+  }
   res.status(201).json(CurtidasService.toPublicCurtida(curtida));
 };
 
