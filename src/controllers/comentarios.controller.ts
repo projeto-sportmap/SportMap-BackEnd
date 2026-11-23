@@ -43,7 +43,7 @@ export async function createComentario(req: Request, res: Response) {
         actorUsername: usuario.username,
         resourceId: publicacaoId,
         text: String(req.body.conteudo ?? '').trim().slice(0, 180),
-        createdAt: new Date(comentario.createdAt).toISOString(),
+        createdAt: new Date(Date.parse(String(comentario.createdAt))).toISOString(),
       }, `comment-${comentario.id}`);
     }
   } catch {

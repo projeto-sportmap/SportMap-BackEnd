@@ -65,7 +65,9 @@ export async function getRecentNotifications(req: Request, res: Response) {
     return [{
       id: activity.id,
       type: activity.type,
-      createdAt: new Date(activity.createdAt).toISOString(),
+      // O driver pode devolver Timestamptz como Temporal.Instant. Converter
+      // diretamente com new Date(instant) chama valueOf(), que Temporal proíbe.
+      createdAt: new Date(Date.parse(String(activity.createdAt))).toISOString(),
       ...(activity.resourceId ? { resourceId: activity.resourceId } : {}),
       actorName: [actor.nome, actor.sobrenome].filter(Boolean).join(' '),
       actorUsername: actor.username,
