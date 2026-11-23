@@ -2,6 +2,7 @@ import type { Response } from 'express';
 
 export type ActivityNotification = {
   id: string;
+  createdAt: string;
   type: 'follow' | 'like' | 'comment';
   actorName: string;
   actorUsername?: string;
@@ -25,7 +26,7 @@ export function subscribeToNotifications(userId: string, response: Response) {
 
 export function publishNotification(
   userId: string,
-  notification: Omit<ActivityNotification, 'id'>,
+  notification: Omit<ActivityNotification, 'id' | 'createdAt'> & { createdAt?: string },
   eventId?: string,
 ) {
   const listeners = clients.get(userId);
@@ -34,6 +35,7 @@ export function publishNotification(
   const event: ActivityNotification = {
     ...notification,
     id: eventId ?? `${Date.now()}-${++nextId}`,
+    createdAt: notification.createdAt ?? new Date().toISOString(),
   };
   const message = `data: ${JSON.stringify(event)}\n\n`;
   for (const response of listeners) {

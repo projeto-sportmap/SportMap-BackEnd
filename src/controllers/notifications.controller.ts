@@ -12,12 +12,10 @@ type RecentActivity = {
 };
 
 export async function getRecentNotifications(req: Request, res: Response) {
+  res.set('Cache-Control', 'no-store');
   const userId = BigInt(res.locals.userId);
   const requestedSince = Number(req.query.since);
-  const latestSafeCursor = Date.now() - 5000;
-  const since = Number.isFinite(requestedSince)
-    ? Math.max(Math.min(requestedSince, latestSafeCursor), latestSafeCursor - 24 * 60 * 60 * 1000)
-    : latestSafeCursor;
+  const since = Number.isFinite(requestedSince) ? requestedSince : Date.now();
 
   const [followers, posts, allLikes, allComments] = await Promise.all([
     db.orm.public.Seguidores.all(),
@@ -55,8 +53,7 @@ export async function getRecentNotifications(req: Request, res: Response) {
         text: comment.conteudo.slice(0, 180),
       })),
   ].filter((activity) => Date.parse(String(activity.createdAt)) >= since)
-    .sort((a, b) => Date.parse(String(a.createdAt)) - Date.parse(String(b.createdAt)))
-    .slice(-50);
+    .sort((a, b) => Date.parse(String(a.createdAt)) - Date.parse(String(b.createdAt)));
 
   const actorIds = [...new Set(recent.map((activity) => activity.actorId))];
   const actors = await Promise.all(actorIds.map((id) => db.orm.public.Usuarios.first({ id })));
@@ -68,6 +65,7 @@ export async function getRecentNotifications(req: Request, res: Response) {
     return [{
       id: activity.id,
       type: activity.type,
+      createdAt: new Date(activity.createdAt).toISOString(),
       ...(activity.resourceId ? { resourceId: activity.resourceId } : {}),
       actorName: [actor.nome, actor.sobrenome].filter(Boolean).join(' '),
       actorUsername: actor.username,
@@ -89,7 +87,9 @@ export function streamNotifications(_req: Request, res: Response) {
   res.write(': connected\n\n');
 
   const unsubscribe = subscribeToNotifications(userId, res);
-  const heartbeat = setInterval(() => res.write(': ping\n\n'), 20_000);
+  const heartbeat = setInterval(() => {
+    if (!res.destroyed && !res.writableEnded) res.write(': ping\n\n');
+  }, 20_000);
   res.on('close', () => {
     clearInterval(heartbeat);
     unsubscribe();

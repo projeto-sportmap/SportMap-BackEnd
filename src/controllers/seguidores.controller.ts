@@ -39,6 +39,7 @@ export const createSeguidores = async (req: Request, res: Response) => {
     type: 'follow',
     actorName: [usuario.nome, usuario.sobrenome].filter(Boolean).join(' '),
     actorUsername: usuario.username,
+    createdAt: new Date(seguidores.createdAt).toISOString(),
   }, `follow-${seguidores.id}`);
 
   res.status(201).json(SeguidoresService.toPublicSeguidores(seguidores));

@@ -31,6 +31,7 @@ export const createCurtida = async (req: Request, res: Response) => {
         actorName: [usuario.nome, usuario.sobrenome].filter(Boolean).join(' '),
         actorUsername: usuario.username,
         resourceId: String(curtida.publicacaoId),
+        createdAt: new Date(curtida.createdAt).toISOString(),
       }, `like-${curtida.id}`);
     }
   } catch {
