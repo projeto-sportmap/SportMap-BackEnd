@@ -267,6 +267,17 @@ export type FieldOutputTypes = {
       readonly cidade: CodecTypes['pg/text@1']['output'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
     };
+    readonly Atividades: {
+      readonly id: CodecTypes['pg/int8@1']['output'];
+      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+      readonly descricao: CodecTypes['pg/text@1']['output'] | null;
+      readonly esporteId: CodecTypes['pg/int4@1']['output'];
+      readonly expiraEm: CodecTypes['pg/timestamptz-temporal@1']['output'];
+      readonly latitude: Numeric<9, 6>;
+      readonly longitude: Numeric<9, 6>;
+      readonly status: CodecTypes['pg/text@1']['output'];
+      readonly usuarioId: CodecTypes['pg/int8@1']['output'];
+    };
     readonly Avaliacoes: {
       readonly id: CodecTypes['pg/int8@1']['output'];
       readonly avaliadorId: CodecTypes['pg/int8@1']['output'];
@@ -326,6 +337,14 @@ export type FieldOutputTypes = {
       readonly lida: CodecTypes['pg/bool@1']['output'];
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
     };
+    readonly Mensagens: {
+      readonly id: CodecTypes['pg/int8@1']['output'];
+      readonly conversaId: CodecTypes['pg/int8@1']['output'];
+      readonly remetenteId: CodecTypes['pg/int8@1']['output'];
+      readonly conteudo: CodecTypes['pg/text@1']['output'] | null;
+      readonly lida: CodecTypes['pg/bool@1']['output'] | null;
+      readonly createdAt: CodecTypes['pg/timestamp-temporal@1']['output'] | null;
+    };
     readonly PublicacaoMidias: {
       readonly id: CodecTypes['pg/int8@1']['output'];
       readonly publicacaoId: CodecTypes['pg/int8@1']['output'];
@@ -341,6 +360,7 @@ export type FieldOutputTypes = {
       readonly latitude: Numeric<9, 6> | null;
       readonly longitude: Numeric<9, 6> | null;
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+      readonly comunidadeId: CodecTypes['pg/int8@1']['output'] | null;
     };
     readonly Seguidores: {
       readonly id: CodecTypes['pg/int8@1']['output'];
@@ -374,6 +394,8 @@ export type FieldOutputTypes = {
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
       readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
       readonly tipoUsuarioId: CodecTypes['pg/int4@1']['output'] | null;
+      readonly fotoPerfilData: CodecTypes['pg/text@1']['output'] | null;
+      readonly fotoCapaData: CodecTypes['pg/text@1']['output'] | null;
     };
   };
 };
@@ -404,6 +426,17 @@ export type FieldInputTypes = {
       readonly longitude: CodecTypes['pg/numeric@1']['input'] | null;
       readonly cidade: CodecTypes['pg/text@1']['input'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
+    };
+    readonly Atividades: {
+      readonly id: CodecTypes['pg/int8@1']['input'];
+      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
+      readonly descricao: CodecTypes['pg/text@1']['input'] | null;
+      readonly esporteId: CodecTypes['pg/int4@1']['input'];
+      readonly expiraEm: CodecTypes['pg/timestamptz-temporal@1']['input'];
+      readonly latitude: CodecTypes['pg/numeric@1']['input'];
+      readonly longitude: CodecTypes['pg/numeric@1']['input'];
+      readonly status: CodecTypes['pg/text@1']['input'];
+      readonly usuarioId: CodecTypes['pg/int8@1']['input'];
     };
     readonly Avaliacoes: {
       readonly id: CodecTypes['pg/int8@1']['input'];
@@ -464,6 +497,14 @@ export type FieldInputTypes = {
       readonly lida: CodecTypes['pg/bool@1']['input'];
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
     };
+    readonly Mensagens: {
+      readonly id: CodecTypes['pg/int8@1']['input'];
+      readonly conversaId: CodecTypes['pg/int8@1']['input'];
+      readonly remetenteId: CodecTypes['pg/int8@1']['input'];
+      readonly conteudo: CodecTypes['pg/text@1']['input'] | null;
+      readonly lida: CodecTypes['pg/bool@1']['input'] | null;
+      readonly createdAt: CodecTypes['pg/timestamp-temporal@1']['input'] | null;
+    };
     readonly PublicacaoMidias: {
       readonly id: CodecTypes['pg/int8@1']['input'];
       readonly publicacaoId: CodecTypes['pg/int8@1']['input'];
@@ -479,6 +520,7 @@ export type FieldInputTypes = {
       readonly latitude: CodecTypes['pg/numeric@1']['input'] | null;
       readonly longitude: CodecTypes['pg/numeric@1']['input'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
+      readonly comunidadeId: CodecTypes['pg/int8@1']['input'] | null;
     };
     readonly Seguidores: {
       readonly id: CodecTypes['pg/int8@1']['input'];
@@ -512,6 +554,8 @@ export type FieldInputTypes = {
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
       readonly tipoUsuarioId: CodecTypes['pg/int4@1']['input'] | null;
+      readonly fotoPerfilData: CodecTypes['pg/text@1']['input'] | null;
+      readonly fotoCapaData: CodecTypes['pg/text@1']['input'] | null;
     };
   };
 };
@@ -602,6 +646,14 @@ export type StorageColumnTypes = {
       readonly lida: CodecTypes['pg/bool@1']['output'];
       readonly remetente_id: CodecTypes['pg/int8@1']['output'];
     };
+    readonly mensagens: {
+      readonly conteudo: CodecTypes['pg/text@1']['output'] | null;
+      readonly conversa_id: CodecTypes['pg/int8@1']['output'];
+      readonly created_at: CodecTypes['pg/timestamp-temporal@1']['output'] | null;
+      readonly id: CodecTypes['pg/int8@1']['output'];
+      readonly lida: CodecTypes['pg/bool@1']['output'] | null;
+      readonly remetente_id: CodecTypes['pg/int8@1']['output'];
+    };
     readonly publicacao_midias: {
       readonly id: CodecTypes['pg/int8@1']['output'];
       readonly ordem: CodecTypes['pg/int2@1']['output'];
@@ -610,6 +662,7 @@ export type StorageColumnTypes = {
       readonly url: CodecTypes['pg/text@1']['output'];
     };
     readonly publicacoes: {
+      readonly comunidade_id: CodecTypes['pg/int8@1']['output'] | null;
       readonly conteudo: CodecTypes['pg/text@1']['output'] | null;
       readonly created_at: CodecTypes['pg/timestamptz-temporal@1']['output'];
       readonly esporte_id: CodecTypes['pg/int4@1']['output'] | null;
@@ -740,6 +793,14 @@ export type StorageColumnInputTypes = {
       readonly lida: CodecTypes['pg/bool@1']['input'];
       readonly remetente_id: CodecTypes['pg/int8@1']['input'];
     };
+    readonly mensagens: {
+      readonly conteudo: CodecTypes['pg/text@1']['input'] | null;
+      readonly conversa_id: CodecTypes['pg/int8@1']['input'];
+      readonly created_at: CodecTypes['pg/timestamp-temporal@1']['input'] | null;
+      readonly id: CodecTypes['pg/int8@1']['input'];
+      readonly lida: CodecTypes['pg/bool@1']['input'] | null;
+      readonly remetente_id: CodecTypes['pg/int8@1']['input'];
+    };
     readonly publicacao_midias: {
       readonly id: CodecTypes['pg/int8@1']['input'];
       readonly ordem: CodecTypes['pg/int2@1']['input'];
@@ -748,6 +809,7 @@ export type StorageColumnInputTypes = {
       readonly url: CodecTypes['pg/text@1']['input'];
     };
     readonly publicacoes: {
+      readonly comunidade_id: CodecTypes['pg/int8@1']['input'] | null;
       readonly conteudo: CodecTypes['pg/text@1']['input'] | null;
       readonly created_at: CodecTypes['pg/timestamptz-temporal@1']['input'];
       readonly esporte_id: CodecTypes['pg/int4@1']['input'] | null;
@@ -797,10 +859,13 @@ export namespace Models {
     id: CodecTypes['pg/int4@1']['output'];
     nome: CodecTypes['pg/text@1']['output'];
     anuncios: public_Anuncios[];
+    atividades: public_Atividades[];
+    comunidades: public_Comunidades[];
     eventos: public_Eventos[];
     publicacoes: public_Publicacoes[];
     usuarioEsportes: public_UsuarioEsportes[];
-    readonly [RelationKeys]?: 'anuncios' | 'eventos' | 'publicacoes' | 'usuarioEsportes';
+    readonly [RelationKeys]?:
+      'anuncios' | 'atividades' | 'comunidades' | 'eventos' | 'publicacoes' | 'usuarioEsportes';
   };
   export type public_Usuarios = {
     id: CodecTypes['pg/int8@1']['output'];
@@ -817,8 +882,11 @@ export namespace Models {
     createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
     updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
     tipoUsuarioId: CodecTypes['pg/int4@1']['output'] | null;
+    fotoPerfilData: CodecTypes['pg/text@1']['output'] | null;
+    fotoCapaData: CodecTypes['pg/text@1']['output'] | null;
     anuncioFavoritos: public_AnuncioFavoritos[];
     anuncios: public_Anuncios[];
+    atividades: public_Atividades[];
     avaliacoes: public_Avaliacoes[];
     comentarios: public_Comentarios[];
     compartilhamentos: public_Compartilhamentos[];
@@ -834,6 +902,7 @@ export namespace Models {
     readonly [RelationKeys]?:
       | 'anuncioFavoritos'
       | 'anuncios'
+      | 'atividades'
       | 'avaliacoes'
       | 'comentarios'
       | 'compartilhamentos'
@@ -885,6 +954,20 @@ export namespace Models {
     anuncio: public_Anuncios;
     readonly [RelationKeys]?: 'anuncio';
   };
+  export type public_Atividades = {
+    id: CodecTypes['pg/int8@1']['output'];
+    createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    descricao: CodecTypes['pg/text@1']['output'] | null;
+    esporteId: CodecTypes['pg/int4@1']['output'];
+    expiraEm: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    latitude: Numeric<9, 6>;
+    longitude: Numeric<9, 6>;
+    status: CodecTypes['pg/text@1']['output'];
+    usuarioId: CodecTypes['pg/int8@1']['output'];
+    esporte: public_Esportes;
+    usuario: public_Usuarios;
+    readonly [RelationKeys]?: 'esporte' | 'usuario';
+  };
   export type public_Avaliacoes = {
     id: CodecTypes['pg/int8@1']['output'];
     avaliadorId: CodecTypes['pg/int8@1']['output'];
@@ -896,6 +979,21 @@ export namespace Models {
     avaliador: public_Usuarios;
     readonly [RelationKeys]?: 'anuncio' | 'avaliador';
   };
+  export type public_Comunidades = {
+    id: CodecTypes['pg/int8@1']['output'];
+    criadorId: CodecTypes['pg/int8@1']['output'];
+    esporteId: CodecTypes['pg/int4@1']['output'] | null;
+    nome: CodecTypes['sql/varchar@1']['output'];
+    bio: Varchar<255> | null;
+    fotoUrl: CodecTypes['pg/text@1']['output'] | null;
+    createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    comunidadeParticipantes: public_ComunidadeParticipantes[];
+    criador: public_Usuarios;
+    esporte: public_Esportes | null;
+    publicacoes: public_Publicacoes[];
+    readonly [RelationKeys]?: 'comunidadeParticipantes' | 'criador' | 'esporte' | 'publicacoes';
+  };
   export type public_Publicacoes = {
     id: CodecTypes['pg/int8@1']['output'];
     usuarioId: CodecTypes['pg/int8@1']['output'];
@@ -904,14 +1002,22 @@ export namespace Models {
     latitude: Numeric<9, 6> | null;
     longitude: Numeric<9, 6> | null;
     createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    comunidadeId: CodecTypes['pg/int8@1']['output'] | null;
     comentarios: public_Comentarios[];
     compartilhamentos: public_Compartilhamentos[];
+    comunidade: public_Comunidades | null;
     curtidas: public_Curtidas[];
     esporte: public_Esportes | null;
     publicacaoMidias: public_PublicacaoMidias[];
     usuario: public_Usuarios;
     readonly [RelationKeys]?:
-      'comentarios' | 'compartilhamentos' | 'curtidas' | 'esporte' | 'publicacaoMidias' | 'usuario';
+      | 'comentarios'
+      | 'compartilhamentos'
+      | 'comunidade'
+      | 'curtidas'
+      | 'esporte'
+      | 'publicacaoMidias'
+      | 'usuario';
   };
   export type public_Comentarios = {
     id: CodecTypes['pg/int8@1']['output'];
@@ -1024,7 +1130,9 @@ export declare const models: {
     Anuncios: Models.public_Anuncios;
     AnuncioFavoritos: Models.public_AnuncioFavoritos;
     AnuncioMidias: Models.public_AnuncioMidias;
+    Atividades: Models.public_Atividades;
     Avaliacoes: Models.public_Avaliacoes;
+    Comunidades: Models.public_Comunidades;
     Publicacoes: Models.public_Publicacoes;
     Comentarios: Models.public_Comentarios;
     Compartilhamentos: Models.public_Compartilhamentos;
@@ -1750,6 +1858,273 @@ type ContractBase = Omit<
                     readonly expression: 'autoincrement()';
                   };
                 };
+                readonly comunidade_id: {
+                  readonly nativeType: 'int8';
+                  readonly codecId: 'pg/int8@1';
+                  readonly nullable: false;
+                };
+                readonly usuario_id: {
+                  readonly nativeType: 'int8';
+                  readonly codecId: 'pg/int8@1';
+                  readonly nullable: false;
+                };
+                readonly papel: {
+                  readonly nativeType: 'character varying';
+                  readonly codecId: 'sql/varchar@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'sql/varchar@1', 'membro'>;
+                  };
+                };
+                readonly created_at: {
+                  readonly nativeType: 'timestamptz';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                };
+              };
+              primaryKey: {
+                readonly columns: readonly ['id'];
+                readonly name: 'comunidade_participantes_pkey';
+              };
+              uniques: readonly [
+                {
+                  readonly columns: readonly ['comunidade_id', 'usuario_id'];
+                  readonly name: 'uq_comunidade_participantes';
+                },
+              ];
+              indexes: readonly [
+                {
+                  readonly name: 'ix_comunidade_participantes_usuario';
+                  readonly columns: readonly ['usuario_id'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'comunidade_participantes';
+                    readonly columns: readonly ['comunidade_id'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'comunidades';
+                    readonly columns: readonly ['id'];
+                  };
+                  readonly name: 'fk_comunidade_participantes_comunidade';
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'comunidade_participantes';
+                    readonly columns: readonly ['usuario_id'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'usuarios';
+                    readonly columns: readonly ['id'];
+                  };
+                  readonly name: 'fk_comunidade_participantes_usuario';
+                },
+              ];
+            };
+            readonly comunidades: {
+              columns: {
+                readonly id: {
+                  readonly nativeType: 'int8';
+                  readonly codecId: 'pg/int8@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'function';
+                    readonly expression: 'autoincrement()';
+                  };
+                };
+                readonly criador_id: {
+                  readonly nativeType: 'int8';
+                  readonly codecId: 'pg/int8@1';
+                  readonly nullable: false;
+                };
+                readonly esporte_id: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: true;
+                };
+                readonly nome: {
+                  readonly nativeType: 'character varying';
+                  readonly codecId: 'sql/varchar@1';
+                  readonly nullable: false;
+                };
+                readonly bio: {
+                  readonly nativeType: 'character varying';
+                  readonly codecId: 'sql/varchar@1';
+                  readonly nullable: true;
+                  readonly typeParams: { readonly length: 255 };
+                };
+                readonly foto_url: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                };
+                readonly created_at: {
+                  readonly nativeType: 'timestamptz';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                };
+                readonly updated_at: {
+                  readonly nativeType: 'timestamptz';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id']; readonly name: 'comunidades_pkey' };
+              uniques: readonly [
+                {
+                  readonly columns: readonly ['criador_id', 'nome'];
+                  readonly name: 'uq_comunidades_criador_nome';
+                },
+              ];
+              indexes: readonly [
+                {
+                  readonly name: 'ix_comunidades_criador';
+                  readonly columns: readonly ['criador_id'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'ix_comunidades_esporte';
+                  readonly columns: readonly ['esporte_id'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'comunidades';
+                    readonly columns: readonly ['criador_id'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'usuarios';
+                    readonly columns: readonly ['id'];
+                  };
+                  readonly name: 'fk_comunidades_criador';
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'comunidades';
+                    readonly columns: readonly ['esporte_id'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'esportes';
+                    readonly columns: readonly ['id'];
+                  };
+                  readonly name: 'fk_comunidades_esporte';
+                },
+              ];
+            };
+            readonly conversa_participantes: {
+              columns: {
+                readonly id: {
+                  readonly nativeType: 'int8';
+                  readonly codecId: 'pg/int8@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'function';
+                    readonly expression: 'autoincrement()';
+                  };
+                };
+                readonly conversa_id: {
+                  readonly nativeType: 'int8';
+                  readonly codecId: 'pg/int8@1';
+                  readonly nullable: false;
+                };
+                readonly usuario_id: {
+                  readonly nativeType: 'int8';
+                  readonly codecId: 'pg/int8@1';
+                  readonly nullable: false;
+                };
+              };
+              primaryKey: {
+                readonly columns: readonly ['id'];
+                readonly name: 'conversa_participantes_pkey';
+              };
+              uniques: readonly [];
+              indexes: readonly [];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'conversa_participantes';
+                    readonly columns: readonly ['conversa_id'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'conversas';
+                    readonly columns: readonly ['id'];
+                  };
+                  readonly name: 'fk_cp_conversa';
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'conversa_participantes';
+                    readonly columns: readonly ['usuario_id'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'usuarios';
+                    readonly columns: readonly ['id'];
+                  };
+                  readonly name: 'fk_cp_usuario';
+                },
+              ];
+            };
+            readonly conversas: {
+              columns: {
+                readonly id: {
+                  readonly nativeType: 'int8';
+                  readonly codecId: 'pg/int8@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'function';
+                    readonly expression: 'autoincrement()';
+                  };
+                };
+                readonly tipo: {
+                  readonly nativeType: 'character varying';
+                  readonly codecId: 'sql/varchar@1';
+                  readonly nullable: true;
+                  readonly typeParams: { readonly length: 255 };
+                };
+                readonly created_at: {
+                  readonly nativeType: 'timestamp';
+                  readonly codecId: 'pg/timestamp-temporal@1';
+                  readonly nullable: true;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id']; readonly name: 'conversas_pkey' };
+              uniques: readonly [];
+              indexes: readonly [];
+              foreignKeys: readonly [];
+            };
+            readonly curtidas: {
+              columns: {
+                readonly id: {
+                  readonly nativeType: 'int8';
+                  readonly codecId: 'pg/int8@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'function';
+                    readonly expression: 'autoincrement()';
+                  };
+                };
                 readonly publicacao_id: {
                   readonly nativeType: 'int8';
                   readonly codecId: 'pg/int8@1';
@@ -1919,6 +2294,80 @@ type ContractBase = Omit<
                 },
               ];
             };
+            readonly mensagens: {
+              columns: {
+                readonly id: {
+                  readonly nativeType: 'int8';
+                  readonly codecId: 'pg/int8@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'function';
+                    readonly expression: 'autoincrement()';
+                  };
+                };
+                readonly conversa_id: {
+                  readonly nativeType: 'int8';
+                  readonly codecId: 'pg/int8@1';
+                  readonly nullable: false;
+                };
+                readonly remetente_id: {
+                  readonly nativeType: 'int8';
+                  readonly codecId: 'pg/int8@1';
+                  readonly nullable: false;
+                };
+                readonly conteudo: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                };
+                readonly lida: {
+                  readonly nativeType: 'bool';
+                  readonly codecId: 'pg/bool@1';
+                  readonly nullable: true;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/bool@1', false>;
+                  };
+                };
+                readonly created_at: {
+                  readonly nativeType: 'timestamp';
+                  readonly codecId: 'pg/timestamp-temporal@1';
+                  readonly nullable: true;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id']; readonly name: 'mensagens_pkey' };
+              uniques: readonly [];
+              indexes: readonly [];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'mensagens';
+                    readonly columns: readonly ['conversa_id'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'conversas';
+                    readonly columns: readonly ['id'];
+                  };
+                  readonly name: 'fk_msg_conversa';
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'mensagens';
+                    readonly columns: readonly ['remetente_id'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'usuarios';
+                    readonly columns: readonly ['id'];
+                  };
+                  readonly name: 'fk_msg_remetente';
+                },
+              ];
+            };
             readonly publicacao_midias: {
               columns: {
                 readonly id: {
@@ -2026,10 +2475,20 @@ type ContractBase = Omit<
                   readonly nullable: false;
                   readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
                 };
+                readonly comunidade_id: {
+                  readonly nativeType: 'int8';
+                  readonly codecId: 'pg/int8@1';
+                  readonly nullable: true;
+                };
               };
               primaryKey: { readonly columns: readonly ['id']; readonly name: 'publicacoes_pkey' };
               uniques: readonly [];
               indexes: readonly [
+                {
+                  readonly name: 'ix_publicacoes_comunidade';
+                  readonly columns: readonly ['comunidade_id', 'created_at'];
+                  readonly unique: false;
+                },
                 {
                   readonly name: 'ix_publicacoes_esporte';
                   readonly columns: readonly ['esporte_id'];
@@ -2042,6 +2501,19 @@ type ContractBase = Omit<
                 },
               ];
               foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'publicacoes';
+                    readonly columns: readonly ['comunidade_id'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'comunidades';
+                    readonly columns: readonly ['id'];
+                  };
+                  readonly name: 'fk_publicacoes_comunidade';
+                },
                 {
                   readonly source: {
                     readonly namespaceId: 'public' & NamespaceId;
@@ -2325,6 +2797,16 @@ type ContractBase = Omit<
                     readonly value: DefaultLiteralValue<'pg/int4@1', 1>;
                   };
                 };
+                readonly foto_perfil_data: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                };
+                readonly foto_capa_data: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                };
               };
               primaryKey: { readonly columns: readonly ['id']; readonly name: 'usuarios_pkey' };
               uniques: readonly [
@@ -2381,9 +2863,17 @@ type ContractBase = Omit<
       readonly namespace: 'public' & NamespaceId;
       readonly model: 'AnuncioMidias';
     };
+    readonly atividades: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'Atividades';
+    };
     readonly avaliacoes: {
       readonly namespace: 'public' & NamespaceId;
       readonly model: 'Avaliacoes';
+    };
+    readonly comunidades: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'Comunidades';
     };
     readonly publicacoes: {
       readonly namespace: 'public' & NamespaceId;
@@ -2673,6 +3163,101 @@ type ContractBase = Omit<
               };
             };
           };
+          readonly Atividades: {
+            readonly fields: {
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int8@1' };
+              };
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                };
+              };
+              readonly descricao: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly esporteId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly expiraEm: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                };
+              };
+              readonly latitude: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/numeric@1';
+                  readonly typeParams: { readonly precision: 9; readonly scale: 6 };
+                };
+              };
+              readonly longitude: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/numeric@1';
+                  readonly typeParams: { readonly precision: 9; readonly scale: 6 };
+                };
+              };
+              readonly status: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly usuarioId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int8@1' };
+              };
+            };
+            readonly relations: {
+              readonly esporte: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Esportes';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['esporteId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly usuario: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Usuarios';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['usuarioId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'atividades';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly id: { readonly column: 'id' };
+                readonly createdAt: { readonly column: 'created_at' };
+                readonly descricao: { readonly column: 'descricao' };
+                readonly esporteId: { readonly column: 'esporte_id' };
+                readonly expiraEm: { readonly column: 'expira_em' };
+                readonly latitude: { readonly column: 'latitude' };
+                readonly longitude: { readonly column: 'longitude' };
+                readonly status: { readonly column: 'status' };
+                readonly usuarioId: { readonly column: 'usuario_id' };
+              };
+            };
+          };
           readonly Avaliacoes: {
             readonly fields: {
               readonly id: {
@@ -2865,6 +3450,285 @@ type ContractBase = Omit<
               };
             };
           };
+          readonly ComunidadeParticipantes: {
+            readonly fields: {
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int8@1' };
+              };
+              readonly comunidadeId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int8@1' };
+              };
+              readonly usuarioId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int8@1' };
+              };
+              readonly papel: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'sql/varchar@1' };
+              };
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                };
+              };
+            };
+            readonly relations: {
+              readonly comunidade: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Comunidades';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['comunidadeId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly usuario: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Usuarios';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['usuarioId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'comunidade_participantes';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly id: { readonly column: 'id' };
+                readonly comunidadeId: { readonly column: 'comunidade_id' };
+                readonly usuarioId: { readonly column: 'usuario_id' };
+                readonly papel: { readonly column: 'papel' };
+                readonly createdAt: { readonly column: 'created_at' };
+              };
+            };
+          };
+          readonly Comunidades: {
+            readonly fields: {
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int8@1' };
+              };
+              readonly criadorId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int8@1' };
+              };
+              readonly esporteId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly nome: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'sql/varchar@1' };
+              };
+              readonly bio: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'sql/varchar@1';
+                  readonly typeParams: { readonly length: 255 };
+                };
+              };
+              readonly fotoUrl: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                };
+              };
+              readonly updatedAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                };
+              };
+            };
+            readonly relations: {
+              readonly comunidadeParticipantes: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'ComunidadeParticipantes';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['comunidadeId'];
+                };
+              };
+              readonly criador: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Usuarios';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['criadorId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly esporte: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Esportes';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: true;
+                readonly on: {
+                  readonly localFields: readonly ['esporteId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly publicacoes: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Publicacoes';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['comunidadeId'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'comunidades';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly id: { readonly column: 'id' };
+                readonly criadorId: { readonly column: 'criador_id' };
+                readonly esporteId: { readonly column: 'esporte_id' };
+                readonly nome: { readonly column: 'nome' };
+                readonly bio: { readonly column: 'bio' };
+                readonly fotoUrl: { readonly column: 'foto_url' };
+                readonly createdAt: { readonly column: 'created_at' };
+                readonly updatedAt: { readonly column: 'updated_at' };
+              };
+            };
+          };
+          readonly ConversaParticipantes: {
+            readonly fields: {
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int8@1' };
+              };
+              readonly conversaId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int8@1' };
+              };
+              readonly usuarioId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int8@1' };
+              };
+            };
+            readonly relations: {
+              readonly conversa: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Conversas';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['conversaId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly usuario: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Usuarios';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['usuarioId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'conversa_participantes';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly id: { readonly column: 'id' };
+                readonly conversaId: { readonly column: 'conversa_id' };
+                readonly usuarioId: { readonly column: 'usuario_id' };
+              };
+            };
+          };
+          readonly Conversas: {
+            readonly fields: {
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int8@1' };
+              };
+              readonly tipo: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'sql/varchar@1';
+                  readonly typeParams: { readonly length: 255 };
+                };
+              };
+              readonly createdAt: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-temporal@1';
+                };
+              };
+            };
+            readonly relations: {
+              readonly conversaParticipantes: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'ConversaParticipantes';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['conversaId'];
+                };
+              };
+              readonly mensagens: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Mensagens';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['conversaId'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'conversas';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly id: { readonly column: 'id' };
+                readonly tipo: { readonly column: 'tipo' };
+                readonly createdAt: { readonly column: 'created_at' };
+              };
+            };
+          };
           readonly ConversaParticipantes: {
             readonly fields: {
               readonly id: {
@@ -3038,6 +3902,28 @@ type ContractBase = Omit<
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
                   readonly model: 'Anuncios';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['esporteId'];
+                };
+              };
+              readonly atividades: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Atividades';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['esporteId'];
+                };
+              };
+              readonly comunidades: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Comunidades';
                 };
                 readonly cardinality: '1:N';
                 readonly on: {
@@ -3252,6 +4138,75 @@ type ContractBase = Omit<
               };
             };
           };
+          readonly Mensagens: {
+            readonly fields: {
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int8@1' };
+              };
+              readonly conversaId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int8@1' };
+              };
+              readonly remetenteId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int8@1' };
+              };
+              readonly conteudo: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly lida: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
+              };
+              readonly createdAt: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-temporal@1';
+                };
+              };
+            };
+            readonly relations: {
+              readonly conversa: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Conversas';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['conversaId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly remetente: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Usuarios';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['remetenteId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'mensagens';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly id: { readonly column: 'id' };
+                readonly conversaId: { readonly column: 'conversa_id' };
+                readonly remetenteId: { readonly column: 'remetente_id' };
+                readonly conteudo: { readonly column: 'conteudo' };
+                readonly lida: { readonly column: 'lida' };
+                readonly createdAt: { readonly column: 'created_at' };
+              };
+            };
+          };
           readonly PublicacaoMidias: {
             readonly fields: {
               readonly id: {
@@ -3342,6 +4297,10 @@ type ContractBase = Omit<
                   readonly codecId: 'pg/timestamptz-temporal@1';
                 };
               };
+              readonly comunidadeId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int8@1' };
+              };
             };
             readonly relations: {
               readonly comentarios: {
@@ -3364,6 +4323,18 @@ type ContractBase = Omit<
                 readonly on: {
                   readonly localFields: readonly ['id'];
                   readonly targetFields: readonly ['publicacaoId'];
+                };
+              };
+              readonly comunidade: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Comunidades';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: true;
+                readonly on: {
+                  readonly localFields: readonly ['comunidadeId'];
+                  readonly targetFields: readonly ['id'];
                 };
               };
               readonly curtidas: {
@@ -3424,6 +4395,7 @@ type ContractBase = Omit<
                 readonly latitude: { readonly column: 'latitude' };
                 readonly longitude: { readonly column: 'longitude' };
                 readonly createdAt: { readonly column: 'created_at' };
+                readonly comunidadeId: { readonly column: 'comunidade_id' };
               };
             };
           };
@@ -3652,6 +4624,14 @@ type ContractBase = Omit<
                 readonly nullable: true;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
               };
+              readonly fotoPerfilData: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly fotoCapaData: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
             };
             readonly relations: {
               readonly anuncioFavoritos: {
@@ -3669,6 +4649,17 @@ type ContractBase = Omit<
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
                   readonly model: 'Anuncios';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['usuarioId'];
+                };
+              };
+              readonly atividades: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Atividades';
                 };
                 readonly cardinality: '1:N';
                 readonly on: {
@@ -3828,6 +4819,8 @@ type ContractBase = Omit<
                 readonly createdAt: { readonly column: 'created_at' };
                 readonly updatedAt: { readonly column: 'updated_at' };
                 readonly tipoUsuarioId: { readonly column: 'tipo_usuario_id' };
+                readonly fotoPerfilData: { readonly column: 'foto_perfil_data' };
+                readonly fotoCapaData: { readonly column: 'foto_capa_data' };
               };
             };
           };

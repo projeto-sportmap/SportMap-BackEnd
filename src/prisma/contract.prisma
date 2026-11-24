@@ -5,6 +5,8 @@ model Esportes {
   id              Int               @id(map: "esportes_pkey") @default(autoincrement())
   nome            String            @unique(map: "esportes_nome_key")
   anuncios        Anuncios[]
+  atividades      Atividades[]
+  comunidades     Comunidades[]
   eventos         Eventos[]
   publicacoes     Publicacoes[]
   usuarioEsportes UsuarioEsportes[]
@@ -106,6 +108,25 @@ model AnuncioMidias {
   @@map("anuncio_midias")
 }
 
+model Atividades {
+  id        BigInt        @id(map: "atividades_pkey") @default(autoincrement())
+  createdAt Timestamptz   @default(now()) @map("created_at")
+  descricao String?
+  esporteId Int           @map("esporte_id")
+  expiraEm  Timestamptz   @map("expira_em")
+  latitude  Numeric(9, 6)
+  longitude Numeric(9, 6)
+  status    String        @default("aberta")
+  usuarioId BigInt        @map("usuario_id")
+  esporte   Esportes      @relation(fields: [esporteId], references: [id], onDelete: Restrict, map: "fk_eventos_esporte")
+  usuario   Usuarios      @relation(fields: [usuarioId], references: [id], onDelete: Cascade, map: "fk_eventos_usuario")
+
+  @@index([esporteId], name: "atividades_esporte_id_idx")
+  @@index([usuarioId], name: "atividades_usuario_id_idx")
+  @@check(expression: "(status = ANY (ARRAY['aberta'::text, 'em_andamento'::text, 'concluida'::text, 'cancelada'::text, 'expirada'::text]))", map: "ck_eventos_status")
+  @@map("atividades")
+}
+
 model Avaliacoes {
   id          BigInt      @id(map: "avaliacoes_pkey") @default(autoincrement())
   avaliadorId BigInt      @map("avaliador_id")
@@ -122,6 +143,27 @@ model Avaliacoes {
   @@map("avaliacoes")
 }
 
+model Comunidades {
+  id                      BigInt                    @id(map: "comunidades_pkey") @default(autoincrement())
+  criadorId               BigInt                    @map("criador_id")
+  esporteId               Int?                      @map("esporte_id")
+  nome                    VarChar
+  bio                     VarChar(255)?
+  fotoUrl                 String?                   @map("foto_url")
+  createdAt               Timestamptz               @default(now()) @map("created_at")
+  updatedAt               Timestamptz               @default(now()) @map("updated_at")
+  comunidadeParticipantes ComunidadeParticipantes[]
+  publicacoes             Publicacoes[]
+  criador                 Usuarios                  @relation(fields: [criadorId], references: [id], onDelete: Cascade, map: "fk_comunidades_criador")
+  esporte                 Esportes?                 @relation(fields: [esporteId], references: [id], onDelete: SetNull, map: "fk_comunidades_esporte")
+
+  @@unique([criadorId, nome], map: "uq_comunidades_criador_nome")
+  @@index([criadorId], map: "ix_comunidades_criador")
+  @@index([esporteId], map: "ix_comunidades_esporte")
+  @@check(expression: "(length(btrim((nome)::text)) > 0)", map: "ck_comunidades_nome")
+  @@map("comunidades")
+}
+
 model Publicacoes {
   id                BigInt              @id(map: "publicacoes_pkey") @default(autoincrement())
   usuarioId         BigInt              @map("usuario_id")
@@ -130,13 +172,16 @@ model Publicacoes {
   latitude          Numeric(9, 6)?
   longitude         Numeric(9, 6)?
   createdAt         Timestamptz         @default(now()) @map("created_at")
+  comunidadeId      BigInt?             @map("comunidade_id")
   comentarios       Comentarios[]
   compartilhamentos Compartilhamentos[]
   curtidas          Curtidas[]
   publicacaoMidias  PublicacaoMidias[]
+  comunidade        Comunidades?        @relation(fields: [comunidadeId], references: [id], onDelete: SetNull, map: "fk_publicacoes_comunidade", index: false)
   esporte           Esportes?           @relation(fields: [esporteId], references: [id], onDelete: SetNull, map: "fk_publicacoes_esporte")
   usuario           Usuarios            @relation(fields: [usuarioId], references: [id], onDelete: Cascade, map: "fk_publicacoes_usuario", index: false)
 
+  @@index([comunidadeId, createdAt], map: "ix_publicacoes_comunidade")
   @@index([esporteId], map: "ix_publicacoes_esporte")
   @@index([usuarioId, createdAt], map: "ix_publicacoes_feed")
   @@check(expression: "((latitude IS NULL) = (longitude IS NULL))", map: "ck_publicacoes_coord")
@@ -237,6 +282,19 @@ model Mensagens {
   @@index([conversaId, createdAt], map: "ix_mensagens_conversa")
   @@index([remetenteId], map: "ix_mensagens_remetente")
   @@check(expression: "(length(btrim(conteudo)) > 0)", map: "ck_mensagens_conteudo")
+  @@map("mensagens")
+}
+
+model Mensagens {
+  id          BigInt     @id(map: "mensagens_pkey") @default(autoincrement())
+  conversaId  BigInt     @map("conversa_id")
+  remetenteId BigInt     @map("remetente_id")
+  conteudo    String?
+  lida        Boolean?   @default(false)
+  createdAt   Timestamp? @default(now()) @map("created_at")
+  conversa    Conversas  @relation(fields: [conversaId], references: [id], onDelete: Cascade, map: "fk_msg_conversa", index: false)
+  remetente   Usuarios   @relation(fields: [remetenteId], references: [id], onDelete: Cascade, map: "fk_msg_remetente", index: false)
+
   @@map("mensagens")
 }
 

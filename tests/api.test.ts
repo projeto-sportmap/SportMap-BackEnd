@@ -122,7 +122,7 @@ const esporte = { id: 1, nome: 'Futebol' };
 const dadosUsuario = {
   nome: 'Pessoa',
   sobrenome: 'Teste',
-  username: 'pessoa.teste',
+  usuario: 'pessoa.teste',
   email: 'pessoa@example.com',
   senha: 'Senha123',
 };
@@ -286,19 +286,29 @@ describe('Testes automatizados da API SportMap', () => {
 
   describe('Cadastro e proteção de usuários', () => {
     it('POST /usuarios deve cadastrar com os campos do projeto', async () => {
-      const resposta = await request(app).post('/usuarios').send(dadosUsuario);
+  const resposta = await request(app)
+    .post('/usuarios')
+    .send(dadosUsuario);
 
-      expect(resposta.status).toBe(201);
-      expect(resposta.body).toHaveProperty('username', 'pessoa.teste');
-      expect(resposta.body).not.toHaveProperty('senha');
-      expect(resposta.body).not.toHaveProperty('senhaHash');
-      expect(mocks.createUsuario).toHaveBeenCalledWith({
-        ...dadosUsuario,
-        fotoPerfilUrl: undefined,
-        cidade: undefined,
-        bio: undefined,
-      });
-    });
+  console.log('\n==============================');
+  console.log('STATUS:', resposta.status);
+  console.log('BODY:', resposta.body);
+  console.log('HEADERS:', resposta.headers);
+  console.log('==============================\n');
+
+  expect(resposta.status).toBe(201);
+  expect(resposta.body).toHaveProperty('username', 'pessoa.teste');
+  expect(resposta.body).not.toHaveProperty('senha');
+  expect(resposta.body).not.toHaveProperty('senhaHash');
+
+  expect(mocks.createUsuario).toHaveBeenCalledWith({
+    ...dadosUsuario,
+    fotoPerfilUrl: undefined,
+    cidade: undefined,
+    bio: undefined,
+  });
+});
+
 
     it('POST /usuarios deve rejeitar e-mail inválido', async () => {
       const resposta = await request(app)

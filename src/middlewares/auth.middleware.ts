@@ -1,7 +1,7 @@
 
 import type { RequestHandler } from 'express';
 import jwt from 'jsonwebtoken';
-import { allowedOrigins, env } from '../config/env.js';
+import { isAllowedOrigin, env } from '../config/env.js';
 import { db } from '../prisma/db.js';
 
 type JwtPayload = {
@@ -57,9 +57,7 @@ export const authMiddleware: RequestHandler = async (
   if (
     authorization === undefined &&
     unsafe &&
-    ![
-      ...allowedOrigins,
-    ].includes(req.get('origin') ?? '')
+    !isAllowedOrigin(req.get('origin') ?? '')
   ) {
     res.status(403).json({
       error:
