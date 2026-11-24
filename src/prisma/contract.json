@@ -17,7 +17,7 @@
       "namespace": "public"
     },
     "atividades": {
-      "model": "Atividades",
+      "model": "Eventos",
       "namespace": "public"
     },
     "avaliacoes": {
@@ -30,14 +30,6 @@
     },
     "compartilhamentos": {
       "model": "Compartilhamentos",
-      "namespace": "public"
-    },
-    "comunidade_participantes": {
-      "model": "ComunidadeParticipantes",
-      "namespace": "public"
-    },
-    "comunidades": {
-      "model": "Comunidades",
       "namespace": "public"
     },
     "conversa_participantes": {
@@ -56,8 +48,8 @@
       "model": "Esportes",
       "namespace": "public"
     },
-    "eventos": {
-      "model": "Eventos",
+    "mensagens": {
+      "model": "Mensagens",
       "namespace": "public"
     },
     "mensagens": {
@@ -890,7 +882,143 @@
               "table": "compartilhamentos"
             }
           },
-          "ComunidadeParticipantes": {
+          "ConversaParticipantes": {
+            "fields": {
+              "conversaId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int8@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int8@1",
+                  "kind": "scalar"
+                }
+              },
+              "usuarioId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int8@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "conversa": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "conversaId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Conversas",
+                  "namespace": "public"
+                }
+              },
+              "usuario": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "usuarioId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Usuarios",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "conversaId": {
+                  "column": "conversa_id"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "usuarioId": {
+                  "column": "usuario_id"
+                }
+              },
+              "namespaceId": "public",
+              "table": "conversa_participantes"
+            }
+          },
+          "Conversas": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int8@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "conversaParticipantes": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "conversaId"
+                  ]
+                },
+                "to": {
+                  "model": "ConversaParticipantes",
+                  "namespace": "public"
+                }
+              },
+              "mensagens": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "conversaId"
+                  ]
+                },
+                "to": {
+                  "model": "Mensagens",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "created_at"
+                },
+                "id": {
+                  "column": "id"
+                }
+              },
+              "namespaceId": "public",
+              "table": "conversas"
+            }
+          },
+          "Curtidas": {
             "fields": {
               "comunidadeId": {
                 "nullable": false,
@@ -1143,7 +1271,28 @@
           },
           "ConversaParticipantes": {
             "fields": {
-              "conversaId": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "descricao": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "esporteId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "expiraEm": {
                 "nullable": false,
                 "type": {
                   "codecId": "pg/int8@1",
@@ -1154,6 +1303,35 @@
                 "nullable": false,
                 "type": {
                   "codecId": "pg/int8@1",
+                  "kind": "scalar"
+                }
+              },
+              "latitude": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/numeric@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 9,
+                    "scale": 6
+                  }
+                }
+              },
+              "longitude": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/numeric@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 9,
+                    "scale": 6
+                  }
+                }
+              },
+              "status": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
                   "kind": "scalar"
                 }
               },
@@ -1201,18 +1379,140 @@
             },
             "storage": {
               "fields": {
-                "conversaId": {
-                  "column": "conversa_id"
+                "createdAt": {
+                  "column": "created_at"
+                },
+                "descricao": {
+                  "column": "descricao"
+                },
+                "esporteId": {
+                  "column": "esporte_id"
+                },
+                "expiraEm": {
+                  "column": "expira_em"
                 },
                 "id": {
                   "column": "id"
+                },
+                "latitude": {
+                  "column": "latitude"
+                },
+                "longitude": {
+                  "column": "longitude"
+                },
+                "status": {
+                  "column": "status"
                 },
                 "usuarioId": {
                   "column": "usuario_id"
                 }
               },
               "namespaceId": "public",
-              "table": "conversa_participantes"
+              "table": "atividades"
+            }
+          },
+          "Mensagens": {
+            "fields": {
+              "conteudo": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "conversaId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int8@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int8@1",
+                  "kind": "scalar"
+                }
+              },
+              "lida": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "remetenteId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int8@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "conversa": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "conversaId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Conversas",
+                  "namespace": "public"
+                }
+              },
+              "remetente": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "remetenteId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Usuarios",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "conteudo": {
+                  "column": "conteudo"
+                },
+                "conversaId": {
+                  "column": "conversa_id"
+                },
+                "createdAt": {
+                  "column": "created_at"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "lida": {
+                  "column": "lida"
+                },
+                "remetenteId": {
+                  "column": "remetente_id"
+                }
+              },
+              "namespaceId": "public",
+              "table": "mensagens"
             }
           },
           "Conversas": {
@@ -1902,7 +2202,14 @@
                   "kind": "scalar"
                 }
               },
-              "esporteId": {
+              "email": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "fotoPerfilUrl": {
                 "nullable": true,
                 "type": {
                   "codecId": "pg/int4@1",
@@ -1938,7 +2245,42 @@
                   }
                 }
               },
-              "usuarioId": {
+              "nome": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "senhaHash": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "sobrenome": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "tipoUsuarioId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "username": {
                 "nullable": false,
                 "type": {
                   "codecId": "pg/int8@1",
@@ -2024,7 +2366,22 @@
                   "namespace": "public"
                 }
               },
-              "publicacaoMidias": {
+              "conversaParticipantes": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "usuarioId"
+                  ]
+                },
+                "to": {
+                  "model": "ConversaParticipantes",
+                  "namespace": "public"
+                }
+              },
+              "curtidas": {
                 "cardinality": "1:N",
                 "on": {
                   "localFields": [
@@ -2083,45 +2440,23 @@
                   "column": "usuario_id"
                 }
               },
-              "namespaceId": "public",
-              "table": "publicacoes"
-            }
-          },
-          "Seguidores": {
-            "fields": {
-              "createdAt": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/timestamptz-temporal@1",
-                  "kind": "scalar"
+              "mensagens": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "remetenteId"
+                  ]
+                },
+                "to": {
+                  "model": "Mensagens",
+                  "namespace": "public"
                 }
               },
-              "id": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/int8@1",
-                  "kind": "scalar"
-                }
-              },
-              "seguidoId": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/int8@1",
-                  "kind": "scalar"
-                }
-              },
-              "seguidorId": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/int8@1",
-                  "kind": "scalar"
-                }
-              }
-            },
-            "relations": {
-              "seguido": {
-                "cardinality": "N:1",
-                "nullable": false,
+              "publicacoes": {
+                "cardinality": "1:N",
                 "on": {
                   "localFields": [
                     "seguidoId"
@@ -2295,413 +2630,6 @@
             },
             "storage": {
               "fields": {
-                "esporteId": {
-                  "column": "esporte_id"
-                },
-                "id": {
-                  "column": "id"
-                },
-                "nivel": {
-                  "column": "nivel"
-                },
-                "usuarioId": {
-                  "column": "usuario_id"
-                }
-              },
-              "namespaceId": "public",
-              "table": "usuario_esportes"
-            }
-          },
-          "Usuarios": {
-            "fields": {
-              "bio": {
-                "nullable": true,
-                "type": {
-                  "codecId": "pg/text@1",
-                  "kind": "scalar"
-                }
-              },
-              "cidade": {
-                "nullable": true,
-                "type": {
-                  "codecId": "pg/text@1",
-                  "kind": "scalar"
-                }
-              },
-              "createdAt": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/timestamptz-temporal@1",
-                  "kind": "scalar"
-                }
-              },
-              "email": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/text@1",
-                  "kind": "scalar"
-                }
-              },
-              "fotoCapaData": {
-                "nullable": true,
-                "type": {
-                  "codecId": "pg/text@1",
-                  "kind": "scalar"
-                }
-              },
-              "fotoPerfilData": {
-                "nullable": true,
-                "type": {
-                  "codecId": "pg/text@1",
-                  "kind": "scalar"
-                }
-              },
-              "fotoPerfilUrl": {
-                "nullable": true,
-                "type": {
-                  "codecId": "pg/text@1",
-                  "kind": "scalar"
-                }
-              },
-              "id": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/int8@1",
-                  "kind": "scalar"
-                }
-              },
-              "latitude": {
-                "nullable": true,
-                "type": {
-                  "codecId": "pg/numeric@1",
-                  "kind": "scalar",
-                  "typeParams": {
-                    "precision": 9,
-                    "scale": 6
-                  }
-                }
-              },
-              "longitude": {
-                "nullable": true,
-                "type": {
-                  "codecId": "pg/numeric@1",
-                  "kind": "scalar",
-                  "typeParams": {
-                    "precision": 9,
-                    "scale": 6
-                  }
-                }
-              },
-              "nome": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/text@1",
-                  "kind": "scalar"
-                }
-              },
-              "role": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/text@1",
-                  "kind": "scalar"
-                }
-              },
-              "senhaHash": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/text@1",
-                  "kind": "scalar"
-                }
-              },
-              "sobrenome": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/text@1",
-                  "kind": "scalar"
-                }
-              },
-              "tipoUsuarioId": {
-                "nullable": true,
-                "type": {
-                  "codecId": "pg/int4@1",
-                  "kind": "scalar"
-                }
-              },
-              "updatedAt": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/timestamptz-temporal@1",
-                  "kind": "scalar"
-                }
-              },
-              "username": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/text@1",
-                  "kind": "scalar"
-                }
-              }
-            },
-            "relations": {
-              "anuncioFavoritos": {
-                "cardinality": "1:N",
-                "on": {
-                  "localFields": [
-                    "id"
-                  ],
-                  "targetFields": [
-                    "usuarioId"
-                  ]
-                },
-                "to": {
-                  "model": "AnuncioFavoritos",
-                  "namespace": "public"
-                }
-              },
-              "anuncios": {
-                "cardinality": "1:N",
-                "on": {
-                  "localFields": [
-                    "id"
-                  ],
-                  "targetFields": [
-                    "usuarioId"
-                  ]
-                },
-                "to": {
-                  "model": "Anuncios",
-                  "namespace": "public"
-                }
-              },
-              "atividades": {
-                "cardinality": "1:N",
-                "on": {
-                  "localFields": [
-                    "id"
-                  ],
-                  "targetFields": [
-                    "usuarioId"
-                  ]
-                },
-                "to": {
-                  "model": "Atividades",
-                  "namespace": "public"
-                }
-              },
-              "avaliacoes": {
-                "cardinality": "1:N",
-                "on": {
-                  "localFields": [
-                    "id"
-                  ],
-                  "targetFields": [
-                    "avaliadorId"
-                  ]
-                },
-                "to": {
-                  "model": "Avaliacoes",
-                  "namespace": "public"
-                }
-              },
-              "comentarios": {
-                "cardinality": "1:N",
-                "on": {
-                  "localFields": [
-                    "id"
-                  ],
-                  "targetFields": [
-                    "usuarioId"
-                  ]
-                },
-                "to": {
-                  "model": "Comentarios",
-                  "namespace": "public"
-                }
-              },
-              "compartilhamentos": {
-                "cardinality": "1:N",
-                "on": {
-                  "localFields": [
-                    "id"
-                  ],
-                  "targetFields": [
-                    "usuarioId"
-                  ]
-                },
-                "to": {
-                  "model": "Compartilhamentos",
-                  "namespace": "public"
-                }
-              },
-              "comunidadeParticipantes": {
-                "cardinality": "1:N",
-                "on": {
-                  "localFields": [
-                    "id"
-                  ],
-                  "targetFields": [
-                    "usuarioId"
-                  ]
-                },
-                "to": {
-                  "model": "ComunidadeParticipantes",
-                  "namespace": "public"
-                }
-              },
-              "comunidades": {
-                "cardinality": "1:N",
-                "on": {
-                  "localFields": [
-                    "id"
-                  ],
-                  "targetFields": [
-                    "criadorId"
-                  ]
-                },
-                "to": {
-                  "model": "Comunidades",
-                  "namespace": "public"
-                }
-              },
-              "conversaParticipantes": {
-                "cardinality": "1:N",
-                "on": {
-                  "localFields": [
-                    "id"
-                  ],
-                  "targetFields": [
-                    "usuarioId"
-                  ]
-                },
-                "to": {
-                  "model": "ConversaParticipantes",
-                  "namespace": "public"
-                }
-              },
-              "curtidas": {
-                "cardinality": "1:N",
-                "on": {
-                  "localFields": [
-                    "id"
-                  ],
-                  "targetFields": [
-                    "usuarioId"
-                  ]
-                },
-                "to": {
-                  "model": "Curtidas",
-                  "namespace": "public"
-                }
-              },
-              "eventos": {
-                "cardinality": "1:N",
-                "on": {
-                  "localFields": [
-                    "id"
-                  ],
-                  "targetFields": [
-                    "usuarioId"
-                  ]
-                },
-                "to": {
-                  "model": "Eventos",
-                  "namespace": "public"
-                }
-              },
-              "mensagens": {
-                "cardinality": "1:N",
-                "on": {
-                  "localFields": [
-                    "id"
-                  ],
-                  "targetFields": [
-                    "remetenteId"
-                  ]
-                },
-                "to": {
-                  "model": "Mensagens",
-                  "namespace": "public"
-                }
-              },
-              "publicacoes": {
-                "cardinality": "1:N",
-                "on": {
-                  "localFields": [
-                    "id"
-                  ],
-                  "targetFields": [
-                    "usuarioId"
-                  ]
-                },
-                "to": {
-                  "model": "Publicacoes",
-                  "namespace": "public"
-                }
-              },
-              "seguidores": {
-                "cardinality": "1:N",
-                "on": {
-                  "localFields": [
-                    "id"
-                  ],
-                  "targetFields": [
-                    "seguidoId"
-                  ]
-                },
-                "to": {
-                  "model": "Seguidores",
-                  "namespace": "public"
-                }
-              },
-              "seguidoresSeguidores": {
-                "cardinality": "1:N",
-                "on": {
-                  "localFields": [
-                    "id"
-                  ],
-                  "targetFields": [
-                    "seguidorId"
-                  ]
-                },
-                "to": {
-                  "model": "Seguidores",
-                  "namespace": "public"
-                }
-              },
-              "tipoUsuario": {
-                "cardinality": "N:1",
-                "nullable": true,
-                "on": {
-                  "localFields": [
-                    "tipoUsuarioId"
-                  ],
-                  "targetFields": [
-                    "id"
-                  ]
-                },
-                "to": {
-                  "model": "TipoUsuario",
-                  "namespace": "public"
-                }
-              },
-              "usuarioEsportes": {
-                "cardinality": "1:N",
-                "on": {
-                  "localFields": [
-                    "id"
-                  ],
-                  "targetFields": [
-                    "usuarioId"
-                  ]
-                },
-                "to": {
-                  "model": "UsuarioEsportes",
-                  "namespace": "public"
-                }
-              }
-            },
-            "storage": {
-              "fields": {
                 "bio": {
                   "column": "bio"
                 },
@@ -2713,12 +2641,6 @@
                 },
                 "email": {
                   "column": "email"
-                },
-                "fotoCapaData": {
-                  "column": "foto_capa_data"
-                },
-                "fotoPerfilData": {
-                  "column": "foto_perfil_data"
                 },
                 "fotoPerfilUrl": {
                   "column": "foto_perfil_url"
@@ -2734,9 +2656,6 @@
                 },
                 "nome": {
                   "column": "nome"
-                },
-                "role": {
-                  "column": "role"
                 },
                 "senhaHash": {
                   "column": "senha_hash"
@@ -3513,25 +3432,25 @@
                       "publicacao_id"
                     ],
                     "namespaceId": "public",
-                    "tableName": "compartilhamentos"
+                    "tableName": "anuncios"
                   },
                   "target": {
                     "columns": [
                       "id"
                     ],
                     "namespaceId": "public",
-                    "tableName": "publicacoes"
+                    "tableName": "esportes"
                   }
                 },
                 {
-                  "name": "fk_compartilhamentos_usuario",
+                  "name": "fk_anuncios_usuario",
                   "onDelete": "cascade",
                   "source": {
                     "columns": [
                       "usuario_id"
                     ],
                     "namespaceId": "public",
-                    "tableName": "compartilhamentos"
+                    "tableName": "anuncios"
                   },
                   "target": {
                     "columns": [
@@ -3545,16 +3464,26 @@
               "indexes": [
                 {
                   "columns": [
-                    "publicacao_id"
+                    "status",
+                    "esporte_id",
+                    "cidade"
                   ],
-                  "name": "ix_compartilhamentos_publicacao",
+                  "name": "ix_anuncios_busca",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "latitude",
+                    "longitude"
+                  ],
+                  "name": "ix_anuncios_coord",
                   "unique": false
                 },
                 {
                   "columns": [
                     "usuario_id"
                   ],
-                  "name": "ix_compartilhamentos_usuario",
+                  "name": "ix_anuncios_usuario",
                   "unique": false
                 }
               ],
@@ -3562,7 +3491,145 @@
                 "columns": [
                   "id"
                 ],
-                "name": "compartilhamentos_pkey"
+                "name": "anuncios_pkey"
+              },
+              "uniques": []
+            },
+            "atividades": {
+              "checks": [
+                {
+                  "expression": "(status = ANY (ARRAY[('aberta'::character varying)::text, ('em_andamento'::character varying)::text, ('concluida'::character varying)::text, ('cancelada'::character varying)::text, ('expirada'::character varying)::text]))",
+                  "name": "ck_eventos_status"
+                }
+              ],
+              "columns": {
+                "created_at": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "descricao": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "esporte_id": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "expira_em": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/int8@1",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nativeType": "int8",
+                  "nullable": false
+                },
+                "latitude": {
+                  "codecId": "pg/numeric@1",
+                  "nativeType": "numeric",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 9,
+                    "scale": 6
+                  }
+                },
+                "longitude": {
+                  "codecId": "pg/numeric@1",
+                  "nativeType": "numeric",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 9,
+                    "scale": 6
+                  }
+                },
+                "status": {
+                  "codecId": "pg/text@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "aberta"
+                  },
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "usuario_id": {
+                  "codecId": "pg/int8@1",
+                  "nativeType": "int8",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "name": "fk_eventos_esporte",
+                  "onDelete": "restrict",
+                  "source": {
+                    "columns": [
+                      "esporte_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "atividades"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "publicacoes"
+                  }
+                },
+                {
+                  "name": "fk_eventos_usuario",
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "usuario_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "atividades"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "usuarios"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "esporte_id"
+                  ],
+                  "name": "atividades_esporte_id_idx_7759dc20",
+                  "prefix": "atividades_esporte_id_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "usuario_id"
+                  ],
+                  "name": "atividades_usuario_id_idx_65b6616a",
+                  "prefix": "atividades_usuario_id_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ],
+                "name": "atividades_pkey"
               },
               "uniques": []
             },
@@ -3917,6 +3984,122 @@
               },
               "uniques": []
             },
+            "conversa_participantes": {
+              "columns": {
+                "conversa_id": {
+                  "codecId": "pg/int8@1",
+                  "nativeType": "int8",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/int8@1",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nativeType": "int8",
+                  "nullable": false
+                },
+                "usuario_id": {
+                  "codecId": "pg/int8@1",
+                  "nativeType": "int8",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "name": "fk_conversa_participantes_conversa",
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "conversa_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "conversa_participantes"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "conversas"
+                  }
+                },
+                {
+                  "name": "fk_conversa_participantes_usuario",
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "usuario_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "conversa_participantes"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "usuarios"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "usuario_id"
+                  ],
+                  "name": "ix_conversa_part_usuario",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ],
+                "name": "conversa_participantes_pkey"
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "conversa_id",
+                    "usuario_id"
+                  ],
+                  "name": "uq_conversa_participantes"
+                }
+              ]
+            },
+            "conversas": {
+              "columns": {
+                "created_at": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/int8@1",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nativeType": "int8",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ],
+                "name": "conversas_pkey"
+              },
+              "uniques": []
+            },
             "curtidas": {
               "columns": {
                 "created_at": {
@@ -4045,45 +4228,23 @@
                 }
               ]
             },
-            "eventos": {
+            "mensagens": {
               "checks": [
                 {
-                  "expression": "((data_fim IS NULL) OR (data_fim > created_at))",
-                  "name": "ck_eventos_data_fim"
-                },
-                {
-                  "expression": "(expira_em > created_at)",
-                  "name": "ck_eventos_expira"
-                },
-                {
-                  "expression": "((latitude >= ('-90'::integer)::numeric) AND (latitude <= (90)::numeric))",
-                  "name": "ck_eventos_lat"
-                },
-                {
-                  "expression": "((longitude >= ('-180'::integer)::numeric) AND (longitude <= (180)::numeric))",
-                  "name": "ck_eventos_lng"
-                },
-                {
-                  "expression": "((max_participantes IS NULL) OR (max_participantes > 0))",
-                  "name": "ck_eventos_max_participantes"
-                },
-                {
-                  "expression": "((nivel)::text = ANY ((ARRAY['iniciante'::character varying, 'intermediario'::character varying, 'avancado'::character varying, 'profissional'::character varying])::text[]))",
-                  "name": "ck_eventos_nivel"
-                },
-                {
-                  "expression": "(status = ANY (ARRAY[('aberta'::character varying)::text, ('em_andamento'::character varying)::text, ('concluida'::character varying)::text, ('cancelada'::character varying)::text, ('expirada'::character varying)::text]))",
-                  "name": "ck_eventos_status"
+                  "expression": "(length(btrim(conteudo)) > 0)",
+                  "name": "ck_mensagens_conteudo"
                 }
               ],
               "columns": {
-                "cidade": {
-                  "codecId": "sql/varchar@1",
-                  "nativeType": "character varying",
-                  "nullable": true,
-                  "typeParams": {
-                    "length": 100
-                  }
+                "conteudo": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "conversa_id": {
+                  "codecId": "pg/int8@1",
+                  "nativeType": "int8",
+                  "nullable": false
                 },
                 "created_at": {
                   "codecId": "pg/timestamptz-temporal@1",
@@ -4091,26 +4252,6 @@
                     "expression": "now()",
                     "kind": "function"
                   },
-                  "nativeType": "timestamptz",
-                  "nullable": false
-                },
-                "data_fim": {
-                  "codecId": "pg/timestamptz-temporal@1",
-                  "nativeType": "timestamptz",
-                  "nullable": true
-                },
-                "descricao": {
-                  "codecId": "pg/text@1",
-                  "nativeType": "text",
-                  "nullable": true
-                },
-                "esporte_id": {
-                  "codecId": "pg/int4@1",
-                  "nativeType": "int4",
-                  "nullable": false
-                },
-                "expira_em": {
-                  "codecId": "pg/timestamptz-temporal@1",
                   "nativeType": "timestamptz",
                   "nullable": false
                 },
@@ -4123,55 +4264,16 @@
                   "nativeType": "int8",
                   "nullable": false
                 },
-                "latitude": {
-                  "codecId": "pg/numeric@1",
-                  "nativeType": "numeric",
-                  "nullable": false,
-                  "typeParams": {
-                    "precision": 9,
-                    "scale": 6
-                  }
-                },
-                "local_nome": {
-                  "codecId": "sql/varchar@1",
-                  "nativeType": "character varying",
-                  "nullable": true,
-                  "typeParams": {
-                    "length": 150
-                  }
-                },
-                "longitude": {
-                  "codecId": "pg/numeric@1",
-                  "nativeType": "numeric",
-                  "nullable": false,
-                  "typeParams": {
-                    "precision": 9,
-                    "scale": 6
-                  }
-                },
-                "max_participantes": {
-                  "codecId": "pg/int4@1",
-                  "nativeType": "int4",
-                  "nullable": true
-                },
-                "nivel": {
-                  "codecId": "sql/varchar@1",
-                  "nativeType": "character varying",
-                  "nullable": true,
-                  "typeParams": {
-                    "length": 20
-                  }
-                },
-                "status": {
-                  "codecId": "pg/text@1",
+                "lida": {
+                  "codecId": "pg/bool@1",
                   "default": {
                     "kind": "literal",
-                    "value": "aberta"
+                    "value": false
                   },
-                  "nativeType": "text",
+                  "nativeType": "bool",
                   "nullable": false
                 },
-                "usuario_id": {
+                "remetente_id": {
                   "codecId": "pg/int8@1",
                   "nativeType": "int8",
                   "nullable": false
@@ -4179,32 +4281,32 @@
               },
               "foreignKeys": [
                 {
-                  "name": "fk_eventos_esporte",
-                  "onDelete": "restrict",
+                  "name": "fk_mensagens_conversa",
+                  "onDelete": "cascade",
                   "source": {
                     "columns": [
-                      "esporte_id"
+                      "conversa_id"
                     ],
                     "namespaceId": "public",
-                    "tableName": "eventos"
+                    "tableName": "mensagens"
                   },
                   "target": {
                     "columns": [
                       "id"
                     ],
                     "namespaceId": "public",
-                    "tableName": "esportes"
+                    "tableName": "conversas"
                   }
                 },
                 {
-                  "name": "fk_eventos_usuario",
+                  "name": "fk_mensagens_remetente",
                   "onDelete": "cascade",
                   "source": {
                     "columns": [
-                      "usuario_id"
+                      "remetente_id"
                     ],
                     "namespaceId": "public",
-                    "tableName": "eventos"
+                    "tableName": "mensagens"
                   },
                   "target": {
                     "columns": [
@@ -4218,35 +4320,17 @@
               "indexes": [
                 {
                   "columns": [
-                    "status",
-                    "cidade",
-                    "esporte_id"
+                    "conversa_id",
+                    "created_at"
                   ],
-                  "name": "ix_eventos_busca",
+                  "name": "ix_mensagens_conversa",
                   "unique": false
                 },
                 {
                   "columns": [
-                    "esporte_id"
+                    "remetente_id"
                   ],
-                  "name": "ix_eventos_esporte",
-                  "unique": false
-                },
-                {
-                  "columns": [
-                    "status",
-                    "expira_em",
-                    "latitude",
-                    "longitude"
-                  ],
-                  "name": "ix_eventos_mapa",
-                  "unique": false
-                },
-                {
-                  "columns": [
-                    "usuario_id"
-                  ],
-                  "name": "ix_eventos_usuario",
+                  "name": "ix_mensagens_remetente",
                   "unique": false
                 }
               ],
@@ -4254,7 +4338,7 @@
                 "columns": [
                   "id"
                 ],
-                "name": "eventos_pkey"
+                "name": "mensagens_pkey"
               },
               "uniques": []
             },
@@ -4718,15 +4802,13 @@
               "primaryKey": {
                 "columns": [
                   "id"
-                ],
-                "name": "tipo_usuario_pkey"
+                ]
               },
               "uniques": [
                 {
                   "columns": [
                     "code"
-                  ],
-                  "name": "tipo_usuario_code_key"
+                  ]
                 }
               ]
             },
@@ -4843,10 +4925,6 @@
                 {
                   "expression": "((longitude >= ('-180'::integer)::numeric) AND (longitude <= (180)::numeric))",
                   "name": "ck_usuarios_lng"
-                },
-                {
-                  "expression": "(role = ANY (ARRAY[('USER'::character varying)::text, ('MODERATOR'::character varying)::text, ('ADMIN'::character varying)::text]))",
-                  "name": "ck_usuarios_role"
                 }
               ],
               "columns": {
@@ -4873,16 +4951,6 @@
                   "codecId": "pg/text@1",
                   "nativeType": "text",
                   "nullable": false
-                },
-                "foto_capa_data": {
-                  "codecId": "pg/text@1",
-                  "nativeType": "text",
-                  "nullable": true
-                },
-                "foto_perfil_data": {
-                  "codecId": "pg/text@1",
-                  "nativeType": "text",
-                  "nullable": true
                 },
                 "foto_perfil_url": {
                   "codecId": "pg/text@1",
@@ -4918,15 +4986,6 @@
                 },
                 "nome": {
                   "codecId": "pg/text@1",
-                  "nativeType": "text",
-                  "nullable": false
-                },
-                "role": {
-                  "codecId": "pg/text@1",
-                  "default": {
-                    "kind": "literal",
-                    "value": "USER"
-                  },
                   "nativeType": "text",
                   "nullable": false
                 },
@@ -4966,7 +5025,6 @@
               },
               "foreignKeys": [
                 {
-                  "name": "usuarios_tipo_usuario_id_fkey",
                   "onDelete": "restrict",
                   "source": {
                     "columns": [
@@ -4985,13 +5043,6 @@
                 }
               ],
               "indexes": [
-                {
-                  "columns": [
-                    "role"
-                  ],
-                  "name": "idx_usuarios_role",
-                  "unique": false
-                },
                 {
                   "columns": [
                     "latitude",
@@ -5036,7 +5087,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "cd9568cc2cfb2263ba2de4bc537a41b781c6b93c73d74d093f8b263aef74df26"
+    "storageHash": "0b3c984a08d5fe0b4d6a8c57c7f0404d14eee16e1a921f0826acceedcae0b29b"
   },
   "capabilities": {
     "postgres": {
