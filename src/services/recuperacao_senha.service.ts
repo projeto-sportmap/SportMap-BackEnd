@@ -38,13 +38,6 @@ async function buscarPorEmail(email: string) {
 export async function solicitarRecuperacao(email: string) {
   const usuario = await buscarPorEmail(email);
 
-  // Diagnóstico temporário: remova depois que o e-mail estiver funcionando.
-  console.log(
-    '[recuperação] e-mail:', email,
-    '| conta encontrada:', Boolean(usuario),
-    '| tem senha:', Boolean(usuario?.senhaHash),
-  );
-
   const codigo = String(crypto.randomInt(0, 1_000_000)).padStart(6, '0');
 
   let sub = '0';
@@ -55,9 +48,12 @@ export async function solicitarRecuperacao(email: string) {
     impressao = impressaoDaSenha(String(usuario.senhaHash));
 
     // Não espera o envio, para a resposta ter o mesmo tempo nos dois casos.
-    void enviarCodigoRecuperacao(email, codigo).catch((error) => {
-      console.error('Falha ao enviar e-mail de recuperação:', error);
-    });
+    try {
+      await enviarCodigoRecuperacao(email, codigo);
+    } catch (error) {
+      console.error("Recovery email delivery failed:", error);
+      throw new HttpError(503, "Não foi possível enviar o código agora. Tente novamente mais tarde.");
+    }
   }
 
   const token = jwt.sign({ sub, p: prova(sub, codigo, impressao) }, chave(), {
