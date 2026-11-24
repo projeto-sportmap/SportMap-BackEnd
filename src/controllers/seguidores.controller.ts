@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 import * as SeguidoresService from '../services/seguidores.service.js';
 import { HttpError } from '../lib/http-error.js';
-import { publishNotification } from '../services/notificationHub.js';
+import { publishNotification, toNotificationIso } from '../services/notificationHub.js';
 
 const MAX_BIGINT = 9223372036854775807n;
 
@@ -39,7 +39,7 @@ export const createSeguidores = async (req: Request, res: Response) => {
     type: 'follow',
     actorName: [usuario.nome, usuario.sobrenome].filter(Boolean).join(' '),
     actorUsername: usuario.username,
-    createdAt: new Date(seguidores.createdAt).toISOString(),
+    createdAt: toNotificationIso(seguidores.createdAt),
   }, `follow-${seguidores.id}`);
 
   res.status(201).json(SeguidoresService.toPublicSeguidores(seguidores));

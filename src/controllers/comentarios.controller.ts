@@ -3,7 +3,7 @@ import type { Request, Response } from 'express';
 import * as ComentariosService from '../services/comentarios.service.js';
 import { HttpError } from '../lib/http-error.js';
 import { db } from '../prisma/db.js';
-import { publishNotification } from '../services/notificationHub.js';
+import { publishNotification, toNotificationIso } from '../services/notificationHub.js';
 
 const MAX_BIGINT = BigInt('9223372036854775807'); // limite do bigint do Postgres
 
@@ -43,7 +43,7 @@ export async function createComentario(req: Request, res: Response) {
         actorUsername: usuario.username,
         resourceId: publicacaoId,
         text: String(req.body.conteudo ?? '').trim().slice(0, 180),
-        createdAt: new Date(Date.parse(String(comentario.createdAt))).toISOString(),
+        createdAt: toNotificationIso(comentario.createdAt),
       }, `comment-${comentario.id}`);
     }
   } catch {

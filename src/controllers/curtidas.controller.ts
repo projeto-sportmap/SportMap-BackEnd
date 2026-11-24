@@ -2,7 +2,7 @@ import type { Request, Response } from 'express';
 import * as CurtidasService from '../services/curtidas.service.js';
 import { HttpError } from '../lib/http-error.js';
 import { db } from '../prisma/db.js';
-import { publishNotification } from '../services/notificationHub.js';
+import { publishNotification, toNotificationIso } from '../services/notificationHub.js';
 
 const readId = (req: Request) => {
   const value = String(req.params.id);
@@ -31,7 +31,7 @@ export const createCurtida = async (req: Request, res: Response) => {
         actorName: [usuario.nome, usuario.sobrenome].filter(Boolean).join(' '),
         actorUsername: usuario.username,
         resourceId: String(curtida.publicacaoId),
-        createdAt: new Date(curtida.createdAt).toISOString(),
+        createdAt: toNotificationIso(curtida.createdAt),
       }, `like-${curtida.id}`);
     }
   } catch {

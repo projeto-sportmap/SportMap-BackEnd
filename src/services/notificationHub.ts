@@ -13,6 +13,15 @@ export type ActivityNotification = {
 const clients = new Map<string, Set<Response>>();
 let nextId = 0;
 
+export function toNotificationIso(value: unknown): string | undefined {
+  if (value === null || value === undefined) return undefined;
+
+  const milliseconds = Date.parse(String(value));
+  return Number.isFinite(milliseconds)
+    ? new Date(milliseconds).toISOString()
+    : undefined;
+}
+
 export function subscribeToNotifications(userId: string, response: Response) {
   const listeners = clients.get(userId) ?? new Set<Response>();
   listeners.add(response);
