@@ -2,6 +2,8 @@ import { Router } from 'express';
 import * as UsuariosController from '../controllers/usuarios.controller.js';
 import { validate } from '../middlewares/validate.middlewares.js';
 import { uploadFoto, uploadImagemPerfil } from '../middlewares/upload.js';
+import rateLimit from 'express-rate-limit';
+import * as RecuperacaoSenhaController from '../controllers/recuperacao_senha.controller.js';
 
 import {
   createUsuarioSchema,
@@ -16,6 +18,15 @@ import {
 } from '../middlewares/auth.middleware.js';
 
 const router = Router();
+
+// Limita tentativas nas rotas de recuperação de senha (evita adivinhar o código).
+const limiteRecuperacao = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Muitas tentativas. Tente novamente em alguns minutos.' },
+});
 
 /**
  * @swagger
@@ -181,6 +192,90 @@ const router = Router();
  *           maximum: 180
  *           example: -45.4613
  */
+
+/**
+ * @swagger
+ * /esqueci-senha:
+ *   post:
+ *     summary: Solicitar código de recuperação de senha
+ *     tags: [Usuários]
+ *     description: Rota pública. Envia um código de 6 dígitos por e-mail e devolve um token para a etapa seguinte. A resposta é a mesma exista a conta ou não.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: "brayan@email.com"
+ *     responses:
+ *       200:
+ *         description: Solicitação registrada (devolve message e token)
+ *       400:
+ *         description: E-mail inválido
+ *       429:
+ *         description: Muitas tentativas
+ */
+router.post(
+  '/esqueci-senha',
+  limiteRecuperacao,
+  RecuperacaoSenhaController.esqueciSenha,
+);
+
+/**
+ * @swagger
+ * /redefinir-senha:
+ *   post:
+ *     summary: Redefinir a senha com o código recebido por e-mail
+ *     tags: [Usuários]
+ *     description: Rota pública. Confere o código e o token e troca a senha.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - token
+ *               - codigo
+ *               - novaSenha
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: "brayan@email.com"
+ *               token:
+ *                 type: string
+ *                 description: Token devolvido por /esqueci-senha
+ *               codigo:
+ *                 type: string
+ *                 pattern: '^[0-9]{6}$'
+ *                 example: "123456"
+ *               novaSenha:
+ *                 type: string
+ *                 format: password
+ *                 minLength: 8
+ *                 maxLength: 72
+ *                 example: "NovaSenha123!"
+ *     responses:
+ *       200:
+ *         description: Senha alterada com sucesso
+ *       400:
+ *         description: Dados inválidos, ou código inválido ou expirado
+ *       429:
+ *         description: Muitas tentativas
+ */
+router.post(
+  '/redefinir-senha',
+  limiteRecuperacao,
+  RecuperacaoSenhaController.redefinirSenha,
+);
 
 /**
  * @swagger
