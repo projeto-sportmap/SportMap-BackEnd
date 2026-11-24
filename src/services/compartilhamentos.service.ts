@@ -34,7 +34,7 @@ export async function getAllCompartilhamentos(limit = 20, offset = 0) {
   const skip = Math.max(offset, 0);
   const resultado: CompartilhamentosRow[] = [];
   let indice = 0;
-
+// sla
   for await (const compartilhamento of db.orm.public.Compartilhamentos.all()) {
      if (indice >= skip + take) break;
      if (indice >= skip) resultado.push(compartilhamento);
