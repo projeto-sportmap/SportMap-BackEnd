@@ -74,9 +74,7 @@ async function buscarPorEmail(email: string) {
 async function emitirCodigo(email: string) {
   const usuario = await buscarPorEmail(email);
 
-  const codigo = String(
-    crypto.randomInt(0, 1_000_000)
-  ).padStart(6, '0');
+  const codigo = String(crypto.randomInt(0, 1_000_000)).padStart(6, '0');
 
   let sub = '0';
   let impressao = 'sem-conta';
@@ -84,19 +82,13 @@ async function emitirCodigo(email: string) {
   if (usuario && usuario.senhaHash) {
     sub = String(usuario.id);
 
-    impressao = impressaoDaSenha(
-      String(usuario.senhaHash)
-    );
-
-    // Envia o código por e-mail.
-    void enviarCodigoRecuperacao(email, codigo).catch(
-      (error) => {
-        console.error(
-          'Falha ao enviar e-mail de recuperação:',
-          error
-        );
-      }
-    );
+    // Não espera o envio, para a resposta ter o mesmo tempo nos dois casos.
+    try {
+      await enviarCodigoRecuperacao(email, codigo);
+    } catch (error) {
+      console.error("Recovery email delivery failed:", error);
+      throw new HttpError(503, "Não foi possível enviar o código agora. Tente novamente mais tarde.");
+    }
   }
 
   // Identificador único para cada solicitação.

@@ -23,9 +23,27 @@ if (!result.success) {
 export const env = result.data;
 
 export const allowedOrigins = [
+  env.FRONTEND_ORIGIN,
   'http://localhost:5173',
   'http://127.0.0.1:5173',
   'http://localhost:3000',
   'http://127.0.0.1:3000',
-  'http://::1:5173',
+  'http://[::1]:5173',
+  'https://front-end.brayanrodrigues713.workers.dev'
 ];
+
+const privateIpv4 = /^(?:10\.(?:\d{1,3}\.){2}\d{1,3}|192\.168\.(?:\d{1,3}\.)\d{1,3}|172\.(?:1[6-9]|2\d|3[01])\.(?:\d{1,3}\.)\d{1,3})$/;
+
+export function isAllowedOrigin(value: string) {
+  if (allowedOrigins.includes(value)) return true;
+  if (env.NODE_ENV === 'production') return false;
+
+  try {
+    const origin = new URL(value);
+    return origin.protocol === 'http:'
+      && origin.port === '5173'
+      && privateIpv4.test(origin.hostname);
+  } catch {
+    return false;
+  }
+}

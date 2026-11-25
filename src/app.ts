@@ -21,10 +21,22 @@ app.use(morganMiddleware);
 // Cabeçalhos de segurança.
 app.use(
   helmet({
+    frameguard: {
+      action: 'deny',
+    },
     contentSecurityPolicy:
       env.NODE_ENV === 'production'
-        ? undefined
-        : { directives: { 'upgrade-insecure-requests': null } },
+        ? {
+            directives: {
+              frameAncestors: ["'none'"],
+            },
+          }
+        : {
+            directives: {
+              frameAncestors: ["'none'"],
+              'upgrade-insecure-requests': null,
+            },
+          },
   }),
 );
 

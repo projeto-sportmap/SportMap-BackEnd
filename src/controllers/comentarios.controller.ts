@@ -2,6 +2,8 @@
 import type { Request, Response } from 'express';
 import * as ComentariosService from '../services/comentarios.service.js';
 import { HttpError } from '../lib/http-error.js';
+import { db } from '../prisma/db.js';
+import { publishNotification, toNotificationIso } from '../services/notificationHub.js';
 
 const MAX_BIGINT = BigInt('9223372036854775807'); // limite do bigint do Postgres
 
@@ -31,6 +33,22 @@ export async function createComentario(req: Request, res: Response) {
     usuarioId,
     req.body,
   );
+  try {
+    const publicacao = await db.orm.public.Publicacoes.first({ id: BigInt(publicacaoId) });
+    const usuario = res.locals.usuario as { nome: string; sobrenome?: string | null; username?: string };
+    if (publicacao && String(publicacao.usuarioId) !== usuarioId) {
+      publishNotification(String(publicacao.usuarioId), {
+        type: 'comment',
+        actorName: [usuario.nome, usuario.sobrenome].filter(Boolean).join(' '),
+        actorUsername: usuario.username,
+        resourceId: publicacaoId,
+        text: String(req.body.conteudo ?? '').trim().slice(0, 180),
+        createdAt: toNotificationIso(comentario.createdAt),
+      }, `comment-${comentario.id}`);
+    }
+  } catch {
+    // A notification failure must not undo a successful comment.
+  }
   res.status(201).json(comentario);
 }
 
