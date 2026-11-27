@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 import * as AnuncioFavoritosService from '../services/anuncio_favoritos.service.js';
 import { HttpError } from '../lib/http-error.js';
-
+// fdf
 const MAX_BIGINT = 9223372036854775807n;
 
 const readBigInt = (value: unknown, campo: string) => {
