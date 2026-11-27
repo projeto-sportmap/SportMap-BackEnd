@@ -62,4 +62,27 @@ jobs:
           app-name: 'api-t'
           slot-name: 'Production'
           package: .
-          
+
+      - name: Verify production health and login database query
+        shell: python
+        run: |
+          import json, time, urllib.request, urllib.error
+          base = 'https://api-t-hbe3era3emfxengh.brazilsouth-01.azurewebsites.net'
+          for attempt in range(12):
+              results = []
+              for path, payload, expected in [('/health', None, 200), ('/login', {'email': 'deploy-smoke@example.invalid', 'senha': 'deploy-smoke-invalid-password'}, 401)]:
+                  request = urllib.request.Request(base + path, data=json.dumps(payload).encode() if payload else None, headers={'Content-Type': 'application/json', 'Origin': 'https://front-end.brayanrodrigues713.workers.dev'})
+                  try:
+                      with urllib.request.urlopen(request, timeout=15) as response:
+                          status = response.status
+                  except urllib.error.HTTPError as error:
+                      status = error.code
+                  except (urllib.error.URLError, TimeoutError):
+                      status = None
+                  results.append(status == expected)
+                  print(json.dumps({'path': path, 'status': status, 'expected': expected}))
+              if all(results):
+                  break
+              if attempt == 11:
+                  raise RuntimeError('Production login failed its smoke test; verify database migrations')
+              time.sleep(5)
