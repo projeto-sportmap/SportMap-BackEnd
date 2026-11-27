@@ -1,0 +1,129 @@
+name: Repair api-t missing profile image columns
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Inspect schema or add only the missing nullable image columns
+        required: true
+        default: inspect
+        type: choice
+        options:
+          - inspect
+          - apply
+
+permissions:
+  contents: read
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_8A1B0CC2F1FB49EE9AAA0E06025C5497 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_EB7B38705FB24AE9B73C787946C834EA }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_A12B8278B3C240F38CCFC4A195C09449 }}
+      - name: Run the reviewed repair inside Azure without exporting database credentials
+        shell: python
+        env:
+          REPAIR_MODE: ${{ inputs.mode }}
+        run: |
+          import base64, json, os, subprocess, urllib.request, urllib.error
+
+          mode = os.environ['REPAIR_MODE']
+          if mode not in ['inspect', 'apply']:
+              raise RuntimeError('Invalid mode')
+          def az(*args):
+              result = subprocess.run(['az', *args, '--only-show-errors', '-o', 'json'], capture_output=True, text=True, timeout=60)
+              if result.returncode:
+                  raise RuntimeError('Azure operation failed')
+              return json.loads(result.stdout)
+          apps = az('webapp', 'list', '--query', "[?name=='api-t']")
+          if len(apps) != 1:
+              raise RuntimeError('Expected exactly one api-t application')
+          app = apps[0]
+          scm = next(host for host in app['enabledHostNames'] if '.scm.' in host)
+          token = az('account', 'get-access-token', '--resource', 'https://management.azure.com/')['accessToken']
+
+          # This code executes in Azure. DATABASE_URL never leaves that environment.
+          # These are precisely the two nullable text columns in the existing
+          # migrations/app/20261113T2318_add_profile_images migration.
+          code = r"""
+          (async () => {
+            let pool, client;
+            let transaction = false;
+            let phase = 'connect';
+            try {
+              const { Pool } = require('pg');
+              const connectionString = process.env.DATABASE_URL || process.env.APPSETTING_DATABASE_URL;
+              if (!connectionString) { console.log(JSON.stringify({diagnostic:'profileImages',status:'missing_database_env'})); process.exitCode=1; return; }
+              pool = new Pool({connectionString,connectionTimeoutMillis:10000,statement_timeout:15000});
+              client = await pool.connect();
+              const inspect = async () => (await client.query("SELECT column_name,data_type,is_nullable FROM information_schema.columns WHERE table_schema='public' AND table_name='usuarios' AND column_name IN ('foto_perfil_data','foto_capa_data') ORDER BY column_name")).rows;
+              const before = await inspect();
+              console.log(JSON.stringify({diagnostic:'profileImages',phase:'before',columns:before}));
+              if (before.some(column => column.data_type !== 'text' || column.is_nullable !== 'YES')) {
+                console.log(JSON.stringify({diagnostic:'profileImages',status:'unexpected_column_definition'})); process.exitCode=1; return;
+              }
+              if (process.argv[1] === 'apply') {
+                phase = 'migration';
+                await client.query('BEGIN'); transaction = true;
+                await client.query("SET LOCAL lock_timeout = '5s'");
+                await client.query("SET LOCAL statement_timeout = '15s'");
+                await client.query('ALTER TABLE public.usuarios ADD COLUMN IF NOT EXISTS foto_perfil_data text, ADD COLUMN IF NOT EXISTS foto_capa_data text');
+                phase = 'verify';
+                const after = await inspect();
+                if (after.length !== 2 || after.some(column => column.data_type !== 'text' || column.is_nullable !== 'YES')) throw new Error('Postcondition failed');
+                // Exercise the same columns as the login query without reading a user.
+                await client.query('SELECT id,nome,sobrenome,username,email,senha_hash,foto_perfil_url,cidade,latitude,longitude,bio,created_at,updated_at,role,tipo_usuario_id,foto_perfil_data,foto_capa_data FROM public.usuarios WHERE email=$1 LIMIT 1', ['diagnostico-login@example.invalid']);
+                await client.query('COMMIT'); transaction = false;
+                console.log(JSON.stringify({diagnostic:'profileImages',phase:'after',columns:after,status:'applied'}));
+              } else {
+                console.log(JSON.stringify({diagnostic:'profileImages',status:'inspected'}));
+              }
+            } catch (error) {
+              console.log(JSON.stringify({diagnostic:'profileImages',status:'error',phase,name:error.name,code:error.code}));
+              process.exitCode=1;
+            } finally {
+              if (client) { if (transaction) await client.query('ROLLBACK'); client.release(); }
+              if (pool) await pool.end();
+            }
+          })();
+          """
+          encoded = base64.b64encode(code.encode()).decode()
+          command = 'node -e "eval(Buffer.from(\'' + encoded + '\',\'base64\').toString())" -- ' + mode
+          body = json.dumps({'command': command, 'dir': '/home/site/wwwroot'}).encode()
+          request = urllib.request.Request('https://' + scm + '/api/command', data=body, headers={'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json'})
+          with urllib.request.urlopen(request, timeout=90) as response:
+              result = json.load(response)
+          observed = []
+          for line in (result.get('Output') or '').splitlines():
+              try:
+                  record = json.loads(line)
+              except ValueError:
+                  continue
+              if record.get('diagnostic') == 'profileImages':
+                  observed.append(record)
+                  print(json.dumps(record))
+          expected = 'applied' if mode == 'apply' else 'inspected'
+          if result.get('ExitCode') != 0 or not any(record.get('status') == expected for record in observed):
+              print(json.dumps({'diagnostic': 'commandResult', 'exitCode': result.get('ExitCode'), 'hasStderr': bool(result.get('Error'))}))
+              raise RuntimeError('Azure database operation failed; no secret output was exported')
+
+          if mode == 'apply':
+              base = 'https://' + app['defaultHostName']
+              for path, body, expected in [('/health', None, 200), ('/login', {'email': 'diagnostico-login@example.invalid', 'senha': 'diagnostico-sem-conta'}, 401)]:
+                  request = urllib.request.Request(base + path, data=json.dumps(body).encode() if body else None, headers={'Content-Type': 'application/json', 'Origin': 'https://front-end.brayanrodrigues713.workers.dev'})
+                  try:
+                      with urllib.request.urlopen(request, timeout=30) as response:
+                          status = response.status
+                  except urllib.error.HTTPError as error:
+                      status = error.code
+                  print(json.dumps({'diagnostic': 'smokeTest', 'path': path, 'status': status, 'expected': expected}))
+                  if status != expected:
+                      raise RuntimeError('Production smoke test failed')
