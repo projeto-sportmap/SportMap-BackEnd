@@ -72,6 +72,8 @@ jobs:
               if (!connectionString) { console.log(JSON.stringify({diagnostic:'profileImages',status:'missing_database_env'})); process.exitCode=1; return; }
               pool = new Pool({connectionString,connectionTimeoutMillis:10000,statement_timeout:15000});
               client = await pool.connect();
+              const schemaColumns = (await client.query("SELECT column_name,data_type,is_nullable FROM information_schema.columns WHERE table_schema='public' AND table_name='usuarios' ORDER BY column_name")).rows;
+              console.log(JSON.stringify({diagnostic:'profileImages',phase:'userSchema',columns:schemaColumns}));
               const inspect = async () => (await client.query("SELECT column_name,data_type,is_nullable FROM information_schema.columns WHERE table_schema='public' AND table_name='usuarios' AND column_name IN ('foto_perfil_data','foto_capa_data') ORDER BY column_name")).rows;
               const before = await inspect();
               console.log(JSON.stringify({diagnostic:'profileImages',phase:'before',columns:before}));
@@ -117,7 +119,7 @@ jobs:
                 console.log(JSON.stringify({diagnostic:'profileImages',status:'inspected'}));
               }
             } catch (error) {
-              console.log(JSON.stringify({diagnostic:'profileImages',status:'error',phase,name:error.name,code:error.code}));
+              console.log(JSON.stringify({diagnostic:'profileImages',status:'error',phase,name:error.name,code:error.code,message:phase==='verify'?error.message:undefined}));
               process.exitCode=1;
             } finally {
               if (client) { if (transaction) await client.query('ROLLBACK'); client.release(); }
