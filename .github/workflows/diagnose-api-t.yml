@@ -19,15 +19,10 @@ jobs:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_8A1B0CC2F1FB49EE9AAA0E06025C5497 }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_EB7B38705FB24AE9B73C787946C834EA }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_A12B8278B3C240F38CCFC4A195C09449 }}
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '24.x'
-      - name: Install isolated database diagnostic driver
-        run: npm install --prefix "$RUNNER_TEMP/sportmap-diag" --ignore-scripts --no-audit --no-fund pg@8.22.0
-      - name: Read configuration and errors without exposing secrets
+      - name: Read server error codes without reading application secrets
         shell: python
         run: |
-          import json, os, re, subprocess, urllib.request, urllib.error, urllib.parse
+          import json, re, subprocess, urllib.request, urllib.error
 
           def az(*args):
               result = subprocess.run(['az', *args, '--only-show-errors', '-o', 'json'], capture_output=True, text=True, timeout=60)
@@ -40,25 +35,13 @@ jobs:
               raise RuntimeError('Expected exactly one api-t App Service accessible to the deployment identity')
           app = apps[0]
           group = app['resourceGroup']
-          values = az('webapp', 'config', 'appsettings', 'list', '-g', group, '-n', 'api-t')
-          settings = {item['name']: item['value'] or '' for item in values}
-          secrets = []
-          for key, value in settings.items():
-              if value and re.search(r'SECRET|PASSWORD|TOKEN|KEY|CONNECTION|DATABASE|DIRECT_URL', key, re.I):
-                  secrets.append(value)
-                  if len(value) > 3:
-                      print('::add-mask::' + value.replace('\n', '%0A').replace('\r', '%0D'))
           def redact(text):
-              for secret in sorted(secrets, key=len, reverse=True):
-                  text = text.replace(secret, '[redacted]')
-              return re.sub(r'(postgres(?:ql)?://)[^\s@]+@', r'\1[redacted]@', text)
+              text = re.sub(r'(postgres(?:ql)?://)[^\s@]+@', r'\1[redacted]@', text)
+              text = re.sub(r'(?i)(password|token|secret|api[_-]?key)([\s:=]+)[^\s,;]+', r'\1\2[redacted]', text)
+              return re.sub(r'eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+', '[redacted-token]', text)
 
-          database_url = settings.get('DATABASE_URL', '')
-          parsed = urllib.parse.urlsplit(database_url)
-          if parsed.password:
-              secrets.extend([parsed.password, urllib.parse.unquote(parsed.password)])
           config = az('webapp', 'config', 'show', '-g', group, '-n', 'api-t')
-          print(json.dumps({'diagnostic': 'configuration', 'app': app['name'], 'state': app['state'], 'runtime': config.get('linuxFxVersion'), 'nodeEnv': settings.get('NODE_ENV'), 'databaseConfigured': bool(database_url), 'databaseHost': parsed.hostname, 'sslmode': urllib.parse.parse_qs(parsed.query).get('sslmode')}))
+          print(json.dumps({'diagnostic': 'runtime', 'app': app['name'], 'state': app['state'], 'runtime': config.get('linuxFxVersion')}))
 
           origin = 'https://front-end.brayanrodrigues713.workers.dev'
           base = 'https://' + app['defaultHostName']
@@ -84,32 +67,10 @@ jobs:
                           record = json.loads(line)
                       except ValueError:
                           continue
-                      allowed = {key: record[key] for key in ['timestamp', 'level', 'message', 'errorMessage', 'errorType', 'stack', 'sqlState', 'code', 'causeMessage'] if key in record}
+                      allowed = {key: record[key] for key in ['timestamp', 'level', 'message', 'errorMessage', 'errorType', 'sqlState', 'code', 'causeMessage'] if key in record}
                       print('SERVER_ERROR ' + redact(json.dumps(allowed)))
               except urllib.error.HTTPError as error:
                   print(json.dumps({'diagnostic': 'serverErrorLog', 'status': error.code}))
               except Exception as error:
                   print(redact(json.dumps({'diagnostic': 'serverErrorLog', 'error': str(error)})))
 
-          # Probe only the production connection setting, using a read-only transaction
-          # and a fictional address. No user row is returned or logged.
-          if database_url:
-              driver = os.path.join(os.environ['RUNNER_TEMP'], 'sportmap-diag/node_modules/pg/lib/index.js')
-              code = """
-          import pg from %s;
-          const pool = new pg.Pool({connectionString: process.env.DATABASE_URL, connectionTimeoutMillis: 10000, statement_timeout: 10000});
-          try {
-            const client = await pool.connect();
-            try {
-              await client.query('BEGIN READ ONLY');
-              await client.query('SELECT id,nome,sobrenome,username,email,senha_hash,foto_perfil_url,cidade,latitude,longitude,bio,created_at,updated_at,role,tipo_usuario_id,foto_perfil_data,foto_capa_data FROM public.usuarios WHERE email=$1 LIMIT 1', ['diagnostico-login@example.invalid']);
-              console.log(JSON.stringify({diagnostic:'databaseQuery',status:'ok'}));
-            } finally { await client.query('ROLLBACK'); client.release(); }
-          } catch(e) {
-            console.log(JSON.stringify({diagnostic:'databaseQuery',name:e.name,code:e.code,message:e.message}));
-          } finally { await pool.end(); }
-          """ % json.dumps(driver)
-              result = subprocess.run(['node', '--input-type=module', '-e', code], env={**os.environ, 'DATABASE_URL': database_url}, capture_output=True, text=True, timeout=40)
-              print(redact(result.stdout))
-              if result.returncode:
-                  print(json.dumps({'diagnostic': 'databaseProbeProcess', 'exitCode': result.returncode}))
