@@ -33,7 +33,7 @@ jobs:
         env:
           REPAIR_MODE: ${{ inputs.mode }}
         run: |
-          import base64, json, os, subprocess, urllib.request, urllib.error
+          import json, os, re, subprocess, urllib.request, urllib.error
 
           mode = os.environ['REPAIR_MODE']
           if mode not in ['inspect', 'apply']:
@@ -70,7 +70,7 @@ jobs:
               if (before.some(column => column.data_type !== 'text' || column.is_nullable !== 'YES')) {
                 console.log(JSON.stringify({diagnostic:'profileImages',status:'unexpected_column_definition'})); process.exitCode=1; return;
               }
-              if (process.argv[1] === 'apply') {
+              if (REPAIR_MODE === 'apply') {
                 phase = 'migration';
                 await client.query('BEGIN'); transaction = true;
                 await client.query("SET LOCAL lock_timeout = '5s'");
@@ -95,8 +95,12 @@ jobs:
             }
           })();
           """
-          encoded = base64.b64encode(code.encode()).decode()
-          command = 'node -e "eval(Buffer.from(\'' + encoded + '\',\'base64\').toString())" -- ' + mode
+          code = 'const REPAIR_MODE = ' + json.dumps(mode) + ';\n' + code
+          upload = urllib.request.Request('https://' + scm + '/api/vfs/site/wwwroot/.sportmap-profile-images-repair.cjs', data=code.encode(), method='PUT', headers={'Authorization': 'Bearer ' + token, 'If-Match': '*', 'Content-Type': 'application/javascript'})
+          with urllib.request.urlopen(upload, timeout=30) as response:
+              if response.status not in [200, 201, 204]:
+                  raise RuntimeError('Unable to prepare the reviewed Azure-side script')
+          command = 'node /home/site/wwwroot/.sportmap-profile-images-repair.cjs'
           body = json.dumps({'command': command, 'dir': '/home/site/wwwroot'}).encode()
           request = urllib.request.Request('https://' + scm + '/api/command', data=body, headers={'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json'})
           with urllib.request.urlopen(request, timeout=90) as response:
@@ -113,6 +117,9 @@ jobs:
           expected = 'applied' if mode == 'apply' else 'inspected'
           if result.get('ExitCode') != 0 or not any(record.get('status') == expected for record in observed):
               print(json.dumps({'diagnostic': 'commandResult', 'exitCode': result.get('ExitCode'), 'hasStderr': bool(result.get('Error'))}))
+              # Node startup errors cannot contain database results; redact URLs anyway.
+              stderr = re.sub(r'(postgres(?:ql)?://)[^\s@]+@', r'\1[redacted]@', (result.get('Error') or '')[:1000])
+              print(json.dumps({'diagnostic': 'runtimeError', 'message': stderr}))
               raise RuntimeError('Azure database operation failed; no secret output was exported')
 
           if mode == 'apply':
