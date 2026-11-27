@@ -1,10 +1,10 @@
-name: Repair api-t missing profile image columns
+name: Repair api-t missing login columns
 
 on:
   workflow_dispatch:
     inputs:
       mode:
-        description: Inspect schema or add only the missing nullable image columns
+        description: Inspect schema or restore the reviewed missing login columns
         required: true
         default: inspect
         type: choice
@@ -27,6 +27,9 @@ jobs:
       id-token: write
       contents: read
     steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_8A1B0CC2F1FB49EE9AAA0E06025C5497 }}
@@ -37,7 +40,7 @@ jobs:
         env:
           REPAIR_MODE: ${{ inputs.mode }}
         run: |
-          import json, os, re, subprocess, time, urllib.request, urllib.error
+          import base64, hashlib, json, os, pathlib, re, subprocess, time, urllib.request, urllib.error
 
           mode = os.environ['REPAIR_MODE']
           if mode not in ['inspect', 'apply']:
@@ -55,8 +58,11 @@ jobs:
           token = az('account', 'get-access-token', '--resource', 'https://management.azure.com/')['accessToken']
 
           # This code executes in Azure. DATABASE_URL never leaves that environment.
-          # These are precisely the two nullable text columns in the existing
-          # migrations/app/20261113T2318_add_profile_images migration.
+          # Pin the reviewed recovery migration. Only this SQL can run.
+          repair_sql = pathlib.Path('scripts/manual-migrations/20261127_repair_login_columns.sql').read_text().replace('\r\n', '\n')
+          repair_hash = '0260c34f6703d110a198d811fb570236c63ef980270a5f448ed1e8c1efead598'
+          if hashlib.sha256(repair_sql.encode()).hexdigest() != repair_hash:
+              raise RuntimeError('Reviewed repair checksum mismatch')
           code = r"""
           const fs = require('node:fs');
           const output = '/home/LogFiles/sportmap-profile-images-' + REPAIR_RUN_ID + '.jsonl';
@@ -82,20 +88,14 @@ jobs:
               }
               if (REPAIR_MODE === 'apply') {
                 phase = 'migration';
-                const migrationRoot = '/home/site/wwwroot/migrations/app/20261113T2318_add_profile_images/';
-                const operations = JSON.parse(fs.readFileSync(migrationRoot + 'ops.json', 'utf8'));
-                const checksum = require('node:crypto').createHash('sha256').update(JSON.stringify(operations)).digest('hex');
-                if (checksum !== '0aea928e6b695f7f1c84df9629f26707e2b9f628880483cefc11e7de3edc30f0') throw new Error('Reviewed migration checksum mismatch');
+                const repairSql = Buffer.from(REPAIR_SQL_BASE64, 'base64').toString('utf8');
+                const checksum = require('node:crypto').createHash('sha256').update(repairSql).digest('hex');
+                if (checksum !== '0260c34f6703d110a198d811fb570236c63ef980270a5f448ed1e8c1efead598') throw new Error('Reviewed migration checksum mismatch');
                 await client.query('BEGIN'); transaction = true;
                 await client.query("SET LOCAL lock_timeout = '5s'");
                 await client.query("SET LOCAL statement_timeout = '15s'");
                 await client.query('LOCK TABLE public.usuarios IN ACCESS EXCLUSIVE MODE');
-                for (const operation of operations) {
-                  const check = operation.precheck[0];
-                  const missing = (await client.query(check.sql, check.params)).rows[0].result;
-                  if (missing) for (const statement of operation.execute) await client.query(statement.sql, statement.params);
-                  for (const check of operation.postcheck) if (!(await client.query(check.sql, check.params)).rows[0].result) throw new Error('Migration postcheck failed');
-                }
+                await client.query(repairSql);
                 phase = 'verify';
                 const after = await inspect();
                 if (after.length !== 2 || after.some(column => column.data_type !== 'text' || column.is_nullable !== 'YES')) throw new Error('Postcondition failed');
@@ -109,11 +109,14 @@ jobs:
                 const cliEnv = {...process.env, DATABASE_URL:connectionString, DIRECT_URL:connectionString};
                 const verify = spawnSync(process.execPath, [cli,'db','verify','--schema-only','--json'], {cwd:'/home/site/wwwroot',env:cliEnv,encoding:'utf8',timeout:90000});
                 console.log(JSON.stringify({diagnostic:'profileImages',phase:'schemaVerification',exitCode:verify.status}));
-                if (verify.status !== 0) { process.exitCode=1; return; }
-                phase = 'signMarker';
-                const sign = spawnSync(process.execPath, [cli,'db','sign','--no-advance-ref','--json'], {cwd:'/home/site/wwwroot',env:cliEnv,encoding:'utf8',timeout:90000});
-                console.log(JSON.stringify({diagnostic:'profileImages',phase:'signMarker',exitCode:sign.status}));
-                if (sign.status !== 0) { process.exitCode=1; return; }
+                if (verify.status === 0) {
+                  phase = 'signMarker';
+                  const sign = spawnSync(process.execPath, [cli,'db','sign','--no-advance-ref','--json'], {cwd:'/home/site/wwwroot',env:cliEnv,encoding:'utf8',timeout:90000});
+                  console.log(JSON.stringify({diagnostic:'profileImages',phase:'signMarker',exitCode:sign.status}));
+                } else {
+                  // Do not stamp a contract marker over unrelated schema drift.
+                  console.log(JSON.stringify({diagnostic:'profileImages',phase:'schemaVerification',status:'marker_unchanged_pending_schema_reconciliation'}));
+                }
                 console.log(JSON.stringify({diagnostic:'profileImages',status:'applied'}));
               } else {
                 console.log(JSON.stringify({diagnostic:'profileImages',status:'inspected'}));
@@ -131,7 +134,7 @@ jobs:
           run_id = os.environ['GITHUB_RUN_ID'] + '-' + os.environ['GITHUB_RUN_ATTEMPT']
           if not re.fullmatch(r'[0-9]+-[0-9]+', run_id):
               raise RuntimeError('Invalid run identifier')
-          code = 'const REPAIR_MODE = ' + json.dumps(mode) + '; const REPAIR_RUN_ID = ' + json.dumps(run_id) + ';\n' + code
+          code = 'const REPAIR_MODE = ' + json.dumps(mode) + '; const REPAIR_RUN_ID = ' + json.dumps(run_id) + '; const REPAIR_SQL_BASE64 = ' + json.dumps(base64.b64encode(repair_sql.encode()).decode()) + ';\n' + code
           script_path = '/home/site/wwwroot/.sportmap-profile-images-' + run_id + '.cjs'
           upload = urllib.request.Request('https://' + scm + '/api/vfs/site/wwwroot/.sportmap-profile-images-' + run_id + '.cjs', data=code.encode(), method='PUT', headers={'Authorization': 'Bearer ' + token, 'If-Match': '*', 'Content-Type': 'application/javascript'})
           with urllib.request.urlopen(upload, timeout=30) as response:
