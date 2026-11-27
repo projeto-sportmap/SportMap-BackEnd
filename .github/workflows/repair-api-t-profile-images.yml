@@ -15,10 +15,14 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: repair-api-t-profile-images
+  cancel-in-progress: false
+
 jobs:
   repair:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 8
     permissions:
       id-token: write
       contents: read
@@ -33,7 +37,7 @@ jobs:
         env:
           REPAIR_MODE: ${{ inputs.mode }}
         run: |
-          import json, os, re, subprocess, urllib.request, urllib.error
+          import json, os, re, subprocess, time, urllib.request, urllib.error
 
           mode = os.environ['REPAIR_MODE']
           if mode not in ['inspect', 'apply']:
@@ -54,6 +58,10 @@ jobs:
           # These are precisely the two nullable text columns in the existing
           # migrations/app/20261113T2318_add_profile_images migration.
           code = r"""
+          const fs = require('node:fs');
+          const output = '/home/LogFiles/sportmap-profile-images-' + REPAIR_RUN_ID + '.jsonl';
+          fs.mkdirSync('/home/LogFiles', {recursive:true});
+          console.log = record => fs.appendFileSync(output, record + '\n');
           (async () => {
             let pool, client;
             let transaction = false;
@@ -72,17 +80,39 @@ jobs:
               }
               if (REPAIR_MODE === 'apply') {
                 phase = 'migration';
+                const migrationRoot = '/home/site/wwwroot/migrations/app/20261113T2318_add_profile_images/';
+                const operations = JSON.parse(fs.readFileSync(migrationRoot + 'ops.json', 'utf8'));
+                const checksum = require('node:crypto').createHash('sha256').update(JSON.stringify(operations)).digest('hex');
+                if (checksum !== '0aea928e6b695f7f1c84df9629f26707e2b9f628880483cefc11e7de3edc30f0') throw new Error('Reviewed migration checksum mismatch');
                 await client.query('BEGIN'); transaction = true;
                 await client.query("SET LOCAL lock_timeout = '5s'");
                 await client.query("SET LOCAL statement_timeout = '15s'");
-                await client.query('ALTER TABLE public.usuarios ADD COLUMN IF NOT EXISTS foto_perfil_data text, ADD COLUMN IF NOT EXISTS foto_capa_data text');
+                await client.query('LOCK TABLE public.usuarios IN ACCESS EXCLUSIVE MODE');
+                for (const operation of operations) {
+                  const check = operation.precheck[0];
+                  const missing = (await client.query(check.sql, check.params)).rows[0].result;
+                  if (missing) for (const statement of operation.execute) await client.query(statement.sql, statement.params);
+                  for (const check of operation.postcheck) if (!(await client.query(check.sql, check.params)).rows[0].result) throw new Error('Migration postcheck failed');
+                }
                 phase = 'verify';
                 const after = await inspect();
                 if (after.length !== 2 || after.some(column => column.data_type !== 'text' || column.is_nullable !== 'YES')) throw new Error('Postcondition failed');
                 // Exercise the same columns as the login query without reading a user.
                 await client.query('SELECT id,nome,sobrenome,username,email,senha_hash,foto_perfil_url,cidade,latitude,longitude,bio,created_at,updated_at,role,tipo_usuario_id,foto_perfil_data,foto_capa_data FROM public.usuarios WHERE email=$1 LIMIT 1', ['diagnostico-login@example.invalid']);
                 await client.query('COMMIT'); transaction = false;
-                console.log(JSON.stringify({diagnostic:'profileImages',phase:'after',columns:after,status:'applied'}));
+                console.log(JSON.stringify({diagnostic:'profileImages',phase:'after',columns:after,status:'columns_repaired'}));
+                phase = 'schemaVerification';
+                const {spawnSync} = require('node:child_process');
+                const cli = '/home/site/wwwroot/node_modules/prisma/dist/prisma.js';
+                const cliEnv = {...process.env, DATABASE_URL:connectionString, DIRECT_URL:connectionString};
+                const verify = spawnSync(process.execPath, [cli,'db','verify','--schema-only','--json'], {cwd:'/home/site/wwwroot',env:cliEnv,encoding:'utf8',timeout:90000});
+                console.log(JSON.stringify({diagnostic:'profileImages',phase:'schemaVerification',exitCode:verify.status}));
+                if (verify.status !== 0) { process.exitCode=1; return; }
+                phase = 'signMarker';
+                const sign = spawnSync(process.execPath, [cli,'db','sign','--no-advance-ref','--json'], {cwd:'/home/site/wwwroot',env:cliEnv,encoding:'utf8',timeout:90000});
+                console.log(JSON.stringify({diagnostic:'profileImages',phase:'signMarker',exitCode:sign.status}));
+                if (sign.status !== 0) { process.exitCode=1; return; }
+                console.log(JSON.stringify({diagnostic:'profileImages',status:'applied'}));
               } else {
                 console.log(JSON.stringify({diagnostic:'profileImages',status:'inspected'}));
               }
@@ -92,19 +122,41 @@ jobs:
             } finally {
               if (client) { if (transaction) await client.query('ROLLBACK'); client.release(); }
               if (pool) await pool.end();
+              fs.appendFileSync(output, JSON.stringify({diagnostic:'profileImages',phase:'complete',exitCode:process.exitCode || 0}) + '\n');
             }
           })();
           """
-          code = 'const REPAIR_MODE = ' + json.dumps(mode) + ';\n' + code
-          upload = urllib.request.Request('https://' + scm + '/api/vfs/site/wwwroot/.sportmap-profile-images-repair.cjs', data=code.encode(), method='PUT', headers={'Authorization': 'Bearer ' + token, 'If-Match': '*', 'Content-Type': 'application/javascript'})
+          run_id = os.environ['GITHUB_RUN_ID'] + '-' + os.environ['GITHUB_RUN_ATTEMPT']
+          if not re.fullmatch(r'[0-9]+-[0-9]+', run_id):
+              raise RuntimeError('Invalid run identifier')
+          code = 'const REPAIR_MODE = ' + json.dumps(mode) + '; const REPAIR_RUN_ID = ' + json.dumps(run_id) + ';\n' + code
+          script_path = '/home/site/wwwroot/.sportmap-profile-images-' + run_id + '.cjs'
+          upload = urllib.request.Request('https://' + scm + '/api/vfs/site/wwwroot/.sportmap-profile-images-' + run_id + '.cjs', data=code.encode(), method='PUT', headers={'Authorization': 'Bearer ' + token, 'If-Match': '*', 'Content-Type': 'application/javascript'})
           with urllib.request.urlopen(upload, timeout=30) as response:
               if response.status not in [200, 201, 204]:
                   raise RuntimeError('Unable to prepare the reviewed Azure-side script')
-          command = 'node /home/site/wwwroot/.sportmap-profile-images-repair.cjs'
-          body = json.dumps({'command': command, 'dir': '/home/site/wwwroot'}).encode()
-          request = urllib.request.Request('https://' + scm + '/api/command', data=body, headers={'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json'})
-          with urllib.request.urlopen(request, timeout=90) as response:
-              result = json.load(response)
+          instances = az('webapp', 'list-instances', '-g', app['resourceGroup'], '-n', 'api-t')
+          instance = instances[0]['name']
+          # Kudu and the main app have different dependencies. Execute in the
+          # main app, then independently check its unique completion record.
+          submission = subprocess.run(['az','webapp','exec','-g',app['resourceGroup'],'-n','api-t','--mode','execute','--command','node ' + script_path,'--working-directory','/home/site/wwwroot','--instance',instance,'--only-show-errors'], capture_output=True, text=True, timeout=60)
+          if submission.returncode:
+              print(json.dumps({'diagnostic':'executeSubmission','exitCode':submission.returncode,'error':submission.stderr[:600]}))
+              raise RuntimeError('Unable to submit the Azure-side command')
+          result = {'Output': ''}
+          completed = False
+          for attempt in range(75):
+              request = urllib.request.Request('https://' + scm + '/api/vfs/LogFiles/sportmap-profile-images-' + run_id + '.jsonl', headers={'Authorization': 'Bearer ' + token})
+              try:
+                  with urllib.request.urlopen(request, timeout=15) as response:
+                      result['Output'] = response.read(65536).decode()
+                  if any(json.loads(line).get('phase') == 'complete' for line in result['Output'].splitlines() if line.strip()):
+                      completed = True
+                      break
+              except urllib.error.HTTPError as error:
+                  if error.code != 404:
+                      raise
+              time.sleep(2)
           observed = []
           for line in (result.get('Output') or '').splitlines():
               try:
@@ -115,11 +167,8 @@ jobs:
                   observed.append(record)
                   print(json.dumps(record))
           expected = 'applied' if mode == 'apply' else 'inspected'
-          if result.get('ExitCode') != 0 or not any(record.get('status') == expected for record in observed):
-              print(json.dumps({'diagnostic': 'commandResult', 'exitCode': result.get('ExitCode'), 'hasStderr': bool(result.get('Error'))}))
-              # Node startup errors cannot contain database results; redact URLs anyway.
-              stderr = re.sub(r'(postgres(?:ql)?://)[^\s@]+@', r'\1[redacted]@', (result.get('Error') or '')[:1000])
-              print(json.dumps({'diagnostic': 'runtimeError', 'message': stderr}))
+          if not completed or not any(record.get('status') == expected for record in observed) or not any(record.get('phase') == 'complete' and record.get('exitCode') == 0 for record in observed):
+              print(json.dumps({'diagnostic': 'commandResult', 'completed': completed}))
               raise RuntimeError('Azure database operation failed; no secret output was exported')
 
           if mode == 'apply':
