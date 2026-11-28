@@ -6,6 +6,7 @@ export interface CreateComunidadeInput {
   bio?: string | null;
   fotoUrl?: string | null;
   esporteId?: number | null;
+  esporteNome?: string | null; // o front envia o nome do esporte
 }
 
 export type UpdateComunidadeInput = Partial<CreateComunidadeInput>;
@@ -26,6 +27,15 @@ export const toPublicComunidade = (c: ComunidadeRow) => ({
   updatedAt: c.updatedAt,
 });
 
+/** Converte esporteNome em esporteId. Retorna null se não achar. */
+async function resolverEsporteId(esporteId?: number | null, esporteNome?: string | null) {
+  if (esporteId) return esporteId;
+  if (!esporteNome) return null;
+
+  const esporte = await db.orm.public.Esportes.first({ nome: esporteNome });
+  return esporte?.id ?? null;
+}
+
 async function garantirNomeUnico(criadorId: number, nome: string, idAtual?: number) {
   const existente = await db.orm.public.Comunidades.first({
     criadorId: toBigInt(criadorId),
@@ -41,6 +51,49 @@ export async function getComunidadeById(id: number) {
   const comunidade = await db.orm.public.Comunidades.first({ id: toBigInt(id) });
   if (!comunidade) throw new HttpError(404, 'Comunidade não encontrada.');
   return comunidade;
+}
+
+/** Comunidade + esporte, contagens e o papel do usuário logado. */
+export async function getComunidadeDetalhe(id: number, usuarioId: number) {
+  const comunidade = await getComunidadeById(id);
+
+  const participantes = await db.orm.public.ComunidadeParticipantes
+    .where({ comunidadeId: toBigInt(id) })
+    .all();
+
+  const meu = participantes.find((p) => p.usuarioId === toBigInt(usuarioId));
+
+  const esporte = comunidade.esporteId
+    ? await db.orm.public.Esportes.first({ id: comunidade.esporteId })
+    : null;
+
+  return {
+    ...toPublicComunidade(comunidade),
+    esporteNome: esporte?.nome ?? null,
+    totalMembros: participantes.length,
+    totalAdministradores: participantes.filter((p) => p.papel === 'admin').length,
+    ehMembro: !!meu,
+    ehAdmin: meu?.papel === 'admin',
+  };
+}
+
+/** Publicações feitas dentro da comunidade (mais recentes primeiro). */
+export async function getPublicacoesDaComunidade(id: number) {
+  await getComunidadeById(id);
+
+  const publicacoes = await db.orm.public.Publicacoes
+    .where({ comunidadeId: toBigInt(id) })
+    .all();
+
+  return publicacoes
+    .map((p) => ({
+      id: String(p.id),
+      usuarioId: String(p.usuarioId),
+      esporteId: p.esporteId,
+      conteudo: p.conteudo,
+      createdAt: p.createdAt,
+    }))
+    .sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt));
 }
 
 /** Garante que a comunidade existe e que o usuário é o criador. */
@@ -61,12 +114,14 @@ export async function getAllComunidades() {
 export async function createComunidade(criadorId: number, data: CreateComunidadeInput) {
   await garantirNomeUnico(criadorId, data.nome);
 
+  const esporteId = await resolverEsporteId(data.esporteId, data.esporteNome);
+
   const comunidade = await db.orm.public.Comunidades.create({
     criadorId: toBigInt(criadorId) as ComunidadeRow['criadorId'],
     nome: data.nome as ComunidadeRow['nome'],
     bio: (data.bio ?? null) as ComunidadeRow['bio'],
     fotoUrl: (data.fotoUrl ?? null) as ComunidadeRow['fotoUrl'],
-    esporteId: (data.esporteId ?? null) as ComunidadeRow['esporteId'],
+    esporteId: esporteId as ComunidadeRow['esporteId'],
   });
 
   // O criador entra automaticamente como admin da comunidade
@@ -90,7 +145,11 @@ export async function updateComunidade(id: number, usuarioId: number, data: Upda
   if (data.nome !== undefined) changes.nome = data.nome as ComunidadeRow['nome'];
   if (data.bio !== undefined) changes.bio = data.bio as ComunidadeRow['bio'];
   if (data.fotoUrl !== undefined) changes.fotoUrl = data.fotoUrl as ComunidadeRow['fotoUrl'];
-  if (data.esporteId !== undefined) changes.esporteId = data.esporteId as ComunidadeRow['esporteId'];
+
+  if (data.esporteId !== undefined || data.esporteNome !== undefined) {
+    const esporteId = await resolverEsporteId(data.esporteId, data.esporteNome);
+    changes.esporteId = esporteId as ComunidadeRow['esporteId'];
+  }
 
   if (Object.keys(changes).length === 0) throw new HttpError(400, 'Informe pelo menos um campo.');
 

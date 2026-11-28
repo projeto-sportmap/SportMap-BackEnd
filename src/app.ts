@@ -4,6 +4,7 @@ import helmet from 'helmet';
 
 import routes from './routes/index.js';
 import feedRouter from './routes/feed.route.js';
+import comunidadesRouter from './routes/comunidades.route.js';
 import { env } from './config/env.js';
 import { corsMiddleware } from './middlewares/cors.middleware.js';
 import { morganMiddleware } from './middlewares/morgan.middleware.js';
@@ -67,6 +68,9 @@ app.use(routes);
 
 // Feed (publicações + eventos).
 app.use(feedRouter);
+
+// Comunidades.
+app.use(comunidadesRouter);
 
 // Documentação da API com Swagger.
 setupSwagger(app);

@@ -26,9 +26,18 @@ export const getAllComunidades = async (_req: Request, res: Response) => {
 };
 
 export const getComunidadeById = async (req: Request, res: Response) => {
-  const comunidade = await ComunidadesService.getComunidadeById(readId(req));
+  const comunidade = await ComunidadesService.getComunidadeDetalhe(
+    readId(req),
+    Number(res.locals.userId),
+  );
 
-  res.json(ComunidadesService.toPublicComunidade(comunidade));
+  res.json(comunidade);
+};
+
+export const getPublicacoesDaComunidade = async (req: Request, res: Response) => {
+  const publicacoes = await ComunidadesService.getPublicacoesDaComunidade(readId(req));
+
+  res.json(publicacoes);
 };
 
 export const updateComunidade = async (req: Request, res: Response) => {
