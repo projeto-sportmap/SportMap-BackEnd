@@ -2,6 +2,12 @@ name: Diagnose api-t login (read only)
 
 on:
   workflow_dispatch:
+    inputs:
+      account_email:
+        description: Optional account email for read-only existence and password-format checks
+        required: false
+        default: ''
+        type: string
 
 permissions:
   contents: read
@@ -21,8 +27,10 @@ jobs:
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_A12B8278B3C240F38CCFC4A195C09449 }}
       - name: Read server error codes without reading application secrets
         shell: python
+        env:
+          ACCOUNT_EMAIL: ${{ inputs.account_email }}
         run: |
-          import json, re, subprocess, urllib.request, urllib.error
+          import json, os, re, subprocess, time, urllib.request, urllib.error
 
           def az(*args):
               result = subprocess.run(['az', *args, '--only-show-errors', '-o', 'json'], capture_output=True, text=True, timeout=60)
@@ -73,4 +81,73 @@ jobs:
                   print(json.dumps({'diagnostic': 'serverErrorLog', 'status': error.code}))
               except Exception as error:
                   print(redact(json.dumps({'diagnostic': 'serverErrorLog', 'error': str(error)})))
+
+          email = os.environ.get('ACCOUNT_EMAIL', '').strip().lower()
+          if email:
+              if not scm or len(email) > 255 or not re.fullmatch(r'[^\s@]+@[^\s@]+\.[^\s@]+', email):
+                  raise RuntimeError('Invalid account diagnostic request')
+              run_id = os.environ['GITHUB_RUN_ID'] + '-' + os.environ['GITHUB_RUN_ATTEMPT']
+              if not re.fullmatch(r'[0-9]+-[0-9]+', run_id):
+                  raise RuntimeError('Invalid run identifier')
+              code = r"""
+          const fs = require('node:fs');
+          const output = '/home/LogFiles/sportmap-account-diagnostic-' + RUN_ID + '.json';
+          (async () => {
+            let pool, client;
+            let transaction = false;
+            let result;
+            try {
+              const {Pool} = require('pg');
+              const url = process.env.DATABASE_URL || process.env.APPSETTING_DATABASE_URL;
+              if (!url) throw new Error('Database environment unavailable');
+              pool = new Pool({connectionString:url,connectionTimeoutMillis:10000,statement_timeout:10000});
+              client = await pool.connect();
+              await client.query('BEGIN READ ONLY'); transaction = true;
+              const {rows} = await client.query('SELECT senha_hash, email=$1 AS exact FROM public.usuarios WHERE lower(btrim(email))=$1 LIMIT 2', [ACCOUNT_EMAIL]);
+              const exact = rows.find(row => row.exact);
+              result = {
+                diagnostic:'account',
+                exactAccountFound:!!exact,
+                normalizedAccountFound:rows.length > 0,
+                normalizedAccountAmbiguous:rows.length > 1,
+                bcryptFormatValid:exact ? /^\$2[aby]\$\d{2}\$[./A-Za-z0-9]{53}$/.test(exact.senha_hash) : null,
+                exitCode:0
+              };
+            } catch(error) {
+              result = {diagnostic:'account',exitCode:1,name:error.name,code:error.code};
+            } finally {
+              if(client) { if(transaction) await client.query('ROLLBACK'); client.release(); }
+              if(pool) await pool.end();
+              fs.mkdirSync('/home/LogFiles',{recursive:true});
+              fs.writeFileSync(output,JSON.stringify(result));
+              fs.unlinkSync(__filename);
+            }
+          })();
+          """
+              code = 'const ACCOUNT_EMAIL = ' + json.dumps(email) + '; const RUN_ID = ' + json.dumps(run_id) + ';\n' + code
+              script_name = '.sportmap-account-diagnostic-' + run_id + '.cjs'
+              upload = urllib.request.Request('https://' + scm + '/api/vfs/site/wwwroot/' + script_name, data=code.encode(), method='PUT', headers={'Authorization':'Bearer ' + token,'If-Match':'*','Content-Type':'application/javascript'})
+              with urllib.request.urlopen(upload, timeout=30) as response:
+                  if response.status not in [200,201,204]:
+                      raise RuntimeError('Unable to prepare account diagnostic')
+              instances = az('webapp','list-instances','-g',group,'-n','api-t')
+              submission = subprocess.run(['az','webapp','exec','-g',group,'-n','api-t','--mode','execute','--command','node /home/site/wwwroot/' + script_name,'--working-directory','/home/site/wwwroot','--instance',instances[0]['name'],'--only-show-errors'],capture_output=True,text=True,timeout=60)
+              if submission.returncode:
+                  raise RuntimeError('Account diagnostic submission failed')
+              account_result = None
+              for attempt in range(45):
+                  request = urllib.request.Request('https://' + scm + '/api/vfs/LogFiles/sportmap-account-diagnostic-' + run_id + '.json',headers={'Authorization':'Bearer ' + token})
+                  try:
+                      with urllib.request.urlopen(request,timeout=15) as response:
+                          account_result = json.load(response)
+                      break
+                  except urllib.error.HTTPError as error:
+                      if error.code != 404:
+                          raise
+                  time.sleep(2)
+              if account_result is None:
+                  raise RuntimeError('Account diagnostic did not complete')
+              print(json.dumps(account_result))
+              if account_result.get('exitCode') != 0:
+                  raise RuntimeError('Account diagnostic failed')
 

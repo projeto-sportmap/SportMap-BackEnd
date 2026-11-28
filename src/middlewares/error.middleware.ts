@@ -5,7 +5,7 @@ import { logger } from '../config/logger.js';
 
 export const errorHandler: ErrorRequestHandler = (
   error: unknown,
-  _req,
+  req,
   res,
   next,
 ) => {
@@ -26,6 +26,8 @@ export const errorHandler: ErrorRequestHandler = (
   const err = error as {
     status?: number;
     sqlState?: string;
+    code?: string;
+    cause?: unknown;
   } | null;
 
   if (err?.sqlState === '23505') {
@@ -52,9 +54,13 @@ export const errorHandler: ErrorRequestHandler = (
   logger.error('Erro interno na API.', {
     errorType:
       error instanceof Error ? error.name : 'unknown',
-    message: error instanceof Error ? error.message : String(error),
+    errorMessage: error instanceof Error ? error.message : String(error),
     stack: error instanceof Error ? error.stack : undefined,
     sqlState: err?.sqlState,
+    code: err?.code,
+    causeMessage: err?.cause instanceof Error ? err.cause.message : undefined,
+    method: req.method,
+    path: req.path,
   });
 
   res.status(500).json({
